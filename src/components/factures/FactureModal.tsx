@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Trash2, Plus, Settings, Save, ArrowUpRight } from "lucide-react";
+import { Trash2, Plus, Settings, Save, ArrowUpRight, X } from "lucide-react";
 import { FactureSettingsPanel } from "./FactureSettingsPanel";
 
 interface FactureModalProps {
@@ -220,7 +220,11 @@ export function FactureModal({
             size="icon"
             onClick={() => setShowSettings(!showSettings)}
           >
-            <Settings className="h-4 w-4" />
+            {showSettings ? (
+              <X className="h-4 w-4" />
+            ) : (
+              <Settings className="h-4 w-4" />
+            )}
           </Button>
         </div>
 
