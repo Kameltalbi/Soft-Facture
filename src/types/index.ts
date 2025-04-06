@@ -33,6 +33,8 @@ export interface LigneProduit {
   quantite: number;
   prixUnitaire: number;
   tauxTVA: number;
+  montantTVA?: number; // Added field for direct tax amount
+  estTauxTVA: boolean; // Flag to determine if TVA is a rate or an amount
   remise?: number;
   sousTotal: number;
 }
@@ -70,4 +72,5 @@ export interface Parametre {
   prefixeFacture: string;
   appliquerTVAParDefaut: boolean;
   tauxTVAParDefaut: number;
+  taxeEnValeur: boolean; // Added field to determine the default tax input mode
 }

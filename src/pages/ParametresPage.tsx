@@ -1,4 +1,3 @@
-
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,9 +7,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CircleDollarSign, Image, Save, Upload } from "lucide-react";
+import { CircleDollarSign, Image, Save, Upload, Percent, BadgePercent } from "lucide-react";
+import { useState } from "react";
 
 const ParametresPage = () => {
+  const [taxeEnValeur, setTaxeEnValeur] = useState(false);
+
   return (
     <MainLayout title="Paramètres">
       <div className="flex items-center justify-between mb-6">
@@ -254,21 +256,44 @@ const ParametresPage = () => {
                 <Switch id="applyVAT" defaultChecked />
               </div>
 
+              <div className="flex items-center justify-between border-t pt-4">
+                <div>
+                  <Label htmlFor="taxeEnValeur" className="text-base font-medium">
+                    Taxe en valeur par défaut
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Activez cette option pour saisir les taxes en montant plutôt qu'en pourcentage
+                  </p>
+                </div>
+                <Switch 
+                  id="taxeEnValeur" 
+                  checked={taxeEnValeur} 
+                  onCheckedChange={setTaxeEnValeur}
+                />
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="defaultVATRate">Taux de TVA par défaut</Label>
+                  <Label htmlFor="defaultVATRate">
+                    {taxeEnValeur ? "Montant de taxe par défaut" : "Taux de TVA par défaut"}
+                  </Label>
                   <div className="flex">
                     <Input
                       id="defaultVATRate"
                       type="number"
                       min="0"
-                      max="100"
-                      defaultValue="20"
+                      max={taxeEnValeur ? undefined : 100}
+                      defaultValue={taxeEnValeur ? "0" : "20"}
                       className="rounded-r-none"
                     />
                     <div className="flex items-center justify-center px-3 border border-l-0 rounded-r-md bg-muted">
-                      <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span className="ml-1">%</span>
+                      {taxeEnValeur ? (
+                        <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <>
+                          <Percent className="h-4 w-4 text-muted-foreground" />
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>

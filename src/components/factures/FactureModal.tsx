@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Trash2, Plus, Settings, Save, ArrowUpRight, X } from "lucide-react";
 import { FactureSettingsPanel } from "./FactureSettingsPanel";
+import { TaxeInput } from "./TaxeInput";
 
 interface FactureModalProps {
   open: boolean;
@@ -123,7 +125,7 @@ export function FactureModal({
 
   const isEditing = factureId !== null;
 
-  // Lignes de produits fictives
+  // Lignes de produits avec ajout des nouveaux champs pour la TVA
   const [productLines, setProductLines] = useState([
     {
       id: "1",
@@ -131,6 +133,8 @@ export function FactureModal({
       quantity: 1,
       unitPrice: 1200,
       tva: 20,
+      montantTVA: 0,
+      estTauxTVA: true, // Par défaut, on utilise un taux de TVA
       discount: 0,
       total: 1200,
     },
@@ -143,6 +147,8 @@ export function FactureModal({
       quantity: 1,
       unitPrice: 0,
       tva: 20,
+      montantTVA: 0,
+      estTauxTVA: true,
       discount: 0,
       total: 0,
     };
@@ -153,15 +159,52 @@ export function FactureModal({
     setProductLines(productLines.filter((line) => line.id !== id));
   };
 
+  // Handler for tax input changes
+  const handleTaxChange = (id: string, value: number, estTauxTVA: boolean) => {
+    setProductLines(productLines.map((line) => {
+      if (line.id === id) {
+        return { 
+          ...line, 
+          tva: estTauxTVA ? value : line.tva,
+          montantTVA: !estTauxTVA ? value : line.montantTVA,
+          estTauxTVA: estTauxTVA
+        };
+      }
+      return line;
+    }));
+  };
+
+  // Handler for changing tax mode
+  const handleTaxModeChange = (id: string, estTauxTVA: boolean) => {
+    setProductLines(productLines.map((line) => {
+      if (line.id === id) {
+        return { 
+          ...line, 
+          estTauxTVA,
+          // Reset the value when changing modes to avoid confusion
+          tva: estTauxTVA ? 20 : line.tva,
+          montantTVA: !estTauxTVA ? 0 : line.montantTVA
+        };
+      }
+      return line;
+    }));
+  };
+
   const subtotal = productLines.reduce(
     (sum, line) => sum + line.quantity * line.unitPrice,
     0
   );
 
+  // Calculate TVA based on rate or fixed amount depending on the estTauxTVA flag
   const totalTVA = applyTVA
     ? productLines.reduce(
-        (sum, line) =>
-          sum + line.quantity * line.unitPrice * (line.tva / 100),
+        (sum, line) => {
+          if (line.estTauxTVA) {
+            return sum + line.quantity * line.unitPrice * (line.tva / 100);
+          } else {
+            return sum + line.montantTVA;
+          }
+        },
         0
       )
     : 0;
@@ -328,7 +371,7 @@ export function FactureModal({
                           </TableHead>
                           {applyTVA && (
                             <TableHead className="text-center">
-                              TVA (%)
+                              TVA
                             </TableHead>
                           )}
                           {showDiscount && (
@@ -371,12 +414,15 @@ export function FactureModal({
                             </TableCell>
                             {applyTVA && (
                               <TableCell className="text-center">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  max="100"
-                                  defaultValue={line.tva.toString()}
-                                  className="w-16 mx-auto text-center"
+                                <TaxeInput 
+                                  value={line.estTauxTVA ? line.tva : line.montantTVA}
+                                  onChange={(value, estTauxTVA) => 
+                                    handleTaxChange(line.id, value, estTauxTVA)
+                                  }
+                                  estTauxTVA={line.estTauxTVA}
+                                  onModeChange={(estTauxTVA) => 
+                                    handleTaxModeChange(line.id, estTauxTVA)
+                                  }
                                 />
                               </TableCell>
                             )}
@@ -528,7 +574,7 @@ export function FactureModal({
                           </th>
                           {applyTVA && (
                             <th className="text-right py-2 font-semibold">
-                              TVA (%)
+                              TVA
                             </th>
                           )}
                           {showDiscount && (
@@ -552,7 +598,12 @@ export function FactureModal({
                               {line.unitPrice.toLocaleString("fr-FR")} €
                             </td>
                             {applyTVA && (
-                              <td className="py-3 text-right">{line.tva}%</td>
+                              <td className="py-3 text-right">
+                                {line.estTauxTVA 
+                                  ? `${line.tva}%` 
+                                  : `${line.montantTVA.toLocaleString("fr-FR")} €`
+                                }
+                              </td>
                             )}
                             {showDiscount && (
                               <td className="py-3 text-right">
