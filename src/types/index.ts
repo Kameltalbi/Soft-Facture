@@ -25,6 +25,14 @@ export interface Categorie {
   nom: string;
 }
 
+// Tax Types
+export interface TaxePersonnalisee {
+  id: string;
+  nom: string;
+  montant: number;
+  estMontantFixe: boolean;
+}
+
 // Invoice Types
 export interface LigneProduit {
   id: string;
@@ -73,4 +81,5 @@ export interface Parametre {
   appliquerTVAParDefaut: boolean;
   tauxTVAParDefaut: number;
   taxeEnValeur: boolean; // Added field to determine the default tax input mode
+  taxesPersonnalisees?: TaxePersonnalisee[]; // Added field to store custom taxes
 }

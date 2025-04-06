@@ -1,3 +1,4 @@
+
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,11 +8,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CircleDollarSign, Image, Save, Upload, Percent, BadgePercent } from "lucide-react";
+import { CircleDollarSign, Image, Save, Upload, Percent } from "lucide-react";
 import { useState } from "react";
+import { TaxePersonnaliseeManager } from "@/components/taxes/TaxePersonnaliseeManager";
+import { TaxePersonnalisee } from "@/types";
 
 const ParametresPage = () => {
   const [taxeEnValeur, setTaxeEnValeur] = useState(false);
+  const [taxesPersonnalisees, setTaxesPersonnalisees] = useState<TaxePersonnalisee[]>([
+    { id: "1", nom: "TVA standard", montant: 20, estMontantFixe: false },
+    { id: "2", nom: "Éco-contribution", montant: 5, estMontantFixe: true }
+  ]);
 
   return (
     <MainLayout title="Paramètres">
@@ -290,9 +297,7 @@ const ParametresPage = () => {
                       {taxeEnValeur ? (
                         <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
                       ) : (
-                        <>
-                          <Percent className="h-4 w-4 text-muted-foreground" />
-                        </>
+                        <Percent className="h-4 w-4 text-muted-foreground" />
                       )}
                     </div>
                   </div>
@@ -352,6 +357,11 @@ const ParametresPage = () => {
                   </div>
                 </div>
               </div>
+
+              <TaxePersonnaliseeManager 
+                taxes={taxesPersonnalisees}
+                onTaxesChange={setTaxesPersonnalisees}
+              />
 
               <div className="flex justify-end">
                 <Button>
