@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +24,7 @@ export function FactureModal({
   const [applyTVA, setApplyTVA] = useState(true);
   const [showDiscount, setShowDiscount] = useState(false);
   const [showAdvancePayment, setShowAdvancePayment] = useState(false);
+  const [advancePaymentAmount, setAdvancePaymentAmount] = useState(0);
   const [currency, setCurrency] = useState("EUR");
 
   const isEditing = factureId !== null;
@@ -73,10 +73,30 @@ export function FactureModal({
     : 0;
 
   const totalTTC = subtotal + totalTVA;
+  
+  // Calculate the final amount due after subtracting advance payment
+  const finalAmount = totalTTC - advancePaymentAmount;
+
+  // Handle advance payment change
+  const handleAdvancePaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value) || 0;
+    setAdvancePaymentAmount(value > totalTTC ? totalTTC : value);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[95vw] sm:max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="sr-only">
+            {isEditing ? "Modifier la facture" : "Nouvelle facture"}
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            {isEditing
+              ? "Modifiez les détails de la facture existante"
+              : "Créez une nouvelle facture pour un client"}
+          </DialogDescription>
+        </DialogHeader>
+        
         <div className="flex justify-between items-start mb-6">
           <div>
             <h2 className="text-2xl font-bold">
@@ -298,14 +318,25 @@ export function FactureModal({
                       </div>
                     )}
                     {showAdvancePayment && (
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center">
                         <span>Avance perçue</span>
-                        <span>0.00 €</span>
+                        <div className="w-24 flex items-center">
+                          <Input
+                            type="number"
+                            min="0"
+                            max={totalTTC}
+                            step="0.01"
+                            value={advancePaymentAmount}
+                            onChange={handleAdvancePaymentChange}
+                            className="w-full text-right pr-1"
+                          />
+                          <span className="ml-1">€</span>
+                        </div>
                       </div>
                     )}
                     <div className="flex justify-between pt-2 border-t font-bold">
                       <span>Total TTC</span>
-                      <span>{totalTTC.toLocaleString("fr-FR")} €</span>
+                      <span>{showAdvancePayment ? finalAmount.toLocaleString("fr-FR") : totalTTC.toLocaleString("fr-FR")} €</span>
                     </div>
                   </div>
                 </div>
@@ -447,12 +478,12 @@ export function FactureModal({
                       {showAdvancePayment && (
                         <div className="flex justify-between py-1">
                           <span>Avance perçue</span>
-                          <span>0.00 €</span>
+                          <span>{advancePaymentAmount.toLocaleString("fr-FR")} €</span>
                         </div>
                       )}
                       <div className="flex justify-between py-2 border-t border-t-gray-300 font-bold">
                         <span>Total TTC</span>
-                        <span>{totalTTC.toLocaleString("fr-FR")} €</span>
+                        <span>{showAdvancePayment ? finalAmount.toLocaleString("fr-FR") : totalTTC.toLocaleString("fr-FR")} €</span>
                       </div>
                     </div>
                   </div>
