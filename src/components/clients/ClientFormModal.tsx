@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +38,9 @@ export function ClientFormModal({
           <DialogTitle>
             {isEditing ? "Modifier le client" : "Nouveau client"}
           </DialogTitle>
+          <DialogDescription>
+            Renseignez les informations du client pour la facturation
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
@@ -78,6 +82,20 @@ export function ClientFormModal({
                 placeholder="06 XX XX XX XX"
                 defaultValue={isEditing ? "06 12 34 56 78" : ""}
               />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="tva">N° TVA</Label>
+              <Input
+                id="tva"
+                placeholder="FR12345678900"
+                defaultValue={isEditing ? "FR12345678901" : ""}
+              />
+            </div>
+            <div className="space-y-2">
+              {/* This empty div maintains the grid layout */}
             </div>
           </div>
 

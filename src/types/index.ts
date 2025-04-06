@@ -7,6 +7,7 @@ export interface Client {
   email: string;
   telephone?: string;
   adresse?: string;
+  tva?: string;
 }
 
 // Product Types
