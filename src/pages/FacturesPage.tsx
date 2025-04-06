@@ -71,9 +71,30 @@ const facturesDemo = [
   },
 ];
 
+// Helper function to get currency symbol
+const getCurrencySymbol = (currency: string): string => {
+  switch (currency) {
+    case "TND":
+      return "TND";
+    case "EUR":
+      return "€";
+    case "USD":
+      return "$";
+    case "GBP":
+      return "£";
+    case "CHF":
+      return "CHF";
+    case "CAD":
+      return "C$";
+    default:
+      return currency;
+  }
+};
+
 const FacturesPage = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedFacture, setSelectedFacture] = useState<string | null>(null);
+  const currencySymbol = getCurrencySymbol("TND"); // Default to TND
 
   const handleCreateInvoice = () => {
     setSelectedFacture(null);
@@ -170,7 +191,7 @@ const FacturesPage = () => {
                     {new Date(facture.dateEcheance).toLocaleDateString("fr-FR")}
                   </TableCell>
                   <TableCell className="text-right">
-                    {facture.totalTTC.toLocaleString("fr-FR")} €
+                    {facture.totalTTC.toLocaleString("fr-FR")} {currencySymbol}
                   </TableCell>
                   <TableCell>
                     <span

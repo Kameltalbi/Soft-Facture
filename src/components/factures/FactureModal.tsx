@@ -76,7 +76,7 @@ const numeroEnLettres = (nombre: number): string => {
 };
 
 // Formatte un montant en lettres avec la devise
-const montantEnLettres = (montant: number, devise: string = "EUR"): string => {
+const montantEnLettres = (montant: number, devise: string = "TND"): string => {
   const entier = Math.floor(montant);
   const centimes = Math.round((montant - entier) * 100);
   
@@ -84,6 +84,9 @@ const montantEnLettres = (montant: number, devise: string = "EUR"): string => {
   
   // Ajouter la devise
   switch (devise) {
+    case "TND":
+      result += " dinar" + (entier > 1 ? "s" : "") + " tunisien" + (entier > 1 ? "s" : "");
+      break;
     case "EUR":
       result += " euro" + (entier > 1 ? "s" : "");
       break;
@@ -105,10 +108,30 @@ const montantEnLettres = (montant: number, devise: string = "EUR"): string => {
   
   // Ajouter les centimes si nécessaire
   if (centimes > 0) {
-    result += " et " + numeroEnLettres(centimes) + " centime" + (centimes > 1 ? "s" : "");
+    result += " et " + numeroEnLettres(centimes) + " millime" + (centimes > 1 ? "s" : "");
   }
   
   return result;
+};
+
+// Helper function to get currency symbol
+const getCurrencySymbol = (currency: string): string => {
+  switch (currency) {
+    case "TND":
+      return "TND";
+    case "EUR":
+      return "€";
+    case "USD":
+      return "$";
+    case "GBP":
+      return "£";
+    case "CHF":
+      return "CHF";
+    case "CAD":
+      return "C$";
+    default:
+      return currency;
+  }
 };
 
 export function FactureModal({
@@ -121,7 +144,8 @@ export function FactureModal({
   const [showDiscount, setShowDiscount] = useState(false);
   const [showAdvancePayment, setShowAdvancePayment] = useState(false);
   const [advancePaymentAmount, setAdvancePaymentAmount] = useState(0);
-  const [currency, setCurrency] = useState("EUR");
+  const [currency, setCurrency] = useState("TND");
+  const currencySymbol = getCurrencySymbol(currency);
 
   const isEditing = factureId !== null;
 
@@ -409,7 +433,7 @@ export function FactureModal({
                                   defaultValue={line.unitPrice.toString()}
                                   className="w-24 text-center"
                                 />
-                                <span className="ml-1">€</span>
+                                <span className="ml-1">{currencySymbol}</span>
                               </div>
                             </TableCell>
                             {applyTVA && (
@@ -438,7 +462,7 @@ export function FactureModal({
                               </TableCell>
                             )}
                             <TableCell className="text-right font-medium">
-                              {line.total.toLocaleString("fr-FR")} €
+                              {line.total.toLocaleString("fr-FR")} {currencySymbol}
                             </TableCell>
                             <TableCell>
                               <Button
@@ -460,18 +484,18 @@ export function FactureModal({
                   <div className="w-64 space-y-2">
                     <div className="flex justify-between">
                       <span>Sous-total</span>
-                      <span>{subtotal.toLocaleString("fr-FR")} €</span>
+                      <span>{subtotal.toLocaleString("fr-FR")} {currencySymbol}</span>
                     </div>
                     {applyTVA && (
                       <div className="flex justify-between">
                         <span>TVA</span>
-                        <span>{totalTVA.toLocaleString("fr-FR")} €</span>
+                        <span>{totalTVA.toLocaleString("fr-FR")} {currencySymbol}</span>
                       </div>
                     )}
                     {showDiscount && (
                       <div className="flex justify-between">
                         <span>Remise globale</span>
-                        <span>0.00 €</span>
+                        <span>0.00 {currencySymbol}</span>
                       </div>
                     )}
                     {showAdvancePayment && (
@@ -487,13 +511,13 @@ export function FactureModal({
                             onChange={handleAdvancePaymentChange}
                             className="w-full text-right pr-1"
                           />
-                          <span className="ml-1">€</span>
+                          <span className="ml-1">{currencySymbol}</span>
                         </div>
                       </div>
                     )}
                     <div className="flex justify-between pt-2 border-t font-bold">
                       <span>Total TTC</span>
-                      <span>{showAdvancePayment ? finalAmount.toLocaleString("fr-FR") : totalTTC.toLocaleString("fr-FR")} €</span>
+                      <span>{showAdvancePayment ? finalAmount.toLocaleString("fr-FR") : totalTTC.toLocaleString("fr-FR")} {currencySymbol}</span>
                     </div>
                   </div>
                 </div>
@@ -595,13 +619,13 @@ export function FactureModal({
                               {line.quantity}
                             </td>
                             <td className="py-3 text-right">
-                              {line.unitPrice.toLocaleString("fr-FR")} €
+                              {line.unitPrice.toLocaleString("fr-FR")} {currencySymbol}
                             </td>
                             {applyTVA && (
                               <td className="py-3 text-right">
                                 {line.estTauxTVA 
                                   ? `${line.tva}%` 
-                                  : `${line.montantTVA.toLocaleString("fr-FR")} €`
+                                  : `${line.montantTVA.toLocaleString("fr-FR")} ${currencySymbol}`
                                 }
                               </td>
                             )}
@@ -611,7 +635,7 @@ export function FactureModal({
                               </td>
                             )}
                             <td className="py-3 text-right">
-                              {line.total.toLocaleString("fr-FR")} €
+                              {line.total.toLocaleString("fr-FR")} {currencySymbol}
                             </td>
                           </tr>
                         ))}
@@ -623,29 +647,29 @@ export function FactureModal({
                     <div className="w-64">
                       <div className="flex justify-between py-1">
                         <span>Sous-total</span>
-                        <span>{subtotal.toLocaleString("fr-FR")} €</span>
+                        <span>{subtotal.toLocaleString("fr-FR")} {currencySymbol}</span>
                       </div>
                       {applyTVA && (
                         <div className="flex justify-between py-1">
                           <span>TVA</span>
-                          <span>{totalTVA.toLocaleString("fr-FR")} €</span>
+                          <span>{totalTVA.toLocaleString("fr-FR")} {currencySymbol}</span>
                         </div>
                       )}
                       {showDiscount && (
                         <div className="flex justify-between py-1">
                           <span>Remise globale</span>
-                          <span>0.00 €</span>
+                          <span>0.00 {currencySymbol}</span>
                         </div>
                       )}
                       {showAdvancePayment && (
                         <div className="flex justify-between py-1">
                           <span>Avance perçue</span>
-                          <span>{advancePaymentAmount.toLocaleString("fr-FR")} €</span>
+                          <span>{advancePaymentAmount.toLocaleString("fr-FR")} {currencySymbol}</span>
                         </div>
                       )}
                       <div className="flex justify-between py-2 border-t border-t-gray-300 font-bold">
                         <span>Total TTC</span>
-                        <span>{showAdvancePayment ? finalAmount.toLocaleString("fr-FR") : totalTTC.toLocaleString("fr-FR")} €</span>
+                        <span>{showAdvancePayment ? finalAmount.toLocaleString("fr-FR") : totalTTC.toLocaleString("fr-FR")} {currencySymbol}</span>
                       </div>
                     </div>
                   </div>
