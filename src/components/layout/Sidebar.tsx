@@ -47,7 +47,7 @@ const Sidebar = () => {
       <div className="p-4 border-b border-sidebar-border">
         <h1 className="text-xl font-bold text-sidebar-foreground flex items-center">
           <LayoutDashboard className="mr-2 text-invoice-blue-500" />
-          <span>InvoiceArchitect</span>
+          <span>InvoiceArchibat</span>
         </h1>
       </div>
       
