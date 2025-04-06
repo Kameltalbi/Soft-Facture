@@ -71,6 +71,7 @@ export function FactureSettingsPanel({
               <SelectValue placeholder="Choisir une devise" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="TND">Dinar Tunisien (TND)</SelectItem>
               <SelectItem value="EUR">Euro (€)</SelectItem>
               <SelectItem value="USD">Dollar US ($)</SelectItem>
               <SelectItem value="GBP">Livre Sterling (£)</SelectItem>

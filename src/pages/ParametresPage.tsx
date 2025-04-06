@@ -19,6 +19,7 @@ const ParametresPage = () => {
     { id: "1", nom: "TVA standard", montant: 20, estMontantFixe: false },
     { id: "2", nom: "Éco-contribution", montant: 5, estMontantFixe: true }
   ]);
+  const [devise, setDevise] = useState("TND");
 
   return (
     <MainLayout title="Paramètres">
@@ -190,11 +191,12 @@ const ParametresPage = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="currency">Devise par défaut</Label>
-                  <Select defaultValue="EUR">
+                  <Select value={devise} onValueChange={setDevise}>
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner une devise" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="TND">Dinar Tunisien (TND)</SelectItem>
                       <SelectItem value="EUR">Euro (€)</SelectItem>
                       <SelectItem value="USD">Dollar US ($)</SelectItem>
                       <SelectItem value="GBP">Livre Sterling (£)</SelectItem>
