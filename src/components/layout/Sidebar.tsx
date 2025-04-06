@@ -99,10 +99,22 @@ const Sidebar = () => {
       ) : (
         <div className="h-screen fixed left-0 top-0 w-64 bg-sidebar flex flex-col border-r border-sidebar-border z-10">
           <div className="p-4 border-b border-sidebar-border flex justify-between items-center">
-            <h1 className="text-xl font-bold text-sidebar-foreground flex items-center">
-              <LayoutDashboard className="mr-2 text-invoice-blue-500" />
-              <span>InvoiceArchibat</span>
-            </h1>
+            <div className="flex items-center">
+              <img 
+                src="/logo.png" 
+                alt="InvoiceArchibat" 
+                className="w-8 h-8 mr-2" 
+                onError={(e) => {
+                  // Fallback to icon if image fails to load
+                  e.currentTarget.style.display = 'none';
+                  document.getElementById('fallback-icon')?.style.display = 'block';
+                }}
+              />
+              <div id="fallback-icon" style={{display: 'none'}} className="mr-2">
+                <LayoutDashboard className="text-invoice-blue-500" size={20} />
+              </div>
+              <span className="text-xl font-bold text-sidebar-foreground">InvoiceArchibat</span>
+            </div>
             <Button 
               variant="ghost" 
               size="icon" 
