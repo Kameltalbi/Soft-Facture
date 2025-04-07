@@ -290,7 +290,7 @@ export function FactureModal({
             {showSettings ? (
               <X className="h-4 w-4" />
             ) : (
-              <Settings className="h-4 w-4" />
+              <Settings className="h-4 w-4 text-red-600" />
             )}
           </Button>
         </div>
