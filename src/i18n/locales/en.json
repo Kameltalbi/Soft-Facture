@@ -29,5 +29,29 @@
     "spanish": "Spanish",
     "german": "German",
     "italian": "Italian"
+  },
+  "invoice": {
+    "title": "Invoice Management",
+    "subtitle": "Create, modify and track the status of your invoices.",
+    "new": "New Invoice",
+    "list": "Invoice List",
+    "search": "Search for an invoice...",
+    "number": "Invoice #",
+    "client": "Client",
+    "date": "Date",
+    "dueDate": "Due Date",
+    "amount": "Amount",
+    "status": "Status",
+    "actions": "Actions",
+    "edit": "Edit",
+    "view": "View",
+    "download": "Download",
+    "print": "Print",
+    "delete": "Delete",
+    "status_paid": "Paid",
+    "status_sent": "Sent",
+    "status_overdue": "Overdue",
+    "status_draft": "Draft",
+    "status_unknown": "Unknown"
   }
 }

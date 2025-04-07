@@ -29,5 +29,29 @@
     "spanish": "Espagnol",
     "german": "Allemand",
     "italian": "Italien"
+  },
+  "invoice": {
+    "title": "Gestion des factures",
+    "subtitle": "Créez, modifiez et suivez l'état de vos factures.",
+    "new": "Nouvelle facture",
+    "list": "Liste des factures",
+    "search": "Rechercher une facture...",
+    "number": "N° Facture",
+    "client": "Client",
+    "date": "Date",
+    "dueDate": "Échéance",
+    "amount": "Montant",
+    "status": "Statut",
+    "actions": "Actions",
+    "edit": "Modifier",
+    "view": "Aperçu",
+    "download": "Télécharger",
+    "print": "Imprimer",
+    "delete": "Supprimer",
+    "status_paid": "Payée",
+    "status_sent": "Envoyée",
+    "status_overdue": "En retard",
+    "status_draft": "Brouillon",
+    "status_unknown": "Inconnu"
   }
 }

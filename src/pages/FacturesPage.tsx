@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { StatutFacture } from "@/types";
 import { FactureModal } from "@/components/factures/FactureModal";
+import { useTranslation } from "react-i18next";
 
 // Données fictives pour les factures
 const facturesDemo = [
@@ -95,6 +96,7 @@ const FacturesPage = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedFacture, setSelectedFacture] = useState<string | null>(null);
   const currencySymbol = getCurrencySymbol("TND"); // Default to TND
+  const { t } = useTranslation();
 
   const handleCreateInvoice = () => {
     setSelectedFacture(null);
@@ -124,40 +126,40 @@ const FacturesPage = () => {
   const getStatusLabel = (statut: StatutFacture) => {
     switch (statut) {
       case "payee":
-        return "Payée";
+        return t('invoice.status_paid');
       case "envoyee":
-        return "Envoyée";
+        return t('invoice.status_sent');
       case "retard":
-        return "En retard";
+        return t('invoice.status_overdue');
       case "brouillon":
-        return "Brouillon";
+        return t('invoice.status_draft');
       default:
-        return "Inconnu";
+        return t('invoice.status_unknown');
     }
   };
 
   return (
-    <MainLayout title="Factures">
+    <MainLayout title={t('common.invoices')}>
       <div className="flex items-center justify-between mb-6">
         <div className="space-y-1">
-          <h2 className="text-2xl font-bold tracking-tight">Gestion des factures</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t('invoice.title')}</h2>
           <p className="text-muted-foreground">
-            Créez, modifiez et suivez l'état de vos factures.
+            {t('invoice.subtitle')}
           </p>
         </div>
         <Button className="flex items-center" onClick={handleCreateInvoice}>
           <Plus className="mr-2 h-4 w-4" />
-          Nouvelle facture
+          {t('invoice.new')}
         </Button>
       </div>
 
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Liste des factures</CardTitle>
+            <CardTitle>{t('invoice.list')}</CardTitle>
             <div className="flex items-center space-x-2">
               <Input
-                placeholder="Rechercher une facture..."
+                placeholder={t('invoice.search')}
                 className="max-w-sm"
               />
               <Button variant="outline" size="icon">
@@ -170,13 +172,13 @@ const FacturesPage = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>N° Facture</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Échéance</TableHead>
-                <TableHead className="text-right">Montant</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t('invoice.number')}</TableHead>
+                <TableHead>{t('invoice.client')}</TableHead>
+                <TableHead>{t('invoice.date')}</TableHead>
+                <TableHead>{t('invoice.dueDate')}</TableHead>
+                <TableHead className="text-right">{t('invoice.amount')}</TableHead>
+                <TableHead>{t('invoice.status')}</TableHead>
+                <TableHead className="text-right">{t('invoice.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -214,23 +216,23 @@ const FacturesPage = () => {
                           onClick={() => handleEditInvoice(facture.id)}
                         >
                           <Edit className="mr-2 h-4 w-4" />
-                          Modifier
+                          {t('invoice.edit')}
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Eye className="mr-2 h-4 w-4" />
-                          Aperçu
+                          {t('invoice.view')}
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <DownloadCloud className="mr-2 h-4 w-4" />
-                          Télécharger
+                          {t('invoice.download')}
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Printer className="mr-2 h-4 w-4" />
-                          Imprimer
+                          {t('invoice.print')}
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive">
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Supprimer
+                          {t('invoice.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

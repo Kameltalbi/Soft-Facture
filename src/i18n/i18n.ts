@@ -13,8 +13,12 @@ i18n
   .use(initReactI18next) // Initialize react-i18next
   .init({
     resources: {
-      en: enTranslations,
-      fr: frTranslations,
+      en: {
+        translation: enTranslations
+      },
+      fr: {
+        translation: frTranslations
+      },
     },
     fallbackLng: 'fr', // Default to French
     interpolation: {
