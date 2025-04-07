@@ -1,4 +1,3 @@
-
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +11,8 @@ import { CircleDollarSign, Image, Save, Upload, Percent } from "lucide-react";
 import { useState } from "react";
 import { TaxePersonnaliseeManager } from "@/components/taxes/TaxePersonnaliseeManager";
 import { TaxePersonnalisee } from "@/types";
+import { useTranslation } from 'react-i18next';
+import LanguageSelector from "@/components/settings/LanguageSelector";
 
 const ParametresPage = () => {
   const [taxeEnValeur, setTaxeEnValeur] = useState(false);
@@ -20,12 +21,13 @@ const ParametresPage = () => {
     { id: "2", nom: "Éco-contribution", montant: 5, estMontantFixe: true }
   ]);
   const [devise, setDevise] = useState("TND");
+  const { t } = useTranslation();
 
   return (
-    <MainLayout title="Paramètres">
+    <MainLayout title={t('settings.title')}>
       <div className="flex items-center justify-between mb-6">
         <div className="space-y-1">
-          <h2 className="text-2xl font-bold tracking-tight">Paramètres</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t('settings.title')}</h2>
           <p className="text-muted-foreground">
             Configurez les paramètres de votre application de facturation.
           </p>
@@ -37,6 +39,7 @@ const ParametresPage = () => {
           <TabsTrigger value="entreprise">Entreprise</TabsTrigger>
           <TabsTrigger value="facturation">Facturation</TabsTrigger>
           <TabsTrigger value="taxes">Taxes</TabsTrigger>
+          <TabsTrigger value="general">Général</TabsTrigger>
           <TabsTrigger value="utilisateurs">Utilisateurs</TabsTrigger>
         </TabsList>
 
@@ -364,6 +367,46 @@ const ParametresPage = () => {
                 taxes={taxesPersonnalisees}
                 onTaxesChange={setTaxesPersonnalisees}
               />
+
+              <div className="flex justify-end">
+                <Button>
+                  <Save className="mr-2 h-4 w-4" />
+                  Enregistrer
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="general">
+          <Card>
+            <CardHeader>
+              <CardTitle>Paramètres généraux</CardTitle>
+              <CardDescription>
+                Configurez les paramètres généraux de l'application.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="max-w-md">
+                <LanguageSelector />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="currency">{t('settings.currency')}</Label>
+                <Select value={devise} onValueChange={setDevise}>
+                  <SelectTrigger className="max-w-md">
+                    <SelectValue placeholder={t('settings.selectCurrency')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="TND">Dinar Tunisien (TND)</SelectItem>
+                    <SelectItem value="EUR">Euro (€)</SelectItem>
+                    <SelectItem value="USD">Dollar US ($)</SelectItem>
+                    <SelectItem value="GBP">Livre Sterling (£)</SelectItem>
+                    <SelectItem value="CHF">Franc Suisse (CHF)</SelectItem>
+                    <SelectItem value="CAD">Dollar Canadien (C$)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
               <div className="flex justify-end">
                 <Button>
