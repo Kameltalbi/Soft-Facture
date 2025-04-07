@@ -1,0 +1,33 @@
+
+{
+  "common": {
+    "dashboard": "Tableau de bord",
+    "invoices": "Factures",
+    "quotes": "Devis",
+    "deliveryNote": "Bon de sortie",
+    "clients": "Clients",
+    "products": "Produits",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "search": "Rechercher...",
+    "notifications": "Notifications"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "currency": "Devise",
+    "language": "Langue",
+    "applySalesTax": "Appliquer la TVA",
+    "showDiscount": "Remise",
+    "advancePayment": "Avance perçue",
+    "selectCurrency": "Choisir une devise",
+    "selectLanguage": "Choisir une langue",
+    "invoiceSettings": "Paramètres de la facture",
+    "quoteSettings": "Paramètres du devis",
+    "deliveryNoteSettings": "Paramètres du bon de sortie",
+    "french": "Français",
+    "english": "Anglais",
+    "spanish": "Espagnol",
+    "german": "Allemand",
+    "italian": "Italien"
+  }
+}

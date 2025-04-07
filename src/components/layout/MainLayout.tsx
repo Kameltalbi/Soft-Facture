@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -10,8 +11,8 @@ interface MainLayoutProps {
 }
 
 const MainLayout = ({ children, title }: MainLayoutProps) => {
-  // We'll detect the sidebar state by checking its width
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { t } = useTranslation();
 
   // Observe DOM changes to detect sidebar collapse state
   useEffect(() => {
@@ -36,7 +37,7 @@ const MainLayout = ({ children, title }: MainLayoutProps) => {
     <div className="flex min-h-screen bg-muted/30">
       <Sidebar />
       <div className={`flex-1 ${sidebarCollapsed ? 'ml-16' : 'ml-64'} transition-all duration-300`}>
-        <TopBar title={title} />
+        <TopBar title={t(title) || title} />
         <main className="p-6">
           {children}
         </main>

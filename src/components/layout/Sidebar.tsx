@@ -16,48 +16,50 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-
-const navItems = [
-  {
-    name: "Tableau de bord",
-    path: "/",
-    icon: <Home size={20} />
-  },
-  {
-    name: "Factures",
-    path: "/factures",
-    icon: <ReceiptText size={20} />
-  },
-  {
-    name: "Devis",
-    path: "/devis",
-    icon: <FileText size={20} />
-  },
-  {
-    name: "Bon de sortie",
-    path: "/bon-de-sortie",
-    icon: <Package2 size={20} />
-  },
-  {
-    name: "Clients",
-    path: "/clients",
-    icon: <Users size={20} />
-  },
-  {
-    name: "Produits",
-    path: "/produits",
-    icon: <ShoppingCart size={20} />
-  },
-  {
-    name: "Paramètres",
-    path: "/parametres",
-    icon: <Settings size={20} />
-  }
-];
+import { useTranslation } from 'react-i18next';
 
 const Sidebar = () => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { t } = useTranslation();
+
+  const navItems = [
+    {
+      name: t('common.dashboard'),
+      path: "/",
+      icon: <Home size={20} />
+    },
+    {
+      name: t('common.invoices'),
+      path: "/factures",
+      icon: <ReceiptText size={20} />
+    },
+    {
+      name: t('common.quotes'),
+      path: "/devis",
+      icon: <FileText size={20} />
+    },
+    {
+      name: t('common.deliveryNote'),
+      path: "/bon-de-sortie",
+      icon: <Package2 size={20} />
+    },
+    {
+      name: t('common.clients'),
+      path: "/clients",
+      icon: <Users size={20} />
+    },
+    {
+      name: t('common.products'),
+      path: "/produits",
+      icon: <ShoppingCart size={20} />
+    },
+    {
+      name: t('common.settings'),
+      path: "/parametres",
+      icon: <Settings size={20} />
+    }
+  ];
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -110,7 +112,7 @@ const Sidebar = () => {
           <div className="p-4 mt-auto border-t border-sidebar-border flex justify-center">
             <button 
               className="flex items-center justify-center p-2 rounded-md text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors"
-              title="Déconnexion"
+              title={t('common.logout')}
             >
               <LogOut size={18} />
             </button>
@@ -165,7 +167,7 @@ const Sidebar = () => {
           <div className="p-4 mt-auto border-t border-sidebar-border">
             <button className="flex items-center px-3 py-2 w-full rounded-md text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors">
               <LogOut size={18} className="mr-3" />
-              Déconnexion
+              {t('common.logout')}
             </button>
           </div>
         </div>

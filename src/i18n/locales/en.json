@@ -1,0 +1,33 @@
+
+{
+  "common": {
+    "dashboard": "Dashboard",
+    "invoices": "Invoices",
+    "quotes": "Quotes",
+    "deliveryNote": "Delivery Note",
+    "clients": "Clients",
+    "products": "Products",
+    "settings": "Settings",
+    "logout": "Logout",
+    "search": "Search...",
+    "notifications": "Notifications"
+  },
+  "settings": {
+    "title": "Settings",
+    "currency": "Currency",
+    "language": "Language",
+    "applySalesTax": "Apply Sales Tax",
+    "showDiscount": "Show Discount",
+    "advancePayment": "Advance Payment",
+    "selectCurrency": "Select a currency",
+    "selectLanguage": "Select a language",
+    "invoiceSettings": "Invoice Settings",
+    "quoteSettings": "Quote Settings",
+    "deliveryNoteSettings": "Delivery Note Settings",
+    "french": "French",
+    "english": "English",
+    "spanish": "Spanish",
+    "german": "German",
+    "italian": "Italian"
+  }
+}

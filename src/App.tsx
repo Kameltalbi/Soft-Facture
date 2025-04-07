@@ -13,6 +13,9 @@ import ProduitsPage from "./pages/ProduitsPage";
 import ParametresPage from "./pages/ParametresPage";
 import NotFound from "./pages/NotFound";
 
+// Import i18n
+import './i18n/i18n';
+
 const queryClient = new QueryClient();
 
 const App = () => (

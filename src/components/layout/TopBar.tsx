@@ -2,12 +2,15 @@
 import { Bell, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "react-i18next";
 
 interface TopBarProps {
   title: string;
 }
 
 const TopBar = ({ title }: TopBarProps) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="flex items-center justify-between py-4 px-6 border-b">
       <h1 className="text-2xl font-semibold">{title}</h1>
@@ -17,7 +20,7 @@ const TopBar = ({ title }: TopBarProps) => {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Rechercher..."
+            placeholder={t('common.search')}
             className="w-64 pl-9 rounded-full bg-secondary"
           />
         </div>
