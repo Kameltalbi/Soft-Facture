@@ -10,7 +10,8 @@ import {
   Home,
   LogOut,
   Menu,
-  ChevronLeft
+  ChevronLeft,
+  FileText
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,11 @@ const navItems = [
     name: "Factures",
     path: "/factures",
     icon: <ReceiptText size={20} />
+  },
+  {
+    name: "Devis",
+    path: "/devis",
+    icon: <FileText size={20} />
   },
   {
     name: "Clients",
