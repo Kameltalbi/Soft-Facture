@@ -51,6 +51,14 @@ const Sidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.style.display = 'none';
+    const fallbackIcon = document.getElementById('fallback-icon');
+    if (fallbackIcon) {
+      fallbackIcon.style.display = 'block';
+    }
+  };
+
   return (
     <>
       {isCollapsed ? (
@@ -104,11 +112,7 @@ const Sidebar = () => {
                 src="/logo.png" 
                 alt="InvoiceArchibat" 
                 className="w-8 h-8 mr-2" 
-                onError={(e) => {
-                  // Fallback to icon if image fails to load
-                  e.currentTarget.style.display = 'none';
-                  document.getElementById('fallback-icon')?.style.display = 'block';
-                }}
+                onError={handleImageError}
               />
               <div id="fallback-icon" style={{display: 'none'}} className="mr-2">
                 <LayoutDashboard className="text-invoice-blue-500" size={20} />
