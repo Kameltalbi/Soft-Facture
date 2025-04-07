@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Save } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ClientFormModalProps {
   open: boolean;
@@ -24,6 +25,7 @@ export function ClientFormModal({
   clientId,
 }: ClientFormModalProps) {
   const isEditing = clientId !== null;
+  const { t } = useTranslation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,29 +38,29 @@ export function ClientFormModal({
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "Modifier le client" : "Nouveau client"}
+            {isEditing ? t('client.edit') : t('client.new')}
           </DialogTitle>
           <DialogDescription>
-            Renseignez les informations du client pour la facturation
+            {t('client.form.description')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="nom">Nom</Label>
+              <Label htmlFor="nom">{t('client.form.name')}</Label>
               <Input
                 id="nom"
-                placeholder="Nom du client"
+                placeholder={t('client.form.name')}
                 defaultValue={isEditing ? "Jean Dupont" : ""}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="societe">Société</Label>
+              <Label htmlFor="societe">{t('client.form.company')}</Label>
               <Input
                 id="societe"
-                placeholder="Nom de la société"
+                placeholder={t('client.form.company')}
                 defaultValue={isEditing ? "Société XYZ" : ""}
               />
             </div>
@@ -66,7 +68,7 @@ export function ClientFormModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('client.form.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -76,7 +78,7 @@ export function ClientFormModal({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="telephone">Téléphone</Label>
+              <Label htmlFor="telephone">{t('client.form.phone')}</Label>
               <Input
                 id="telephone"
                 placeholder="06 XX XX XX XX"
@@ -87,7 +89,7 @@ export function ClientFormModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="tva">N° TVA</Label>
+              <Label htmlFor="tva">{t('client.form.vatNumber')}</Label>
               <Input
                 id="tva"
                 placeholder="FR12345678900"
@@ -100,10 +102,10 @@ export function ClientFormModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="adresse">Adresse</Label>
+            <Label htmlFor="adresse">{t('client.form.address')}</Label>
             <Textarea
               id="adresse"
-              placeholder="Adresse complète"
+              placeholder={t('client.form.address')}
               rows={3}
               defaultValue={
                 isEditing ? "456 Avenue des Clients, 69002 Lyon" : ""
@@ -117,11 +119,11 @@ export function ClientFormModal({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Annuler
+              {t('client.form.cancel')}
             </Button>
             <Button type="submit">
               <Save className="mr-2 h-4 w-4" />
-              Enregistrer
+              {t('client.form.save')}
             </Button>
           </div>
         </form>

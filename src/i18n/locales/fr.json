@@ -1,4 +1,3 @@
-
 {
   "common": {
     "dashboard": "Tableau de bord",
@@ -53,5 +52,22 @@
     "status_overdue": "En retard",
     "status_draft": "Brouillon",
     "status_unknown": "Inconnu"
+  },
+  "client": {
+    "title": "Gestion des clients",
+    "subtitle": "Créez, modifiez et organisez votre base de clients.",
+    "new": "Nouveau client",
+    "edit": "Modifier le client",
+    "form": {
+      "description": "Renseignez les informations du client pour la facturation",
+      "name": "Nom",
+      "company": "Société",
+      "email": "Email",
+      "phone": "Téléphone",
+      "vatNumber": "N° TVA",
+      "address": "Adresse",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    }
   }
 }

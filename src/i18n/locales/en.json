@@ -1,4 +1,3 @@
-
 {
   "common": {
     "dashboard": "Dashboard",
@@ -53,5 +52,22 @@
     "status_overdue": "Overdue",
     "status_draft": "Draft",
     "status_unknown": "Unknown"
+  },
+  "client": {
+    "title": "Client Management",
+    "subtitle": "Create, modify and organize your client database.",
+    "new": "New Client",
+    "edit": "Edit Client",
+    "form": {
+      "description": "Enter client information for billing",
+      "name": "Name",
+      "company": "Company",
+      "email": "Email",
+      "phone": "Phone",
+      "vatNumber": "VAT Number",
+      "address": "Address",
+      "cancel": "Cancel",
+      "save": "Save"
+    }
   }
 }
