@@ -18,12 +18,6 @@ export function TaxeInput({ value, onChange, estTauxTVA, onModeChange }: TaxeInp
     onChange(newValue, estTauxTVA);
   };
 
-  const toggleMode = () => {
-    onModeChange(!estTauxTVA);
-    // Reset value when switching modes to avoid confusion
-    onChange(0, !estTauxTVA);
-  };
-
   return (
     <div className="flex">
       <Input

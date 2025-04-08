@@ -1,31 +1,52 @@
 
 import { useState } from "react";
-import { Plus, X, Edit, Trash2, Save } from "lucide-react";
+import { Plus, Edit, Trash2, Save } from "lucide-react";
 import { TaxePersonnalisee } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { CircleDollarSign, Percent } from "lucide-react";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface TaxePersonnaliseeManagerProps {
   taxes: TaxePersonnalisee[];
   onTaxesChange: (taxes: TaxePersonnalisee[]) => void;
 }
 
+// Define the form schema with Zod
+const taxeSchema = z.object({
+  nom: z.string().min(1, "Le nom est requis"),
+  montant: z.number().min(0, "La valeur doit être positive"),
+  estMontantFixe: z.boolean()
+});
+
+type TaxeFormValues = z.infer<typeof taxeSchema>;
+
 export function TaxePersonnaliseeManager({ taxes, onTaxesChange }: TaxePersonnaliseeManagerProps) {
   const [open, setOpen] = useState(false);
   const [editingTaxe, setEditingTaxe] = useState<TaxePersonnalisee | null>(null);
-  const [nom, setNom] = useState("");
-  const [montant, setMontant] = useState(0);
-  const [estMontantFixe, setEstMontantFixe] = useState(false);
+
+  // Initialize the form with react-hook-form
+  const form = useForm<TaxeFormValues>({
+    resolver: zodResolver(taxeSchema),
+    defaultValues: {
+      nom: "",
+      montant: 0,
+      estMontantFixe: false
+    }
+  });
 
   const resetForm = () => {
-    setNom("");
-    setMontant(0);
-    setEstMontantFixe(false);
+    form.reset({
+      nom: "",
+      montant: 0,
+      estMontantFixe: false
+    });
     setEditingTaxe(null);
   };
 
@@ -38,9 +59,11 @@ export function TaxePersonnaliseeManager({ taxes, onTaxesChange }: TaxePersonnal
 
   const handleEdit = (taxe: TaxePersonnalisee) => {
     setEditingTaxe(taxe);
-    setNom(taxe.nom);
-    setMontant(taxe.montant);
-    setEstMontantFixe(taxe.estMontantFixe);
+    form.reset({
+      nom: taxe.nom,
+      montant: taxe.montant,
+      estMontantFixe: taxe.estMontantFixe
+    });
     setOpen(true);
   };
 
@@ -48,25 +71,19 @@ export function TaxePersonnaliseeManager({ taxes, onTaxesChange }: TaxePersonnal
     onTaxesChange(taxes.filter(tax => tax.id !== id));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (nom.trim() === "") return;
-    
+  const onSubmit = (data: TaxeFormValues) => {
     if (editingTaxe) {
       onTaxesChange(
         taxes.map(t => 
           t.id === editingTaxe.id 
-            ? { ...t, nom, montant, estMontantFixe } 
+            ? { ...t, ...data } 
             : t
         )
       );
     } else {
       const newTaxe: TaxePersonnalisee = {
         id: crypto.randomUUID(),
-        nom,
-        montant,
-        estMontantFixe
+        ...data
       };
       onTaxesChange([...taxes, newTaxe]);
     }
@@ -91,36 +108,41 @@ export function TaxePersonnaliseeManager({ taxes, onTaxesChange }: TaxePersonnal
                 {editingTaxe ? "Modifier la taxe" : "Ajouter une nouvelle taxe"}
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit}>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="nom">Nom de la taxe</Label>
-                  <Input
-                    id="nom"
-                    placeholder="TVA, Éco-contribution, etc."
-                    value={nom}
-                    onChange={(e) => setNom(e.target.value)}
-                    required
-                  />
-                </div>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="nom"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nom de la taxe</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="TVA, Éco-contribution, etc."
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
                 
                 <div className="grid gap-2">
-                  <Label htmlFor="taxeType">Type de taxe</Label>
+                  <Label>Type de taxe</Label>
                   <div className="flex items-center space-x-2">
                     <Button 
                       type="button"
-                      variant={estMontantFixe ? "outline" : "default"} 
+                      variant={form.watch("estMontantFixe") ? "outline" : "default"} 
                       size="sm"
-                      onClick={() => setEstMontantFixe(false)}
+                      onClick={() => form.setValue("estMontantFixe", false)}
                       className="flex-1 justify-center"
                     >
                       <Percent className="h-4 w-4 mr-2" /> Pourcentage
                     </Button>
                     <Button 
                       type="button"
-                      variant={estMontantFixe ? "default" : "outline"} 
+                      variant={form.watch("estMontantFixe") ? "default" : "outline"} 
                       size="sm"
-                      onClick={() => setEstMontantFixe(true)}
+                      onClick={() => form.setValue("estMontantFixe", true)}
                       className="flex-1 justify-center"
                     >
                       <CircleDollarSign className="h-4 w-4 mr-2" /> Montant fixe
@@ -128,38 +150,47 @@ export function TaxePersonnaliseeManager({ taxes, onTaxesChange }: TaxePersonnal
                   </div>
                 </div>
                 
-                <div className="grid gap-2">
-                  <Label htmlFor="montant">
-                    {estMontantFixe ? "Montant" : "Taux (%)"}
-                  </Label>
-                  <div className="flex">
-                    <Input
-                      id="montant"
-                      type="number"
-                      min="0"
-                      max={estMontantFixe ? undefined : 100}
-                      step={estMontantFixe ? "0.01" : "0.1"}
-                      value={montant}
-                      onChange={(e) => setMontant(parseFloat(e.target.value) || 0)}
-                      className="rounded-r-none"
-                    />
-                    <div className="flex items-center justify-center px-3 border border-l-0 rounded-r-md bg-muted">
-                      {estMontantFixe ? (
-                        <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <Percent className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit">
-                  <Save className="h-4 w-4 mr-2" />
-                  {editingTaxe ? "Mettre à jour" : "Ajouter"}
-                </Button>
-              </DialogFooter>
-            </form>
+                <FormField
+                  control={form.control}
+                  name="montant"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {form.watch("estMontantFixe") ? "Montant" : "Taux (%)"}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="flex">
+                          <Input
+                            type="number"
+                            min="0"
+                            max={form.watch("estMontantFixe") ? undefined : 100}
+                            step={form.watch("estMontantFixe") ? "0.01" : "0.1"}
+                            className="rounded-r-none"
+                            {...field}
+                            onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                            value={field.value.toString()}
+                          />
+                          <div className="flex items-center justify-center px-3 border border-l-0 rounded-r-md bg-muted">
+                            {form.watch("estMontantFixe") ? (
+                              <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <Percent className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <DialogFooter>
+                  <Button type="submit">
+                    <Save className="h-4 w-4 mr-2" />
+                    {editingTaxe ? "Mettre à jour" : "Ajouter"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
           </DialogContent>
         </Dialog>
       </CardHeader>
