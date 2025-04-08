@@ -29,7 +29,7 @@ const Logo = ({ variant = "dark", size = "md" }: LogoProps) => {
         <FileSpreadsheet className={`${iconSize} ${variant === "light" ? "text-white" : "text-white"}`} />
       </div>
       <span className={`font-bold ${textColor} ${textSize}`}>
-        Soft<span className="text-blue-500">-Facture</span>
+        Soft<span className={`${variant === "light" ? "text-white" : "text-blue-600"}`}>-Facture</span>
       </span>
     </Link>
   );
