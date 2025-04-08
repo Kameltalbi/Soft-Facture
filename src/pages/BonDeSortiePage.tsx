@@ -19,18 +19,28 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   DownloadCloud,
   Edit,
-  Eye,
   Filter,
   MoreHorizontal,
   Plus,
-  Printer,
   Trash2,
+  Check,
 } from "lucide-react";
 import { StatutFacture } from "@/types";
 import { BonDeSortieModal } from "@/components/bon-de-sortie/BonDeSortieModal";
 import { useTranslation } from "react-i18next";
+import { useToast } from "@/hooks/use-toast";
 
 // Données fictives pour les bons de sortie
 const bonDeSortieDemo = [
@@ -97,6 +107,15 @@ const BonDeSortiePage = () => {
   const [selectedBonDeSortie, setSelectedBonDeSortie] = useState<string | null>(null);
   const currencySymbol = getCurrencySymbol("TND"); // Default to TND
   const { t } = useTranslation();
+  const { toast } = useToast();
+
+  // Alert dialog states
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showValidateDialog, setShowValidateDialog] = useState(false);
+  const [actionBonDeSortie, setActionBonDeSortie] = useState<{
+    id: string;
+    numero: string;
+  } | null>(null);
 
   const handleCreateBonDeSortie = () => {
     setSelectedBonDeSortie(null);
@@ -106,6 +125,77 @@ const BonDeSortiePage = () => {
   const handleEditBonDeSortie = (id: string) => {
     setSelectedBonDeSortie(id);
     setOpenModal(true);
+    
+    // Get the bon de sortie number for the toast notification
+    const bonDeSortie = bonDeSortieDemo.find((item) => item.id === id);
+    if (bonDeSortie) {
+      toast({
+        title: t('deliveryNote.edit_started'),
+        description: t('deliveryNote.edit_note_number', { number: bonDeSortie.numero }),
+      });
+    }
+  };
+
+  const handleDownloadBonDeSortie = (id: string) => {
+    // Get the bon de sortie number for the toast notification
+    const bonDeSortie = bonDeSortieDemo.find((item) => item.id === id);
+    if (bonDeSortie) {
+      toast({
+        title: t('deliveryNote.download_started'),
+        description: t('deliveryNote.download_note_number', { number: bonDeSortie.numero }),
+      });
+    }
+    // Download functionality would be implemented here
+  };
+
+  const handleCancelConfirm = () => {
+    // Process the cancellation
+    if (actionBonDeSortie) {
+      toast({
+        title: t('deliveryNote.cancel_started'),
+        description: t('deliveryNote.cancel_note_number', { number: actionBonDeSortie.numero }),
+      });
+      // Actual cancellation functionality would be implemented here
+    }
+    setShowCancelDialog(false);
+    setActionBonDeSortie(null);
+  };
+
+  const handleCancelBonDeSortie = (id: string) => {
+    // Get the bon de sortie number for the dialog
+    const bonDeSortie = bonDeSortieDemo.find((item) => item.id === id);
+    if (bonDeSortie) {
+      setActionBonDeSortie({
+        id: bonDeSortie.id,
+        numero: bonDeSortie.numero,
+      });
+      setShowCancelDialog(true);
+    }
+  };
+
+  const handleValidateConfirm = () => {
+    // Process the validation
+    if (actionBonDeSortie) {
+      toast({
+        title: t('deliveryNote.validate_started'),
+        description: t('deliveryNote.validate_note_number', { number: actionBonDeSortie.numero }),
+      });
+      // Actual validation functionality would be implemented here
+    }
+    setShowValidateDialog(false);
+    setActionBonDeSortie(null);
+  };
+
+  const handleValidateBonDeSortie = (id: string) => {
+    // Get the bon de sortie number for the dialog
+    const bonDeSortie = bonDeSortieDemo.find((item) => item.id === id);
+    if (bonDeSortie) {
+      setActionBonDeSortie({
+        id: bonDeSortie.id,
+        numero: bonDeSortie.numero,
+      });
+      setShowValidateDialog(true);
+    }
   };
 
   const getStatusColor = (statut: StatutFacture) => {
@@ -126,11 +216,11 @@ const BonDeSortiePage = () => {
   const getStatusLabel = (statut: StatutFacture) => {
     switch (statut) {
       case "payee":
-        return t('deliveryNote.status_paid');
+        return t('deliveryNote.status_delivered');
       case "envoyee":
-        return t('deliveryNote.status_sent');
+        return t('deliveryNote.status_pending');
       case "retard":
-        return t('deliveryNote.status_overdue');
+        return t('deliveryNote.status_cancelled');
       case "brouillon":
         return t('deliveryNote.status_draft');
       default:
@@ -139,7 +229,7 @@ const BonDeSortiePage = () => {
   };
 
   return (
-    <MainLayout title={t('common.deliveryNote')}>
+    <MainLayout title={t('common.deliveryNotes')}>
       <div className="flex items-center justify-between mb-6">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold tracking-tight">{t('deliveryNote.title')}</h2>
@@ -218,21 +308,24 @@ const BonDeSortiePage = () => {
                           <Edit className="mr-2 h-4 w-4" />
                           {t('deliveryNote.edit')}
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Eye className="mr-2 h-4 w-4" />
-                          {t('deliveryNote.view')}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDownloadBonDeSortie(bonDeSortie.id)}
+                        >
                           <DownloadCloud className="mr-2 h-4 w-4" />
                           {t('deliveryNote.download')}
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Printer className="mr-2 h-4 w-4" />
-                          {t('deliveryNote.print')}
+                        <DropdownMenuItem
+                          onClick={() => handleValidateBonDeSortie(bonDeSortie.id)}
+                        >
+                          <Check className="mr-2 h-4 w-4" />
+                          {t('deliveryNote.validate')}
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => handleCancelBonDeSortie(bonDeSortie.id)}
+                        >
                           <Trash2 className="mr-2 h-4 w-4" />
-                          {t('deliveryNote.delete')}
+                          {t('deliveryNote.cancel')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -249,6 +342,48 @@ const BonDeSortiePage = () => {
         onOpenChange={setOpenModal}
         bonDeSortieId={selectedBonDeSortie}
       />
+
+      {/* Cancel Alert Dialog */}
+      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('deliveryNote.cancel')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('deliveryNote.cancel_confirm')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleCancelConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t('deliveryNote.cancel')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Validate Alert Dialog */}
+      <AlertDialog open={showValidateDialog} onOpenChange={setShowValidateDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('deliveryNote.validate')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('deliveryNote.validate_confirm')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleValidateConfirm}
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {t('deliveryNote.validate')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </MainLayout>
   );
 };
