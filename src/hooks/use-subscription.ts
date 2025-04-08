@@ -47,7 +47,9 @@ export function useSubscription(session: Session | null, authStatus: string) {
       try {
         // Call the RPC function to get subscription data
         const { data, error } = await supabase
-          .rpc('get_user_subscription', { p_user_id: session.user.id });
+          .rpc<SubscriptionData>('get_user_subscription', { 
+            p_user_id: session.user.id 
+          });
 
         if (error) {
           console.error('Erreur lors de la récupération de l\'abonnement:', error);
@@ -56,9 +58,9 @@ export function useSubscription(session: Session | null, authStatus: string) {
             plan: null,
             expiresAt: null
           });
-        } else if (data && Object.keys(data).length > 0) {
+        } else if (data && data.length > 0) {
           // The data is returned as an array for RPC functions returning tables
-          const subscriptionData = data as unknown as SubscriptionData;
+          const subscriptionData = data[0];
           
           const now = new Date();
           const expiresAt = new Date(subscriptionData.date_fin);
@@ -119,15 +121,17 @@ export function useSubscription(session: Session | null, authStatus: string) {
       
       // Récupérer les détails du nouvel abonnement
       const { data, error: fetchError } = await supabase
-        .rpc('get_user_subscription', { p_user_id: session.user.id });
+        .rpc<SubscriptionData>('get_user_subscription', { 
+          p_user_id: session.user.id 
+        });
       
-      if (fetchError || !data) {
+      if (fetchError || !data || data.length === 0) {
         console.error('Erreur lors de la récupération du nouvel abonnement:', fetchError);
         return false;
       }
       
-      // Handle the response data as an object
-      const subscriptionData = data as unknown as SubscriptionData;
+      // Get the first item from the array
+      const subscriptionData = data[0];
       
       // Mettre à jour l'état local
       setSubscription({
