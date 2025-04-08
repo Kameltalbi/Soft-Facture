@@ -40,7 +40,7 @@ const Sidebar = () => {
       icon: <FileText size={20} />
     },
     {
-      name: t('common.deliveryNote'),
+      name: t('common.bonDeSortie'),
       path: "/bon-de-sortie",
       icon: <Package2 size={20} />
     },

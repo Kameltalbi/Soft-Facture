@@ -1,10 +1,8 @@
-
 {
   "common": {
     "dashboard": "Dashboard",
     "invoices": "Invoices",
     "quotes": "Quotes",
-    "estimates": "Estimates",
     "bonDeSortie": "Delivery Notes",
     "clients": "Clients",
     "products": "Products",
@@ -15,7 +13,15 @@
     "cancel": "Cancel",
     "save": "Save",
     "close": "Close",
-    "actions": "Actions"
+    "actions": "Actions",
+    "number": "Number",
+    "date": "Date",
+    "dueDate": "Due Date",
+    "amount": "Amount",
+    "status": "Status",
+    "search": "Search...",
+    "add": "Add",
+    "details": "Details"
   },
   "dashboard": {
     "welcome": "Welcome back!",
@@ -107,27 +113,24 @@
     "title": "Quotes",
     "subtitle": "Manage your quotes",
     "list": "Quote List",
-    "new": "New Quote"
-  },
-  "settings": {
-    "title": "Settings",
-    "subtitle": "Manage your application settings",
-    "general": "General",
-    "company": "Company",
-    "localization": "Localization",
-    "tax": "Tax",
-    "user_preferences": "User Preferences",
-    "language": "Language",
-    "selectLanguage": "Select a language",
-    "french": "French",
-    "english": "English"
+    "new": "New Quote",
+    "number": "Number",
+    "client": "Client",
+    "date": "Date",
+    "dueDate": "Due Date",
+    "amount": "Amount",
+    "status": "Status",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "download": "Download",
+    "search": "Search quotes..."
   },
   "product": {
     "title": "Products",
-    "subtitle": "Manage your products and categories",
+    "subtitle": "Manage your products and services",
     "list": "Product List",
     "new": "New Product",
-    "edit": "Edit Product",
     "search": "Search products...",
     "categories": {
       "title": "Categories",
@@ -147,15 +150,42 @@
       "unitPrice": "Unit Price",
       "vatRate": "VAT Rate (%)",
       "unit": "Unit",
+      "selectUnit": "Select an unit",
       "description": "Description",
       "descriptionPlaceholder": "Product description",
-      "save": "Save Product",
+      "save": "Save",
       "cancel": "Cancel",
       "unitType": "Unit",
       "hourType": "Hour",
       "dayType": "Day",
       "monthType": "Month"
-    }
+    },
+    "edit": "Edit product"
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "company": "Company",
+    "invoice": "Invoice",
+    "quote": "Quote",
+    "taxes": "Taxes",
+    "language": "Language",
+    "selectLanguage": "Select a language",
+    "french": "French",
+    "english": "English",
+    "company_name": "Company Name",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "website": "Website",
+    "siret": "SIRET",
+    "rib": "RIB",
+    "currency": "Currency",
+    "invoice_prefix": "Invoice Prefix",
+    "default_tax": "Default Tax",
+    "default_tax_rate": "Default Tax Rate",
+    "default_tax_value": "Tax Value",
+    "custom_taxes": "Custom Taxes"
   },
   "client": {
     "title": "Clients",
