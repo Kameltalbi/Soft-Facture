@@ -50,11 +50,12 @@ const TopBar = ({ title }: TopBarProps) => {
     <div className="flex items-center justify-between py-4 px-6 border-b">
       <h1 className="text-2xl font-semibold">{title}</h1>
       
+      {/* Centered date/time element */}
+      <div className="font-bold text-[#228B22] text-[14px] absolute left-1/2 transform -translate-x-1/2">
+        {currentDateTime}
+      </div>
+      
       <div className="flex items-center space-x-4">
-        <div className="font-bold text-[#228B22] text-[14px] mr-auto">
-          {currentDateTime}
-        </div>
-        
         <Button 
           variant="ghost" 
           size="icon" 
