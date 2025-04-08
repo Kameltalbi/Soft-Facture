@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -19,8 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Edit, MoreHorizontal, Plus, Trash2, Tags } from "lucide-react";
+import { Edit, Import, MoreHorizontal, Plus, Trash2, Tags } from "lucide-react";
 import { ProduitFormModal } from "@/components/produits/ProduitFormModal";
 
 // Données fictives pour les produits
@@ -71,7 +71,6 @@ const ProduitsPage = () => {
   const { t } = useTranslation();
   const [openProduitModal, setOpenProduitModal] = useState<boolean>(false);
   const [selectedProduit, setSelectedProduit] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const handleCreateProduit = () => {
     setSelectedProduit(null);
@@ -82,11 +81,6 @@ const ProduitsPage = () => {
     setSelectedProduit(id);
     setOpenProduitModal(true);
   };
-
-  // Filtrer les produits par catégorie
-  const filteredProduits = activeCategory === "all"
-    ? produitsDemo
-    : produitsDemo.filter(product => product.categorie.id === activeCategory);
 
   return (
     <MainLayout title={t('common.products')}>
@@ -116,88 +110,80 @@ const ProduitsPage = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="all" value={activeCategory} onValueChange={setActiveCategory}>
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>{t('product.list')}</CardTitle>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>{t('product.list')}</CardTitle>
+            <div className="flex space-x-2">
               <Input
                 placeholder={t('product.search')}
                 className="max-w-sm"
               />
+              <Button variant="outline">
+                <Import className="mr-2 h-4 w-4" />
+                {t('common.import')}
+              </Button>
             </div>
-          </CardHeader>
-          <div className="px-6">
-            <TabsList className="mb-4">
-              <TabsTrigger value="all">{t('product.all')}</TabsTrigger>
-              {categoriesDemo.map((category) => (
-                <TabsTrigger key={category.id} value={category.id}>
-                  {category.nom}
-                </TabsTrigger>
-              ))}
-            </TabsList>
           </div>
-          <CardContent>
-            <TabsContent value={activeCategory} forceMount>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t('product.table.name')}</TableHead>
-                    <TableHead>{t('product.table.category')}</TableHead>
-                    <TableHead className="text-right">{t('product.table.unitPrice')}</TableHead>
-                    <TableHead className="text-right">{t('product.table.vatRate')}</TableHead>
-                    <TableHead className="text-right">{t('product.table.actions')}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredProduits.map((produit) => (
-                    <TableRow key={produit.id}>
-                      <TableCell className="font-medium">
-                        <div>
-                          {produit.nom}
-                          {produit.description && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {produit.description}
-                            </p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{produit.categorie.nom}</TableCell>
-                      <TableCell className="text-right">
-                        {produit.prix.toLocaleString("fr-FR")} €
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {produit.tauxTVA}%
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => handleEditProduit(produit.id)}
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              {t('product.table.edit')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              {t('product.table.delete')}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TabsContent>
-          </CardContent>
-        </Card>
-      </Tabs>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t('product.table.name')}</TableHead>
+                <TableHead>{t('product.table.category')}</TableHead>
+                <TableHead className="text-right">{t('product.table.unitPrice')}</TableHead>
+                <TableHead className="text-right">{t('product.table.vatRate')}</TableHead>
+                <TableHead className="text-right">{t('product.table.actions')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {produitsDemo.map((produit) => (
+                <TableRow key={produit.id}>
+                  <TableCell className="font-medium">
+                    <div>
+                      {produit.nom}
+                      {produit.description && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {produit.description}
+                        </p>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>{produit.categorie.nom}</TableCell>
+                  <TableCell className="text-right">
+                    {produit.prix.toLocaleString("fr-FR")} €
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {produit.tauxTVA}%
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => handleEditProduit(produit.id)}
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          {t('product.table.edit')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          {t('product.table.delete')}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       <ProduitFormModal
         open={openProduitModal}
