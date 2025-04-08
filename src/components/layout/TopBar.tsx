@@ -1,15 +1,27 @@
 
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, ToggleLeft, ToggleRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
+import { useState, useEffect } from "react";
 
 interface TopBarProps {
   title: string;
 }
 
 const TopBar = ({ title }: TopBarProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [isFrench, setIsFrench] = useState(i18n.language === 'fr');
+  
+  useEffect(() => {
+    setIsFrench(i18n.language === 'fr');
+  }, [i18n.language]);
+  
+  const toggleLanguage = () => {
+    const newLang = isFrench ? 'en' : 'fr';
+    i18n.changeLanguage(newLang);
+    setIsFrench(!isFrench);
+  };
   
   return (
     <div className="flex items-center justify-between py-4 px-6 border-b">
@@ -24,6 +36,25 @@ const TopBar = ({ title }: TopBarProps) => {
             className="w-64 pl-9 rounded-full bg-secondary"
           />
         </div>
+        
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={toggleLanguage} 
+          className="flex items-center space-x-1 text-sm"
+        >
+          {isFrench ? (
+            <div className="flex items-center">
+              <span className="mr-2">FR</span>
+              <ToggleRight className="h-5 w-5 text-invoice-blue-500" />
+            </div>
+          ) : (
+            <div className="flex items-center">
+              <span className="mr-2">EN</span>
+              <ToggleLeft className="h-5 w-5 text-muted-foreground" />
+            </div>
+          )}
+        </Button>
         
         <Button size="icon" variant="outline" className="rounded-full relative">
           <Bell size={18} />
