@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { StatutFacture } from "@/types";
 import { BonDeSortieModal } from "@/components/bon-de-sortie/BonDeSortieModal";
+import { useTranslation } from "react-i18next";
 
 // Données fictives pour les bons de sortie
 const bonDeSortieDemo = [
@@ -95,6 +96,7 @@ const BonDeSortiePage = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedBonDeSortie, setSelectedBonDeSortie] = useState<string | null>(null);
   const currencySymbol = getCurrencySymbol("TND"); // Default to TND
+  const { t } = useTranslation();
 
   const handleCreateBonDeSortie = () => {
     setSelectedBonDeSortie(null);
@@ -124,40 +126,40 @@ const BonDeSortiePage = () => {
   const getStatusLabel = (statut: StatutFacture) => {
     switch (statut) {
       case "payee":
-        return "Payée";
+        return t('deliveryNote.status_paid');
       case "envoyee":
-        return "Envoyée";
+        return t('deliveryNote.status_sent');
       case "retard":
-        return "En retard";
+        return t('deliveryNote.status_overdue');
       case "brouillon":
-        return "Brouillon";
+        return t('deliveryNote.status_draft');
       default:
-        return "Inconnu";
+        return t('deliveryNote.status_unknown');
     }
   };
 
   return (
-    <MainLayout title="Bon de sortie">
+    <MainLayout title={t('common.deliveryNote')}>
       <div className="flex items-center justify-between mb-6">
         <div className="space-y-1">
-          <h2 className="text-2xl font-bold tracking-tight">Gestion des bons de sortie</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t('deliveryNote.title')}</h2>
           <p className="text-muted-foreground">
-            Créez, modifiez et suivez l'état de vos bons de sortie.
+            {t('deliveryNote.subtitle')}
           </p>
         </div>
         <Button className="flex items-center" onClick={handleCreateBonDeSortie}>
           <Plus className="mr-2 h-4 w-4" />
-          Nouveau bon de sortie
+          {t('deliveryNote.new')}
         </Button>
       </div>
 
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Liste des bons de sortie</CardTitle>
+            <CardTitle>{t('deliveryNote.list')}</CardTitle>
             <div className="flex items-center space-x-2">
               <Input
-                placeholder="Rechercher un bon de sortie..."
+                placeholder={t('deliveryNote.search')}
                 className="max-w-sm"
               />
               <Button variant="outline" size="icon">
@@ -170,13 +172,13 @@ const BonDeSortiePage = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>N° Bon de sortie</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Échéance</TableHead>
-                <TableHead className="text-right">Montant</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t('deliveryNote.number')}</TableHead>
+                <TableHead>{t('deliveryNote.client')}</TableHead>
+                <TableHead>{t('deliveryNote.date')}</TableHead>
+                <TableHead>{t('deliveryNote.dueDate')}</TableHead>
+                <TableHead className="text-right">{t('deliveryNote.amount')}</TableHead>
+                <TableHead>{t('deliveryNote.status')}</TableHead>
+                <TableHead className="text-right">{t('deliveryNote.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -214,23 +216,23 @@ const BonDeSortiePage = () => {
                           onClick={() => handleEditBonDeSortie(bonDeSortie.id)}
                         >
                           <Edit className="mr-2 h-4 w-4" />
-                          Modifier
+                          {t('deliveryNote.edit')}
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Eye className="mr-2 h-4 w-4" />
-                          Aperçu
+                          {t('deliveryNote.view')}
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <DownloadCloud className="mr-2 h-4 w-4" />
-                          Télécharger
+                          {t('deliveryNote.download')}
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Printer className="mr-2 h-4 w-4" />
-                          Imprimer
+                          {t('deliveryNote.print')}
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive">
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Supprimer
+                          {t('deliveryNote.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
