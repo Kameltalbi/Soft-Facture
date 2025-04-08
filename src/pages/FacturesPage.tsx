@@ -20,11 +20,9 @@ import { Input } from "@/components/ui/input";
 import {
   DownloadCloud,
   Edit,
-  Eye,
   Filter,
   MoreHorizontal,
   Plus,
-  Printer,
   Trash2,
   XCircle,
   CheckCircle,
@@ -374,19 +372,11 @@ const FacturesPage = () => {
                               <Edit className="mr-2 h-4 w-4" />
                               {t('invoice.edit')}
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Eye className="mr-2 h-4 w-4" />
-                              {t('invoice.view')}
-                            </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handleDownloadInvoice(facture.id)}
                             >
                               <DownloadCloud className="mr-2 h-4 w-4" />
                               {t('invoice.download')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Printer className="mr-2 h-4 w-4" />
-                              {t('invoice.print')}
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handlePayInvoice(facture.id)}
@@ -413,28 +403,16 @@ const FacturesPage = () => {
                         )}
                         {facture.statut === 'payee' && (
                           <>
-                            <DropdownMenuItem>
-                              <Eye className="mr-2 h-4 w-4" />
-                              {t('invoice.view')}
-                            </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handleDownloadInvoice(facture.id)}
                             >
                               <DownloadCloud className="mr-2 h-4 w-4" />
                               {t('invoice.download')}
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Printer className="mr-2 h-4 w-4" />
-                              {t('invoice.print')}
-                            </DropdownMenuItem>
                           </>
                         )}
                         {facture.statut === 'annulee' && (
                           <>
-                            <DropdownMenuItem>
-                              <Eye className="mr-2 h-4 w-4" />
-                              {t('invoice.view')}
-                            </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handleDownloadInvoice(facture.id)}
                             >
