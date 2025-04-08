@@ -251,7 +251,7 @@ const HomePage = () => {
         
         <div className="max-w-6xl mx-auto mt-8 pt-8 border-t border-gray-800">
           <div className="text-gray-400 text-sm">
-            © {new Date().getFullYear()} Softfacture. Tous droits réservés.
+            © {new Date().getFullYear()} Soft-Facture. Tous droits réservés.
           </div>
         </div>
       </footer>
