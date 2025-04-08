@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/auth-context';
+import { Session } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
 
 export type SubscriptionStatus = 'active' | 'expired' | 'none';
@@ -13,8 +13,8 @@ export interface SubscriptionInfo {
   expiresAt: Date | null;
 }
 
-export function useSubscription() {
-  const { session, authStatus } = useAuth();
+// Cette fonction prend les dépendances en paramètres au lieu d'utiliser useAuth
+export function useSubscription(session: Session | null, authStatus: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [subscription, setSubscription] = useState<SubscriptionInfo>({
     status: 'none',
@@ -37,6 +37,7 @@ export function useSubscription() {
 
       try {
         // Récupérer l'abonnement actif de l'utilisateur
+        // Nous utilisons select(*) pour éviter les problèmes de typage avec la table abonnements
         const { data, error } = await supabase
           .from('abonnements')
           .select('*')
@@ -55,7 +56,8 @@ export function useSubscription() {
           });
         } else if (data) {
           const now = new Date();
-          const expiresAt = new Date(data.date_fin);
+          // TypeScript ne connaît pas encore le type abonnements, donc on utilise any pour contourner
+          const expiresAt = new Date((data as any).date_fin);
           
           // Vérifier si l'abonnement est expiré malgré le statut "actif"
           if (expiresAt < now) {
@@ -63,17 +65,17 @@ export function useSubscription() {
             await supabase
               .from('abonnements')
               .update({ statut: 'expire' })
-              .eq('id', data.id);
+              .eq('id', (data as any).id);
               
             setSubscription({
               status: 'expired',
-              plan: data.plan,
+              plan: (data as any).plan as SubscriptionPlan,
               expiresAt
             });
           } else {
             setSubscription({
               status: 'active',
-              plan: data.plan,
+              plan: (data as any).plan as SubscriptionPlan,
               expiresAt
             });
           }
@@ -112,6 +114,7 @@ export function useSubscription() {
         endDate.setDate(endDate.getDate() + 14);
       }
       
+      // Utiliser des requêtes génériques pour éviter les problèmes de typage
       // Mettre à jour tous les abonnements existants comme expirés
       await supabase
         .from('abonnements')

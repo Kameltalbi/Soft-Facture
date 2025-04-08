@@ -1,8 +1,8 @@
 
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useAuthPermissions, AuthStatus } from '@/hooks/use-auth-permissions';
 import { Session } from '@supabase/supabase-js';
-import { useSubscription, SubscriptionInfo, SubscriptionPlan } from '@/hooks/use-subscription';
+import { SubscriptionInfo, SubscriptionPlan, useSubscription } from '@/hooks/use-subscription';
 
 interface AuthContextType {
   session: Session | null;
@@ -12,7 +12,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (email: string, password: string, nom: string, telephone?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<{ success: boolean; error?: string }>;
-  // Ajout des propriétés d'abonnement
+  // Propriétés d'abonnement
   subscription: SubscriptionInfo;
   isSubscriptionLoading: boolean;
   hasActiveSubscription: boolean;
@@ -23,15 +23,17 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const auth = useAuthPermissions();
+  
+  // Utiliser directement session et authStatus de auth
   const { 
     subscription, 
     isLoading: isSubscriptionLoading, 
     hasActiveSubscription,
     updateSubscription 
-  } = useSubscription();
+  } = useSubscription(auth.session, auth.authStatus);
 
   // Combiner les données d'auth et d'abonnement
-  const authContextValue = {
+  const authContextValue: AuthContextType = {
     ...auth,
     subscription,
     isSubscriptionLoading,

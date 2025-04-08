@@ -6,9 +6,10 @@ interface PaymentSummaryProps {
   montant: number;
   nom: string;
   email: string;
+  description?: string;
 }
 
-const PaymentSummary = ({ factureId, montant, nom, email }: PaymentSummaryProps) => {
+const PaymentSummary = ({ factureId, montant, nom, email, description }: PaymentSummaryProps) => {
   return (
     <div className="space-y-4">
       <div className="rounded-md bg-blue-50 p-4">
@@ -26,6 +27,12 @@ const PaymentSummary = ({ factureId, montant, nom, email }: PaymentSummaryProps)
           <div className="font-medium">{email || "Non spécifié"}</div>
         </div>
       </div>
+      
+      {description && (
+        <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-md">
+          {description}
+        </div>
+      )}
 
       <Card className="bg-gray-50 border-gray-200 p-4">
         <div className="flex justify-between items-center">
