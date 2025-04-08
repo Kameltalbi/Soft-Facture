@@ -1,5 +1,5 @@
 
-import { ToggleLeft, ToggleRight } from "lucide-react";
+import { ToggleLeft, ToggleRight, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
@@ -48,7 +48,14 @@ const TopBar = ({ title }: TopBarProps) => {
   
   return (
     <div className="flex items-center justify-between py-4 px-6 border-b">
-      <h1 className="text-2xl font-semibold">{title}</h1>
+      <div className="flex items-center">
+        <div className="hidden md:flex md:items-center md:mr-3">
+          <div className="flex items-center justify-center bg-invoice-blue-500 rounded-md w-8 h-8 mr-2">
+            <FileSpreadsheet className="w-5 h-5 text-white" />
+          </div>
+        </div>
+        <h1 className="text-2xl font-semibold">{title}</h1>
+      </div>
       
       {/* Centered date/time element */}
       <div className="font-bold text-[#228B22] text-[14px] absolute left-1/2 transform -translate-x-1/2">

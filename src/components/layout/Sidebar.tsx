@@ -13,7 +13,8 @@ import {
   ChevronLeft,
   FileText,
   Package2,
-  Tags
+  Tags,
+  FileSpreadsheet
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -128,16 +129,13 @@ const Sidebar = () => {
         <div className="h-screen fixed left-0 top-0 w-64 bg-sidebar flex flex-col border-r border-sidebar-border z-10">
           <div className="p-4 border-b border-sidebar-border flex justify-between items-center">
             <div className="flex items-center">
-              <img 
-                src="/logo.png" 
-                alt="Soft-Facture" 
-                className="w-8 h-8 mr-2" 
-                onError={handleImageError}
-              />
-              <div id="fallback-icon" style={{display: 'none'}} className="mr-2">
-                <LayoutDashboard className="text-invoice-blue-500" size={20} />
+              <div className="flex items-center justify-center bg-invoice-blue-500 rounded-md w-8 h-8 mr-2">
+                <FileSpreadsheet className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-sidebar-foreground">Soft-Facture</span>
+              <div className="flex flex-col">
+                <span className="text-base font-bold text-sidebar-foreground">Soft-Facture</span>
+                <span className="text-xs text-sidebar-foreground/70">Gestion de facturation</span>
+              </div>
             </div>
             <Button 
               variant="ghost" 
