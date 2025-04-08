@@ -18,6 +18,9 @@ const CategoriesPage = lazy(() => import('@/pages/CategoriesPage'));
 const ParametresPage = lazy(() => import('@/pages/ParametresPage'));
 const LoginPage = lazy(() => import('@/pages/LoginPage'));
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'));
+const PaiementPage = lazy(() => import('@/pages/PaiementPage'));
+const PaiementReussiPage = lazy(() => import('@/pages/PaiementReussiPage'));
+const PaiementEchouePage = lazy(() => import('@/pages/PaiementEchouePage'));
 
 // Wrapper pour le lazy loading
 const LazyLoad = (Component: React.LazyExoticComponent<() => JSX.Element>) => (
@@ -72,6 +75,18 @@ const router = createBrowserRouter([
   {
     path: '/register',
     element: LazyLoad(RegisterPage),
+  },
+  {
+    path: '/paiement',
+    element: LazyLoad(PaiementPage),
+  },
+  {
+    path: '/paiement-reussi',
+    element: LazyLoad(PaiementReussiPage),
+  },
+  {
+    path: '/paiement-echoue',
+    element: LazyLoad(PaiementEchouePage),
   },
   {
     path: '*',
