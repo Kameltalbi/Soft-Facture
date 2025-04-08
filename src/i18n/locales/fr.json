@@ -1,4 +1,3 @@
-
 {
   "common": {
     "dashboard": "Tableau de bord",
@@ -170,6 +169,7 @@
     "french": "Français",
     "english": "Anglais",
     "company_name": "Nom de l'entreprise",
+    "companyName": "Nom de l'entreprise",
     "address": "Adresse",
     "phone": "Téléphone",
     "email": "Email",
@@ -178,12 +178,14 @@
     "rib": "RIB",
     "currency": "Devise",
     "invoice_prefix": "Préfixe des factures",
+    "invoicePrefix": "Préfixe des factures",
     "default_tax": "TVA par défaut",
     "default_tax_rate": "Taux de TVA par défaut",
     "default_tax_value": "TVA en valeur",
     "custom_taxes": "Taxes personnalisées",
     "quoteSettings": "Paramètres du devis",
     "invoiceSettings": "Paramètres de la facture",
+    "purchaseOrderSettings": "Paramètres du bon de commande",
     "applySalesTax": "Appliquer la TVA",
     "showDiscount": "Afficher les remises",
     "advancePayment": "Afficher les acomptes",
@@ -222,6 +224,7 @@
     "taxInValue": "Taxe en valeur",
     "taxInValueDesc": "Afficher la taxe comme un montant fixe au lieu d'un pourcentage",
     "defaultVATAmount": "Montant de TVA par défaut",
+    "defaultVATRate": "Taux de TVA par défaut",
     "availableVATRates": "Taux de TVA disponibles",
     "standardRate": "Taux standard",
     "intermediateRate": "Taux intermédiaire",
