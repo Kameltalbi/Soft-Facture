@@ -1,4 +1,6 @@
-import { FilePdf, Download } from "lucide-react";
+
+import { Download } from "lucide-react";
+import { FilePdf } from "@/components/ui/custom-icons";
 import { Button } from "@/components/ui/button";
 import { getCurrencySymbol } from "../utils/devisUtils";
 import { ProductLine } from "./ProductLineTable";

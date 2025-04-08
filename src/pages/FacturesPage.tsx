@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -14,16 +13,15 @@ import {
 import { useTranslation } from "react-i18next";
 import { 
   Edit, 
-  Download, 
   X, 
   CheckCircle, 
   CreditCard, 
   Search, 
   Plus, 
   ArrowLeft,
-  ArrowRight,
-  FilePdf
+  ArrowRight
 } from "lucide-react";
+import { FilePdf } from "@/components/ui/custom-icons";
 import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
 import { FactureModal } from "@/components/factures/FactureModal";
 import { downloadInvoiceAsPDF } from "@/utils/pdfGenerator";

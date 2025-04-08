@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Client } from "@/types";
 import {
@@ -18,7 +19,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DownloadCloud, Edit, MoreHorizontal, Trash2, XCircle, CheckCircle, CreditCard, FilePdf } from "lucide-react";
+import { DownloadCloud, Edit, MoreHorizontal, Trash2, XCircle, CheckCircle, CreditCard } from "lucide-react";
+import { FilePdf } from "@/components/ui/custom-icons";
 import { StatutFacture } from "@/types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { downloadInvoiceAsPDF } from "@/utils/pdfGenerator";

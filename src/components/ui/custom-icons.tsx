@@ -18,3 +18,12 @@ export const FileCsv = (props: React.ComponentProps<typeof File>) => (
     </span>
   </div>
 );
+
+export const FilePdf = (props: React.ComponentProps<typeof File>) => (
+  <div className="relative">
+    <File {...props} className={`text-red-600 ${props.className || ""}`} />
+    <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 text-[8px] font-bold">
+      PDF
+    </span>
+  </div>
+);
