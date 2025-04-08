@@ -96,3 +96,30 @@ export interface BonDeSortieModalProps {
   onOpenChange: (open: boolean) => void;
   bonDeSortieId: string | null;
 }
+
+// Bon de Sortie Types
+export interface LigneProduitBonDeSortie {
+  id: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  tva: number;
+  montantTVA: number;
+  estTauxTVA: boolean;
+  discount: number;
+  total: number;
+}
+
+export interface BonDeSortie {
+  id: string;
+  numero: string;
+  clientId: string;
+  dateCreation: string;
+  dateEcheance: string;
+  lignes: LigneProduitBonDeSortie[];
+  sousTotal: number;
+  totalTVA: number;
+  totalTTC: number;
+  statut: StatutFacture;
+  notes?: string;
+}
