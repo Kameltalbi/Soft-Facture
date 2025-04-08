@@ -15,6 +15,7 @@ import CategoriesPage from "./pages/CategoriesPage";
 import ParametresPage from "./pages/ParametresPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import HomePage from "./pages/HomePage";
 import NotFound from "./pages/NotFound";
 
 // Import i18n
@@ -30,7 +31,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/factures" element={<FacturesPage />} />
             <Route path="/devis" element={<DevisPage />} />
             <Route path="/bon-de-sortie" element={<BonDeSortiePage />} />
