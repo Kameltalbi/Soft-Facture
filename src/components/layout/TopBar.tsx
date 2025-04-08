@@ -1,5 +1,5 @@
 
-import { Bell, ToggleLeft, ToggleRight } from "lucide-react";
+import { ToggleLeft, ToggleRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
@@ -73,13 +73,6 @@ const TopBar = ({ title }: TopBarProps) => {
               <ToggleLeft className="h-5 w-5 text-muted-foreground" />
             </div>
           )}
-        </Button>
-        
-        <Button size="icon" variant="outline" className="rounded-full relative">
-          <Bell size={18} />
-          <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-invoice-blue-500 text-[10px] text-white">
-            3
-          </span>
         </Button>
         
         <div className="flex items-center">
