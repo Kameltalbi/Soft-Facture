@@ -61,8 +61,17 @@ serve(async (req) => {
       body: JSON.stringify(konnectRequestBody)
     });
 
-    // Récupérer la réponse de l'API
-    const responseData = await response.json();
+    // Récupérer la réponse de l'API avec gestion des erreurs non-JSON
+    let responseData;
+    try {
+      responseData = await response.json();
+    } catch {
+      const text = await response.text();
+      return new Response(
+        JSON.stringify({ error: "Réponse non JSON", raw: text }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     // Vérifier si la réponse contient une erreur
     if (!response.ok) {
