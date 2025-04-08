@@ -25,15 +25,25 @@ export function SettingsTabs() {
     { id: "2", nom: "Euro", symbole: "€", separateurMillier: " ", nbDecimales: 2, estParDefaut: false },
     { id: "3", nom: "Dollar US", symbole: "$", separateurMillier: ",", nbDecimales: 2, estParDefaut: false }
   ]);
-  const [users, setUsers] = useState<User[]>([
-    { id: "1", nom: "Admin Système", email: "admin@example.com", telephone: "+216 XX XXX XXX", motDePasse: "" }
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
   
   const { t } = useTranslation();
   const { toast } = useToast();
 
-  // Load default currency on component mount
+  // Load users and default currency on component mount
   useEffect(() => {
+    // Load users from localStorage
+    const storedUsers = localStorage.getItem('users');
+    if (storedUsers) {
+      try {
+        const parsedUsers = JSON.parse(storedUsers);
+        setUsers(parsedUsers);
+      } catch (error) {
+        console.error("Failed to parse users from localStorage:", error);
+      }
+    }
+    
+    // Load default currency
     const storedCurrency = localStorage.getItem('defaultCurrency');
     if (storedCurrency) {
       // Update the current devise state
@@ -46,6 +56,13 @@ export function SettingsTabs() {
       })));
     }
   }, []);
+
+  // Save users to localStorage when they change
+  useEffect(() => {
+    if (users.length > 0) {
+      localStorage.setItem('users', JSON.stringify(users));
+    }
+  }, [users]);
 
   // Function to set a currency as default
   const setDefaultDevise = (symbole: string) => {
@@ -70,6 +87,16 @@ export function SettingsTabs() {
     toast({
       title: t('settings.saveSuccess'),
       description: t('settings.saveSuccessDesc'),
+    });
+  };
+
+  const handleSaveUsers = () => {
+    // Save users to localStorage
+    localStorage.setItem('users', JSON.stringify(users));
+    
+    toast({
+      title: t('settings.saveSuccess'),
+      description: "Les utilisateurs ont été enregistrés avec succès.",
     });
   };
 
@@ -134,7 +161,7 @@ export function SettingsTabs() {
         <UtilisateursTab
           users={users}
           setUsers={setUsers}
-          onSave={handleSaveSettings}
+          onSave={handleSaveUsers}
         />
       </TabsContent>
     </Tabs>

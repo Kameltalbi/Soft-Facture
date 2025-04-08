@@ -1,7 +1,9 @@
 
 import { User } from "./UserFormModal";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface UserListProps {
   users: User[];
@@ -10,6 +12,12 @@ interface UserListProps {
 }
 
 export function UserList({ users, onEdit, onDelete }: UserListProps) {
+  // Count permissions for a user
+  const countPermissions = (user: User) => {
+    if (!user.permissions) return 0;
+    return Object.entries(user.permissions).filter(([_, value]) => value).length;
+  };
+
   if (users.length === 0) {
     return (
       <div className="text-center py-6 text-muted-foreground">
@@ -26,7 +34,24 @@ export function UserList({ users, onEdit, onDelete }: UserListProps) {
           className="flex items-center justify-between p-3 border rounded-md"
         >
           <div className="space-y-1">
-            <div className="font-medium">{user.nom}</div>
+            <div className="font-medium flex items-center gap-2">
+              {user.nom}
+              {countPermissions(user) > 0 && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge variant="outline" className="ml-2 flex items-center gap-1">
+                        <ShieldCheck className="h-3 w-3" />
+                        <span>{countPermissions(user)} permissions</span>
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Cet utilisateur a {countPermissions(user)} permissions</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
             <div className="text-sm text-muted-foreground">{user.email}</div>
             {user.telephone && (
               <div className="text-sm text-muted-foreground">
