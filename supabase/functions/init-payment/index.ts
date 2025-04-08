@@ -5,14 +5,33 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const API_KEY = Deno.env.get("KONNECT_API_KEY");
 const WALLET_ID = Deno.env.get("KONNECT_WALLET_ID");
 
+// CORS headers pour permettre l'accès depuis n'importe quelle origine
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 // Fonction servant à initialiser un paiement via l'API Konnect
 serve(async (req) => {
+  // Gérer les requêtes OPTIONS (CORS preflight)
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   try {
     // Vérifier la méthode HTTP
     if (req.method !== "POST") {
       return new Response(
         JSON.stringify({ error: "Méthode non autorisée" }),
-        { status: 405, headers: { "Content-Type": "application/json" } }
+        { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Vérifier que les clés API sont disponibles
+    if (!API_KEY || !WALLET_ID) {
+      return new Response(
+        JSON.stringify({ error: "Configuration serveur incomplète" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -24,9 +43,11 @@ serve(async (req) => {
     if (!amount || !orderId) {
       return new Response(
         JSON.stringify({ error: "Données de paiement incomplètes" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    console.log(`Initialisation de paiement pour ${orderId}: ${amount} millimes`);
 
     // Préparer le corps de la requête pour Konnect
     const konnectRequestBody = {
@@ -51,46 +72,55 @@ serve(async (req) => {
       theme: "light"
     };
 
+    console.log("Appel API Konnect avec corps:", JSON.stringify(konnectRequestBody));
+
     // Appel à l'API Konnect
     const response = await fetch("https://gateway.konnect.network/api/payments/init-payment", {
       method: "POST",
       headers: {
-        "x-api-key": API_KEY!,
+        "x-api-key": API_KEY,
         "Content-Type": "application/json"
       },
       body: JSON.stringify(konnectRequestBody)
     });
 
+    console.log(`Réponse API Konnect status: ${response.status}`);
+
     // Récupérer la réponse de l'API avec gestion des erreurs non-JSON
     let responseData;
     try {
       responseData = await response.json();
-    } catch {
+      console.log("Réponse API Konnect (JSON):", JSON.stringify(responseData));
+    } catch (e) {
       const text = await response.text();
+      console.error("Erreur de parsing JSON:", e);
+      console.error("Réponse brute:", text);
       return new Response(
         JSON.stringify({ error: "Réponse non JSON", raw: text }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     // Vérifier si la réponse contient une erreur
     if (!response.ok) {
+      console.error("Erreur API Konnect:", responseData);
       return new Response(
         JSON.stringify({ error: "Erreur lors de l'initialisation du paiement", details: responseData }),
-        { status: response.status, headers: { "Content-Type": "application/json" } }
+        { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     // Retourner la réponse de l'API
     return new Response(
       JSON.stringify(responseData),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
     // Gérer les erreurs
+    console.error("Erreur générale:", error);
     return new Response(
       JSON.stringify({ error: "Erreur serveur", details: error.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
