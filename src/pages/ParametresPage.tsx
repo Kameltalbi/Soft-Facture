@@ -1,4 +1,3 @@
-
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +15,7 @@ import LanguageSelector from "@/components/settings/LanguageSelector";
 import { useToast } from "@/hooks/use-toast";
 import { DeviseManager } from "@/components/devise/DeviseManager";
 import { Devise } from "@/types";
+import { TaxePersonnaliseeManager } from "@/components/taxes/TaxePersonnaliseeManager";
 
 const ParametresPage = () => {
   const [taxeEnValeur, setTaxeEnValeur] = useState(false);
