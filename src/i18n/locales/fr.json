@@ -145,5 +145,29 @@
     },
     "revenueChart": "Graphique d'évolution du chiffre d'affaires",
     "clientDistribution": "Graphique de répartition des clients"
+  },
+  "quote": {
+    "title": "Gestion des devis",
+    "subtitle": "Créez, modifiez et suivez l'état de vos devis.",
+    "new": "Nouveau devis",
+    "list": "Liste des devis",
+    "search": "Rechercher un devis...",
+    "number": "N° Devis",
+    "client": "Client",
+    "date": "Date",
+    "dueDate": "Échéance",
+    "amount": "Montant",
+    "status": "Statut",
+    "actions": "Actions",
+    "edit": "Modifier",
+    "view": "Aperçu",
+    "download": "Télécharger",
+    "print": "Imprimer",
+    "delete": "Supprimer",
+    "status_paid": "Accepté",
+    "status_sent": "Envoyé",
+    "status_overdue": "En attente",
+    "status_draft": "Brouillon",
+    "status_unknown": "Inconnu"
   }
 }

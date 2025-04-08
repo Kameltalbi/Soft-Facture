@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { StatutFacture } from "@/types";
 import { DevisModal } from "@/components/devis/DevisModal";
+import { useTranslation } from "react-i18next";
 
 // Données fictives pour les devis
 const devisDemo = [
@@ -95,6 +96,7 @@ const DevisPage = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedDevis, setSelectedDevis] = useState<string | null>(null);
   const currencySymbol = getCurrencySymbol("TND"); // Default to TND
+  const { t, i18n } = useTranslation();
 
   const handleCreateDevis = () => {
     setSelectedDevis(null);
@@ -124,40 +126,48 @@ const DevisPage = () => {
   const getStatusLabel = (statut: StatutFacture) => {
     switch (statut) {
       case "payee":
-        return "Payée";
+        return t("quote.status_paid");
       case "envoyee":
-        return "Envoyée";
+        return t("quote.status_sent");
       case "retard":
-        return "En retard";
+        return t("quote.status_overdue");
       case "brouillon":
-        return "Brouillon";
+        return t("quote.status_draft");
       default:
-        return "Inconnu";
+        return t("quote.status_unknown");
     }
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString(i18n.language === 'fr' ? 'fr-FR' : 'en-US');
+  };
+
+  const formatCurrency = (amount: number) => {
+    return amount.toLocaleString(i18n.language === 'fr' ? 'fr-FR' : 'en-US');
+  };
+
   return (
-    <MainLayout title="Devis">
+    <MainLayout title={t("common.quotes")}>
       <div className="flex items-center justify-between mb-6">
         <div className="space-y-1">
-          <h2 className="text-2xl font-bold tracking-tight">Gestion des devis</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{t("quote.title")}</h2>
           <p className="text-muted-foreground">
-            Créez, modifiez et suivez l'état de vos devis.
+            {t("quote.subtitle")}
           </p>
         </div>
         <Button className="flex items-center" onClick={handleCreateDevis}>
           <Plus className="mr-2 h-4 w-4" />
-          Nouveau devis
+          {t("quote.new")}
         </Button>
       </div>
 
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Liste des devis</CardTitle>
+            <CardTitle>{t("quote.list")}</CardTitle>
             <div className="flex items-center space-x-2">
               <Input
-                placeholder="Rechercher un devis..."
+                placeholder={t("quote.search")}
                 className="max-w-sm"
               />
               <Button variant="outline" size="icon">
@@ -170,13 +180,13 @@ const DevisPage = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>N° Devis</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Échéance</TableHead>
-                <TableHead className="text-right">Montant</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("quote.number")}</TableHead>
+                <TableHead>{t("quote.client")}</TableHead>
+                <TableHead>{t("quote.date")}</TableHead>
+                <TableHead>{t("quote.dueDate")}</TableHead>
+                <TableHead className="text-right">{t("quote.amount")}</TableHead>
+                <TableHead>{t("quote.status")}</TableHead>
+                <TableHead className="text-right">{t("quote.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -185,13 +195,13 @@ const DevisPage = () => {
                   <TableCell className="font-medium">{devis.numero}</TableCell>
                   <TableCell>{devis.client.nom}</TableCell>
                   <TableCell>
-                    {new Date(devis.dateCreation).toLocaleDateString("fr-FR")}
+                    {formatDate(devis.dateCreation)}
                   </TableCell>
                   <TableCell>
-                    {new Date(devis.dateEcheance).toLocaleDateString("fr-FR")}
+                    {formatDate(devis.dateEcheance)}
                   </TableCell>
                   <TableCell className="text-right">
-                    {devis.totalTTC.toLocaleString("fr-FR")} {currencySymbol}
+                    {formatCurrency(devis.totalTTC)} {currencySymbol}
                   </TableCell>
                   <TableCell>
                     <span
@@ -214,23 +224,23 @@ const DevisPage = () => {
                           onClick={() => handleEditDevis(devis.id)}
                         >
                           <Edit className="mr-2 h-4 w-4" />
-                          Modifier
+                          {t("quote.edit")}
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Eye className="mr-2 h-4 w-4" />
-                          Aperçu
+                          {t("quote.view")}
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <DownloadCloud className="mr-2 h-4 w-4" />
-                          Télécharger
+                          {t("quote.download")}
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Printer className="mr-2 h-4 w-4" />
-                          Imprimer
+                          {t("quote.print")}
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive">
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Supprimer
+                          {t("quote.delete")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
