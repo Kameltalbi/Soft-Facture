@@ -22,21 +22,36 @@ const RegisterPage = () => {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const plan = searchParams.get("plan") as SubscriptionPlan || "trial";
+  const redirect = searchParams.get("redirect") || "";
 
   // Redirect if already logged in
   useEffect(() => {
     if (authStatus === 'authenticated') {
-      if (plan === 'annual') {
-        navigate(`/paiement?plan=${plan}&montant=390`);
-      } else {
-        navigate('/dashboard');
-      }
+      handleRedirection();
     }
-  }, [authStatus, navigate, plan]);
+  }, [authStatus]);
 
   if (authStatus === 'authenticated') {
     return null;
   }
+
+  // Fonction pour gérer la redirection après connexion
+  const handleRedirection = () => {
+    // Si un paramètre de redirection est spécifié
+    if (redirect === 'tarifs') {
+      navigate('/tarifs');
+    } else if (redirect === 'paiement' && plan === 'annual') {
+      navigate(`/paiement?plan=${plan}&montant=390`);
+    } else if (redirect === 'dashboard') {
+      navigate('/dashboard');
+    } else if (plan === 'annual') {
+      // Comportement par défaut pour le plan annuel
+      navigate(`/paiement?plan=${plan}&montant=390`);
+    } else {
+      // Si aucune redirection spécifiée et plan gratuit ou non spécifié
+      navigate('/tarifs');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,22 +71,22 @@ const RegisterPage = () => {
       const result = await signup(email, password, nom, telephone);
       
       if (result.success) {
-        // Essayer de créer l'abonnement d'essai immédiatement
-        // Note : le déclencheur SQL va également créer un abonnement d'essai par défaut
+        // Essayer de créer l'abonnement d'essai immédiatement si plan=trial
         if (plan === 'trial') {
           await updateSubscription('trial');
           toast({
             title: "Inscription réussie",
             description: "Votre essai gratuit de 14 jours a été activé. Bienvenue !",
           });
-          navigate('/dashboard');
-        } else if (plan === 'annual') {
+        } else {
           toast({
             title: "Inscription réussie",
-            description: "Votre compte a été créé. Vous allez être redirigé vers la page de paiement.",
+            description: "Votre compte a été créé.",
           });
-          navigate(`/paiement?plan=${plan}&montant=390`);
         }
+        
+        // Rediriger selon les paramètres
+        handleRedirection();
       } else {
         toast({
           title: "Erreur d'inscription",

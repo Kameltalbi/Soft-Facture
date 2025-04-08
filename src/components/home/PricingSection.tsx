@@ -2,8 +2,39 @@
 import PricingCard from "./PricingCard";
 import { useAuth } from "@/contexts/auth-context";
 
-const PricingSection = () => {
+interface PricingSectionProps {
+  isStandalonePage?: boolean;
+}
+
+const PricingSection = ({ isStandalonePage = false }: PricingSectionProps) => {
   const { authStatus, hasActiveSubscription } = useAuth();
+  
+  // Ajuster les liens de redirection en fonction du contexte
+  const getTrialLink = () => {
+    // Si c'est une page autonome et que l'utilisateur est connecté
+    if (isStandalonePage && authStatus === 'authenticated') {
+      return "/dashboard";
+    }
+    // Si c'est une page autonome et que l'utilisateur n'est pas connecté  
+    else if (isStandalonePage) {
+      return "/register?plan=trial&redirect=dashboard";
+    }
+    // Comportement par défaut (page d'accueil)
+    return authStatus === 'authenticated' ? "/paiement?plan=trial" : "/register?plan=trial";
+  };
+  
+  const getAnnualLink = () => {
+    // Si c'est une page autonome et que l'utilisateur est connecté
+    if (isStandalonePage && authStatus === 'authenticated') {
+      return "/paiement?plan=annual&montant=390";
+    }
+    // Si c'est une page autonome et que l'utilisateur n'est pas connecté
+    else if (isStandalonePage) {
+      return "/register?plan=annual&redirect=paiement";
+    }
+    // Comportement par défaut (page d'accueil)
+    return authStatus === 'authenticated' ? "/paiement?plan=annual&montant=390" : "/register?plan=annual";
+  };
   
   const plans = [
     {
@@ -21,7 +52,7 @@ const PricingSection = () => {
       ],
       buttonText: "Commencer gratuitement",
       buttonVariant: "outline" as const,
-      link: authStatus === 'authenticated' ? "/paiement?plan=trial" : "/register?plan=trial"
+      link: getTrialLink()
     },
     {
       name: "Abonnement Annuel",
@@ -40,7 +71,7 @@ const PricingSection = () => {
       ],
       buttonText: "S'abonner maintenant",
       buttonVariant: "default" as const,
-      link: authStatus === 'authenticated' ? "/paiement?plan=annual&montant=390" : "/register?plan=annual",
+      link: getAnnualLink(),
       popular: true
     }
   ];
@@ -61,14 +92,16 @@ const PricingSection = () => {
   };
 
   return (
-    <section className="py-20 px-6 bg-gray-50">
+    <section className={`py-20 px-6 ${!isStandalonePage ? 'bg-gray-50' : 'bg-background'}`}>
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Tarifs simples et transparents</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Choisissez le plan qui convient le mieux à vos besoins, sans frais cachés.
-          </p>
-        </div>
+        {!isStandalonePage && (
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Tarifs simples et transparents</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Choisissez le plan qui convient le mieux à vos besoins, sans frais cachés.
+            </p>
+          </div>
+        )}
 
         {authStatus === 'authenticated' && hasActiveSubscription && renderAbonnementActif()}
 
