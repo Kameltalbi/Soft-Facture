@@ -18,8 +18,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Edit, MoreHorizontal, Plus, Trash2, UserPlus } from "lucide-react";
+import { Edit, MoreHorizontal, Trash2, UserPlus } from "lucide-react";
 import { ClientFormModal } from "@/components/clients/ClientFormModal";
+import { useTranslation } from "react-i18next";
 
 // Données fictives pour les clients
 const clientsDemo = [
@@ -60,6 +61,7 @@ const clientsDemo = [
 const ClientsPage = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const handleCreateClient = () => {
     setSelectedClient(null);
@@ -72,28 +74,28 @@ const ClientsPage = () => {
   };
 
   return (
-    <MainLayout title="Clients">
+    <MainLayout title={t('common.clients')}>
       <div className="flex items-center justify-between mb-6">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold tracking-tight">
-            Gestion des clients
+            {t('client.title')}
           </h2>
           <p className="text-muted-foreground">
-            Gérez votre liste de clients et leurs informations.
+            {t('client.subtitle')}
           </p>
         </div>
         <Button className="flex items-center" onClick={handleCreateClient}>
           <UserPlus className="mr-2 h-4 w-4" />
-          Nouveau client
+          {t('client.new')}
         </Button>
       </div>
 
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Liste des clients</CardTitle>
+            <CardTitle>{t('client.list')}</CardTitle>
             <Input
-              placeholder="Rechercher un client..."
+              placeholder={t('client.search')}
               className="max-w-sm"
             />
           </div>
@@ -102,11 +104,11 @@ const ClientsPage = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nom</TableHead>
-                <TableHead>Société</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Téléphone</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t('client.form.name')}</TableHead>
+                <TableHead>{t('client.form.company')}</TableHead>
+                <TableHead>{t('client.form.email')}</TableHead>
+                <TableHead>{t('client.form.phone')}</TableHead>
+                <TableHead className="text-right">{t('invoice.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -128,11 +130,11 @@ const ClientsPage = () => {
                           onClick={() => handleEditClient(client.id)}
                         >
                           <Edit className="mr-2 h-4 w-4" />
-                          Modifier
+                          {t('invoice.edit')}
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive">
                           <Trash2 className="mr-2 h-4 w-4" />
-                          Supprimer
+                          {t('invoice.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
