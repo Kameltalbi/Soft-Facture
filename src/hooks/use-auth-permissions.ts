@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { supabase, checkPermission } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
 
@@ -66,9 +66,13 @@ export function useAuthPermissions() {
       
       // Convert to permission map for easy checking
       const permMap: Record<string, boolean> = {};
-      permissionsData.forEach(p => {
-        permMap[p.permission_id] = true;
-      });
+      if (permissionsData) {
+        permissionsData.forEach(p => {
+          if (p.permission_id) {
+            permMap[p.permission_id] = true;
+          }
+        });
+      }
       
       setPermissions(permMap);
     } catch (error) {
