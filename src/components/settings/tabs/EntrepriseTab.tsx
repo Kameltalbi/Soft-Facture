@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Image, Save, Upload } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import { useState, useEffect } from 'react';
 
 interface EntrepriseTabProps {
   onSave: () => void;
@@ -13,6 +14,21 @@ interface EntrepriseTabProps {
 
 export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
   const { t } = useTranslation();
+  const [companyName, setCompanyName] = useState("Soft-Facture");
+
+  // Load company name from localStorage on component mount
+  useEffect(() => {
+    const storedCompanyName = localStorage.getItem('companyName');
+    if (storedCompanyName) {
+      setCompanyName(storedCompanyName);
+    }
+  }, []);
+
+  const handleSave = () => {
+    // Save company name to localStorage
+    localStorage.setItem('companyName', companyName);
+    onSave();
+  };
 
   return (
     <Card>
@@ -47,7 +63,8 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
             <Input
               id="companyName"
               placeholder={t('settings.companyName')}
-              defaultValue="Votre Entreprise"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
             />
           </div>
           <div className="space-y-2">
@@ -77,7 +94,7 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
               id="email"
               type="email"
               placeholder={t('settings.email')}
-              defaultValue="contact@votreentreprise.fr"
+              defaultValue="contact@soft-facture.fr"
             />
           </div>
           <div className="space-y-2">
@@ -110,7 +127,7 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
         </div>
 
         <div className="flex justify-end">
-          <Button onClick={onSave}>
+          <Button onClick={handleSave}>
             <Save className="mr-2 h-4 w-4" />
             {t('settings.save')}
           </Button>
