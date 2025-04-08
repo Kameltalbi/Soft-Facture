@@ -33,21 +33,21 @@ export function BonDeSortieSettingsPanel({
       <CardContent className="space-y-6">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <Label htmlFor="tva" className="cursor-pointer">
+            <Label htmlFor="tva-bon-sortie" className="cursor-pointer">
               {t('settings.applySalesTax')}
             </Label>
             <Switch
-              id="tva"
+              id="tva-bon-sortie"
               checked={applyTVA}
               onCheckedChange={setApplyTVA}
             />
           </div>
           <div className="flex items-center justify-between">
-            <Label htmlFor="discount" className="cursor-pointer">
+            <Label htmlFor="discount-bon-sortie" className="cursor-pointer">
               {t('settings.showDiscount')}
             </Label>
             <Switch
-              id="discount"
+              id="discount-bon-sortie"
               checked={showDiscount}
               onCheckedChange={setShowDiscount}
             />
@@ -55,9 +55,9 @@ export function BonDeSortieSettingsPanel({
         </div>
 
         <div className="space-y-3">
-          <Label htmlFor="currency">{t('settings.currency')}</Label>
+          <Label htmlFor="currency-bon-sortie">{t('settings.currency')}</Label>
           <Select value={currency} onValueChange={setCurrency}>
-            <SelectTrigger>
+            <SelectTrigger id="currency-bon-sortie">
               <SelectValue placeholder={t('settings.selectCurrency')} />
             </SelectTrigger>
             <SelectContent>

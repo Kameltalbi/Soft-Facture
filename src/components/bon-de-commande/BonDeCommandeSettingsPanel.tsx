@@ -1,7 +1,10 @@
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useTranslation } from 'react-i18next';
+import LanguageSelector from "../settings/LanguageSelector";
 
 interface BonDeCommandeSettingsPanelProps {
   applyTVA: boolean;
@@ -20,43 +23,42 @@ export function BonDeCommandeSettingsPanel({
   currency,
   setCurrency,
 }: BonDeCommandeSettingsPanelProps) {
+  const { t } = useTranslation();
+  
   return (
-    <div className="w-80 bg-slate-50 p-6 border-l rounded-tr-md rounded-br-md">
-      <h3 className="font-semibold mb-4">Paramètres du bon de commande</h3>
-      <div className="space-y-6">
-        <div className="space-y-2">
+    <Card className="w-80 h-fit">
+      <CardHeader>
+        <CardTitle className="text-base">{t('purchaseOrder.settings')}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <Label htmlFor="apply-tva" className="cursor-pointer">Appliquer la TVA</Label>
+            <Label htmlFor="apply-tva-bon-commande" className="cursor-pointer">
+              {t('settings.applySalesTax')}
+            </Label>
             <Switch
-              id="apply-tva"
+              id="apply-tva-bon-commande"
               checked={applyTVA}
               onCheckedChange={setApplyTVA}
             />
           </div>
-          <p className="text-xs text-muted-foreground">
-            Activer ou désactiver l'application de la TVA sur le bon de commande
-          </p>
-        </div>
-
-        <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-discount" className="cursor-pointer">Afficher les remises</Label>
+            <Label htmlFor="show-discount-bon-commande" className="cursor-pointer">
+              {t('settings.showDiscount')}
+            </Label>
             <Switch
-              id="show-discount"
+              id="show-discount-bon-commande"
               checked={showDiscount}
               onCheckedChange={setShowDiscount}
             />
           </div>
-          <p className="text-xs text-muted-foreground">
-            Afficher ou masquer les champs de remise sur le bon de commande
-          </p>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="currency">Devise</Label>
+        <div className="space-y-3">
+          <Label htmlFor="currency-bon-commande">{t('settings.currency')}</Label>
           <Select value={currency} onValueChange={setCurrency}>
-            <SelectTrigger id="currency">
-              <SelectValue placeholder="Choisir une devise" />
+            <SelectTrigger id="currency-bon-commande">
+              <SelectValue placeholder={t('settings.selectCurrency')} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="TND">TND - Dinar Tunisien</SelectItem>
@@ -67,11 +69,10 @@ export function BonDeCommandeSettingsPanel({
               <SelectItem value="CAD">CAD - Dollar Canadien</SelectItem>
             </SelectContent>
           </Select>
-          <p className="text-xs text-muted-foreground">
-            Choisir la devise à utiliser pour ce bon de commande
-          </p>
         </div>
-      </div>
-    </div>
+
+        <LanguageSelector />
+      </CardContent>
+    </Card>
   );
 }
