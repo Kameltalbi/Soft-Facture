@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, LogIn } from "lucide-react";
+import Logo from "@/components/ui/logo";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -128,7 +129,7 @@ const LoginPage = () => {
       <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 text-white p-8 flex flex-col justify-center">
         <div className="max-w-md mx-auto space-y-8">
           <div className="mb-8 flex justify-center">
-            <div className="text-4xl font-bold text-white">LOGO</div>
+            <Logo variant="light" size="lg" />
           </div>
           
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold">
