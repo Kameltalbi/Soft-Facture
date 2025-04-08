@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Edit, Upload, FileExcel, FileCsv, MoreHorizontal, Trash2, UserPlus } from "lucide-react";
+import { Edit, Upload, MoreHorizontal, Trash2, UserPlus } from "lucide-react";
+import { FileExcel, FileCsv } from "@/components/ui/custom-icons";
 import { ClientFormModal } from "@/components/clients/ClientFormModal";
 import { ClientDetailView } from "@/components/clients/ClientDetailView";
 import { useTranslation } from "react-i18next";
@@ -144,8 +145,8 @@ const ClientsPage = () => {
                 <p className="mb-4">{t('import.clients.description', 'Select an Excel (.xlsx) or CSV file to import clients.')}</p>
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-2">
-                    <FileExcel className="w-10 h-10 text-green-600" />
-                    <FileCsv className="w-10 h-10 text-blue-600" />
+                    <FileExcel className="w-10 h-10" />
+                    <FileCsv className="w-10 h-10" />
                     <span>{t('import.supportedFormats', 'Supported formats: Excel & CSV')}</span>
                   </div>
                   <Input 
