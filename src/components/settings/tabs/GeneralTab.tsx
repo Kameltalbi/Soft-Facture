@@ -7,6 +7,8 @@ import { Save } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from "@/components/settings/LanguageSelector";
 import { Devise } from "@/types";
+import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
 
 interface GeneralTabProps {
   devise: string;
@@ -17,6 +19,15 @@ interface GeneralTabProps {
 
 export function GeneralTab({ devise, setDevise, devises, onSave }: GeneralTabProps) {
   const { t } = useTranslation();
+  const { toast } = useToast();
+
+  const handleSetDefaultCurrency = (value: string) => {
+    // Update current currency
+    setDevise(value);
+    
+    // Update the default flag in devises array
+    // This would be handled by the parent component (SettingsTabs)
+  };
 
   return (
     <Card>
@@ -31,9 +42,9 @@ export function GeneralTab({ devise, setDevise, devises, onSave }: GeneralTabPro
           <LanguageSelector />
         </div>
         
-        <div className="space-y-2">
+        <div className="space-y-4">
           <Label htmlFor="currency">{t('settings.currency')}</Label>
-          <Select value={devise} onValueChange={setDevise}>
+          <Select value={devise} onValueChange={handleSetDefaultCurrency}>
             <SelectTrigger className="max-w-md">
               <SelectValue placeholder={t('settings.selectCurrency')} />
             </SelectTrigger>
@@ -45,6 +56,23 @@ export function GeneralTab({ devise, setDevise, devises, onSave }: GeneralTabPro
               ))}
             </SelectContent>
           </Select>
+          
+          <div className="flex items-center justify-between pt-2">
+            <Label htmlFor="default-currency" className="cursor-pointer">
+              {t('settings.setAsDefaultCurrency')}
+            </Label>
+            <Switch 
+              id="default-currency"
+              checked={devises.find(d => d.symbole === devise)?.estParDefaut || false}
+              onCheckedChange={() => {
+                toast({
+                  title: t('settings.defaultCurrencyUpdated'),
+                  description: t('settings.defaultCurrencyUpdatedDesc')
+                });
+                onSave();
+              }}
+            />
+          </div>
         </div>
 
         <div className="flex justify-end">

@@ -32,8 +32,33 @@ export function SettingsTabs() {
   const { t } = useTranslation();
   const { toast } = useToast();
 
+  // Function to set a currency as default
+  const setDefaultDevise = (symbole: string) => {
+    const updatedDevises = devises.map(d => ({
+      ...d,
+      estParDefaut: d.symbole === symbole
+    }));
+    
+    setDevises(updatedDevises);
+    
+    // Also set the current devise to the new default
+    setDevise(symbole);
+    
+    // In a real app, you would save this to localStorage or a database
+    localStorage.setItem('defaultCurrency', symbole);
+  };
+
+  const handleSaveGeneral = () => {
+    // Set the current devise as default
+    setDefaultDevise(devise);
+    
+    toast({
+      title: t('settings.saveSuccess'),
+      description: t('settings.saveSuccessDesc'),
+    });
+  };
+
   const handleSaveSettings = () => {
-    // Here you would typically save all settings to your backend or local storage
     toast({
       title: t('settings.saveSuccess'),
       description: t('settings.saveSuccessDesc'),
@@ -86,7 +111,7 @@ export function SettingsTabs() {
           devise={devise}
           setDevise={setDevise}
           devises={devises}
-          onSave={handleSaveSettings}
+          onSave={handleSaveGeneral}
         />
       </TabsContent>
 

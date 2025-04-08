@@ -5,6 +5,8 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from "../settings/LanguageSelector";
+import { useEffect } from "react";
+import { getDefaultDeviseCode } from "@/utils/formatters";
 
 interface BonDeCommandeSettingsPanelProps {
   applyTVA: boolean;
@@ -24,6 +26,12 @@ export function BonDeCommandeSettingsPanel({
   setCurrency,
 }: BonDeCommandeSettingsPanelProps) {
   const { t } = useTranslation();
+  
+  // Load default currency when component mounts
+  useEffect(() => {
+    const defaultCurrency = getDefaultDeviseCode();
+    setCurrency(defaultCurrency);
+  }, [setCurrency]);
   
   return (
     <Card className="w-80 h-fit">
