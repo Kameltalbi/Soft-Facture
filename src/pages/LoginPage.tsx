@@ -75,8 +75,14 @@ const LoginPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-12"
+                className="h-12 text-foreground"
+                autoComplete="email"
               />
+              {email && (
+                <p className="text-sm text-blue-600 mt-1">
+                  Email: {email}
+                </p>
+              )}
             </div>
             
             <div className="space-y-2">
@@ -93,6 +99,7 @@ const LoginPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="h-12"
+                autoComplete="current-password"
               />
             </div>
             

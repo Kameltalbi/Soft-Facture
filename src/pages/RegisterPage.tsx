@@ -135,6 +135,7 @@ const RegisterPage = () => {
                 onChange={(e) => setNom(e.target.value)}
                 required
                 className="h-12"
+                autoComplete="name"
               />
             </div>
             
@@ -147,8 +148,14 @@ const RegisterPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-12"
+                className="h-12 text-foreground"
+                autoComplete="email"
               />
+              {email && (
+                <p className="text-sm text-blue-600 mt-1">
+                  Email: {email}
+                </p>
+              )}
             </div>
             
             <div className="space-y-2">
@@ -159,6 +166,7 @@ const RegisterPage = () => {
                 value={telephone}
                 onChange={(e) => setTelephone(e.target.value)}
                 className="h-12"
+                autoComplete="tel"
               />
             </div>
             
@@ -171,6 +179,7 @@ const RegisterPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="h-12"
+                autoComplete="new-password"
               />
             </div>
             
@@ -183,6 +192,7 @@ const RegisterPage = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 className="h-12"
+                autoComplete="new-password"
               />
             </div>
             
