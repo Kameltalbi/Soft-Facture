@@ -304,7 +304,14 @@
     "last_invoice": "Dernière facture",
     "no_invoices": "Aucune facture pour ce client",
     "no_quotes": "Aucun devis pour ce client",
-    "edit": "Modifier le client"
+    "edit": "Modifier le client",
+    "delete": {
+      "title": "Supprimer le client",
+      "confirmation": "Êtes-vous sûr de vouloir supprimer ce client ?",
+      "warning": "Cette action ne peut pas être annulée.",
+      "success": "Client supprimé avec succès",
+      "error": "Échec de la suppression du client"
+    }
   },
   "deliveryNote": {
     "settings": "Paramètres du bon de sortie"

@@ -38,3 +38,13 @@ export const clientsDemo = [
     tva: "FR 23 456 789 012",
   },
 ];
+
+// In a real app, this would be an API call
+export const deleteClient = (id: string) => {
+  const index = clientsDemo.findIndex(client => client.id === id);
+  if (index !== -1) {
+    clientsDemo.splice(index, 1);
+    return true;
+  }
+  return false;
+};
