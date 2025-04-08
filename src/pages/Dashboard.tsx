@@ -4,14 +4,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronUp, CircleDollarSign, Users, ReceiptText, TrendingUp, AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Dashboard = () => {
+  const { t } = useTranslation();
+  
   return (
-    <MainLayout title="Tableau de bord">
+    <MainLayout title="dashboard.title">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Chiffre d'affaires</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.revenue')}</CardTitle>
             <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -21,7 +24,7 @@ const Dashboard = () => {
                 <ChevronUp className="h-3 w-3 mr-0.5" />
                 20%
               </span>
-              <span>vs mois précédent</span>
+              <span>{t('dashboard.vsLastMonth')}</span>
             </div>
             <div className="mt-4">
               <Progress value={65} className="h-1.5" />
@@ -31,7 +34,7 @@ const Dashboard = () => {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Clients actifs</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.activeClients')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -41,7 +44,7 @@ const Dashboard = () => {
                 <ChevronUp className="h-3 w-3 mr-0.5" />
                 12%
               </span>
-              <span>vs mois précédent</span>
+              <span>{t('dashboard.vsLastMonth')}</span>
             </div>
             <div className="mt-4">
               <Progress value={48} className="h-1.5" />
@@ -51,7 +54,7 @@ const Dashboard = () => {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Factures émises</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.issuedInvoices')}</CardTitle>
             <ReceiptText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -61,7 +64,7 @@ const Dashboard = () => {
                 <ChevronUp className="h-3 w-3 mr-0.5" />
                 8%
               </span>
-              <span>vs mois précédent</span>
+              <span>{t('dashboard.vsLastMonth')}</span>
             </div>
             <div className="mt-4">
               <Progress value={72} className="h-1.5" />
@@ -71,7 +74,7 @@ const Dashboard = () => {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Factures impayées</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.unpaidInvoices')}</CardTitle>
             <AlertTriangle className="h-4 w-4 text-invoice-status-pending" />
           </CardHeader>
           <CardContent>
@@ -80,7 +83,7 @@ const Dashboard = () => {
               <span className="text-invoice-status-pending flex items-center font-medium">
                 4 factures
               </span>
-              <span>en attente</span>
+              <span>{t('invoice.status.pending')}</span>
             </div>
             <div className="mt-4">
               <Progress value={35} className="h-1.5 bg-muted/50" indicatorClassName="bg-invoice-status-pending" />
@@ -92,26 +95,26 @@ const Dashboard = () => {
       <Tabs defaultValue="mois" className="mt-6">
         <div className="flex items-center justify-between">
           <TabsList>
-            <TabsTrigger value="jour">Jour</TabsTrigger>
-            <TabsTrigger value="semaine">Semaine</TabsTrigger>
-            <TabsTrigger value="mois">Mois</TabsTrigger>
-            <TabsTrigger value="annee">Année</TabsTrigger>
+            <TabsTrigger value="jour">{t('dashboard.day')}</TabsTrigger>
+            <TabsTrigger value="semaine">{t('dashboard.week')}</TabsTrigger>
+            <TabsTrigger value="mois">{t('dashboard.month')}</TabsTrigger>
+            <TabsTrigger value="annee">{t('dashboard.year')}</TabsTrigger>
           </TabsList>
         </div>
         
         <TabsContent value="mois" className="mt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Performance mensuelle</CardTitle>
+              <CardTitle>{t('dashboard.monthlyPerformance')}</CardTitle>
               <CardDescription>
-                Évolution du chiffre d'affaires pour le mois en cours
+                {t('dashboard.monthlyPerformanceDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-96 flex items-center justify-center">
                 <div className="text-muted-foreground flex flex-col items-center">
                   <TrendingUp size={48} className="mb-2 text-invoice-blue-300" />
-                  <p>Graphique d'évolution du chiffre d'affaires</p>
+                  <p>{t('dashboard.revenueChart')}</p>
                 </div>
               </div>
             </CardContent>
@@ -122,9 +125,9 @@ const Dashboard = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-6">
         <Card className="col-span-2">
           <CardHeader>
-            <CardTitle>Factures récentes</CardTitle>
+            <CardTitle>{t('dashboard.recentInvoices')}</CardTitle>
             <CardDescription>
-              Les 5 dernières factures émises
+              {t('dashboard.recentInvoicesDesc')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -144,7 +147,11 @@ const Dashboard = () => {
                           ? "bg-invoice-status-pending/10 text-invoice-status-pending" 
                           : "bg-invoice-status-draft/10 text-invoice-status-draft"
                     }`}>
-                      {i % 3 === 0 ? "Payée" : i % 2 === 0 ? "En attente" : "Brouillon"}
+                      {i % 3 === 0 
+                        ? t('dashboard.status.paid') 
+                        : i % 2 === 0 
+                          ? t('dashboard.status.pending') 
+                          : t('dashboard.status.draft')}
                     </div>
                   </div>
                 </div>
@@ -155,16 +162,16 @@ const Dashboard = () => {
         
         <Card>
           <CardHeader>
-            <CardTitle>Clients par secteur</CardTitle>
+            <CardTitle>{t('dashboard.clientsBySector')}</CardTitle>
             <CardDescription>
-              Répartition des clients par secteur d'activité
+              {t('dashboard.clientsBySectorDesc')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-64 flex items-center justify-center">
               <div className="text-muted-foreground flex flex-col items-center">
                 <Users size={36} className="mb-2 text-invoice-blue-300" />
-                <p>Graphique de répartition des clients</p>
+                <p>{t('dashboard.clientDistribution')}</p>
               </div>
             </div>
           </CardContent>

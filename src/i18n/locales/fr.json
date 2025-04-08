@@ -1,4 +1,3 @@
-
 {
   "common": {
     "dashboard": "Tableau de bord",
@@ -121,5 +120,30 @@
       "cancel": "Annuler",
       "save": "Enregistrer"
     }
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "revenue": "Chiffre d'affaires",
+    "activeClients": "Clients actifs",
+    "issuedInvoices": "Factures émises",
+    "unpaidInvoices": "Factures impayées",
+    "vsLastMonth": "vs mois précédent",
+    "monthlyPerformance": "Performance mensuelle",
+    "monthlyPerformanceDesc": "Évolution du chiffre d'affaires pour le mois en cours",
+    "recentInvoices": "Factures récentes",
+    "recentInvoicesDesc": "Les 5 dernières factures émises",
+    "clientsBySector": "Clients par secteur",
+    "clientsBySectorDesc": "Répartition des clients par secteur d'activité",
+    "day": "Jour",
+    "week": "Semaine",
+    "month": "Mois",
+    "year": "Année",
+    "status": {
+      "paid": "Payée",
+      "pending": "En attente",
+      "draft": "Brouillon"
+    },
+    "revenueChart": "Graphique d'évolution du chiffre d'affaires",
+    "clientDistribution": "Graphique de répartition des clients"
   }
 }

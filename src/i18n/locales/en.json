@@ -1,4 +1,3 @@
-
 {
   "common": {
     "dashboard": "Dashboard",
@@ -121,5 +120,30 @@
       "cancel": "Cancel",
       "save": "Save"
     }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "revenue": "Revenue",
+    "activeClients": "Active Clients",
+    "issuedInvoices": "Issued Invoices",
+    "unpaidInvoices": "Unpaid Invoices",
+    "vsLastMonth": "vs previous month",
+    "monthlyPerformance": "Monthly Performance",
+    "monthlyPerformanceDesc": "Revenue evolution for the current month",
+    "recentInvoices": "Recent Invoices",
+    "recentInvoicesDesc": "Last 5 issued invoices",
+    "clientsBySector": "Clients by Sector",
+    "clientsBySectorDesc": "Distribution of clients by business sector",
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "year": "Year",
+    "status": {
+      "paid": "Paid",
+      "pending": "Pending",
+      "draft": "Draft"
+    },
+    "revenueChart": "Revenue evolution chart",
+    "clientDistribution": "Client distribution chart"
   }
 }
