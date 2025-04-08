@@ -5,8 +5,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { ArrowRight, UserPlus, CheckCircle2 } from "lucide-react";
 
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
@@ -67,81 +67,144 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="w-full max-w-md p-4">
-        <Card>
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Créer un compte</CardTitle>
-            <CardDescription className="text-center">
-              Entrez vos informations pour créer un compte
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="nom">Nom complet</Label>
-                <Input
-                  id="nom"
-                  placeholder="Votre nom"
-                  value={nom}
-                  onChange={(e) => setNom(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="exemple@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="telephone">Téléphone (optionnel)</Label>
-                <Input
-                  id="telephone"
-                  placeholder="+216 XX XXX XXX"
-                  value={telephone}
-                  onChange={(e) => setTelephone(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Mot de passe</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Inscription en cours..." : "S'inscrire"}
-              </Button>
-            </form>
-          </CardContent>
-          <CardFooter className="flex justify-center">
-            <p className="text-sm text-gray-500">
+    <div className="flex flex-col md:flex-row min-h-screen bg-background">
+      {/* Section promo avec fond bleu */}
+      <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 text-white p-8 flex flex-col justify-center order-2 md:order-1">
+        <div className="max-w-md mx-auto space-y-8">
+          <div className="mb-8 flex justify-center">
+            <div className="text-4xl font-bold text-white">LOGO</div>
+          </div>
+          
+          <h1 className="text-3xl md:text-4xl font-bold">
+            Simplifiez la gestion de votre entreprise
+          </h1>
+          
+          <p className="text-lg opacity-90">
+            Notre application vous offre une solution complète pour la gestion de vos activités commerciales.
+            Factures, devis, clients, produits - tout est centralisé dans une interface moderne et intuitive.
+          </p>
+          
+          <div className="space-y-4 pt-6">
+            <div className="flex items-center space-x-3">
+              <CheckCircle2 className="h-6 w-6 text-blue-300" />
+              <p>Gestion simplifiée des factures et devis</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <CheckCircle2 className="h-6 w-6 text-blue-300" />
+              <p>Organisation optimale de vos clients</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <CheckCircle2 className="h-6 w-6 text-blue-300" />
+              <p>Suivi efficace de vos produits</p>
+            </div>
+          </div>
+          
+          <div className="pt-4">
+            <Button 
+              variant="secondary" 
+              size="lg" 
+              className="bg-white text-blue-700 hover:bg-blue-50"
+              asChild
+            >
+              <Link to="/login">
+                Déjà inscrit ? Se connecter
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Section formulaire */}
+      <div className="w-full md:w-1/2 p-8 flex items-center justify-center order-1 md:order-2">
+        <div className="w-full max-w-md space-y-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight">Créer un compte</h2>
+            <p className="mt-2 text-muted-foreground">
+              Rejoignez-nous et simplifiez votre gestion d'entreprise
+            </p>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="nom">Nom complet</Label>
+              <Input
+                id="nom"
+                placeholder="Votre nom"
+                value={nom}
+                onChange={(e) => setNom(e.target.value)}
+                required
+                className="h-12"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="exemple@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="h-12"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="telephone">Téléphone (optionnel)</Label>
+              <Input
+                id="telephone"
+                placeholder="+216 XX XXX XXX"
+                value={telephone}
+                onChange={(e) => setTelephone(e.target.value)}
+                className="h-12"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="password">Mot de passe</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="h-12"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className="h-12"
+              />
+            </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full h-12 text-base font-medium mt-6" 
+              disabled={isLoading}
+            >
+              {isLoading ? "Inscription en cours..." : "S'inscrire"}
+              <UserPlus className="ml-2 h-5 w-5" />
+            </Button>
+          </form>
+          
+          <div className="text-center mt-6">
+            <p className="text-sm text-muted-foreground">
               Vous avez déjà un compte?{" "}
-              <Link to="/login" className="text-primary hover:underline">
+              <Link to="/login" className="text-primary font-medium hover:underline">
                 Se connecter
               </Link>
             </p>
-          </CardFooter>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

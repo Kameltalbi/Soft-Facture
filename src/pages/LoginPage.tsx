@@ -5,8 +5,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { ArrowRight, LogIn } from "lucide-react";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -54,57 +54,99 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="w-full max-w-md p-4">
-        <Card>
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Connexion</CardTitle>
-            <CardDescription className="text-center">
-              Entrez votre email et mot de passe pour vous connecter
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="exemple@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+    <div className="flex flex-col md:flex-row min-h-screen bg-background">
+      {/* Section formulaire */}
+      <div className="w-full md:w-1/2 p-8 flex items-center justify-center">
+        <div className="w-full max-w-md space-y-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight">Connexion</h2>
+            <p className="mt-2 text-muted-foreground">
+              Entrez vos identifiants pour accéder à votre espace
+            </p>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="exemple@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="h-12"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Mot de passe</Label>
+                <a href="#" className="text-sm text-primary hover:underline">
+                  Mot de passe oublié?
+                </a>
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Mot de passe</Label>
-                  <a href="#" className="text-sm text-primary hover:underline">
-                    Mot de passe oublié?
-                  </a>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Connexion en cours..." : "Se connecter"}
-              </Button>
-            </form>
-          </CardContent>
-          <CardFooter className="flex justify-center">
-            <p className="text-sm text-gray-500">
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="h-12"
+              />
+            </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full h-12 text-base font-medium" 
+              disabled={isLoading}
+            >
+              {isLoading ? "Connexion en cours..." : "Se connecter"}
+              <LogIn className="ml-2 h-5 w-5" />
+            </Button>
+          </form>
+          
+          <div className="text-center mt-6">
+            <p className="text-sm text-muted-foreground">
               Vous n'avez pas de compte?{" "}
-              <Link to="/register" className="text-primary hover:underline">
+              <Link to="/register" className="text-primary font-medium hover:underline">
                 S'inscrire
               </Link>
             </p>
-          </CardFooter>
-        </Card>
+          </div>
+        </div>
+      </div>
+      
+      {/* Section promo avec fond bleu */}
+      <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 text-white p-8 flex flex-col justify-center">
+        <div className="max-w-md mx-auto space-y-8">
+          <div className="mb-8 flex justify-center">
+            <div className="text-4xl font-bold text-white">LOGO</div>
+          </div>
+          
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold">
+            Bienvenue sur votre gestionnaire d'entreprise
+          </h1>
+          
+          <p className="text-lg md:text-xl opacity-90">
+            Simplifiez votre gestion quotidienne. Notre application vous permet de gérer vos factures, 
+            devis, clients et produits en un seul endroit, avec une interface intuitive et efficace.
+          </p>
+          
+          <div className="pt-6">
+            <Button 
+              variant="secondary" 
+              size="lg" 
+              className="bg-white text-blue-700 hover:bg-blue-50"
+              asChild
+            >
+              <Link to="/register">
+                Créer un compte maintenant
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
