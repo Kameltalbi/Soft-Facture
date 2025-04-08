@@ -31,6 +31,7 @@ import {
 import { StatutFacture } from "@/types";
 import { FactureModal } from "@/components/factures/FactureModal";
 import { useTranslation } from "react-i18next";
+import { useToast } from "@/hooks/use-toast";
 
 // Données fictives pour les factures
 const facturesDemo = [
@@ -97,6 +98,7 @@ const FacturesPage = () => {
   const [selectedFacture, setSelectedFacture] = useState<string | null>(null);
   const currencySymbol = getCurrencySymbol("TND"); // Default to TND
   const { t, i18n } = useTranslation();
+  const { toast } = useToast();
 
   const handleCreateInvoice = () => {
     setSelectedFacture(null);
@@ -104,8 +106,16 @@ const FacturesPage = () => {
   };
 
   const handleEditInvoice = (id: string) => {
-    setSelectedFacture(id);
-    setOpenModal(true);
+    // Find the invoice to edit
+    const factureToEdit = facturesDemo.find(facture => facture.id === id);
+    if (factureToEdit) {
+      setSelectedFacture(id);
+      setOpenModal(true);
+      toast({
+        title: t('invoice.edit_started'),
+        description: t('invoice.edit_invoice_number', { number: factureToEdit.numero }),
+      });
+    }
   };
 
   const getStatusColor = (statut: StatutFacture) => {

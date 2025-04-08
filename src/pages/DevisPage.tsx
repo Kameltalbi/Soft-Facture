@@ -31,6 +31,7 @@ import {
 import { StatutFacture } from "@/types";
 import { DevisModal } from "@/components/devis/DevisModal";
 import { useTranslation } from "react-i18next";
+import { useToast } from "@/hooks/use-toast";
 
 // Données fictives pour les devis
 const devisDemo = [
@@ -97,6 +98,7 @@ const DevisPage = () => {
   const [selectedDevis, setSelectedDevis] = useState<string | null>(null);
   const currencySymbol = getCurrencySymbol("TND"); // Default to TND
   const { t, i18n } = useTranslation();
+  const { toast } = useToast();
 
   const handleCreateDevis = () => {
     setSelectedDevis(null);
@@ -104,8 +106,16 @@ const DevisPage = () => {
   };
 
   const handleEditDevis = (id: string) => {
-    setSelectedDevis(id);
-    setOpenModal(true);
+    // Find the quote to edit
+    const devisToEdit = devisDemo.find(devis => devis.id === id);
+    if (devisToEdit) {
+      setSelectedDevis(id);
+      setOpenModal(true);
+      toast({
+        title: t('quote.edit_started', 'Editing Quote'),
+        description: t('quote.edit_quote_number', { number: devisToEdit.numero }, 'Now editing quote #{{number}}'),
+      });
+    }
   };
 
   const getStatusColor = (statut: StatutFacture) => {
