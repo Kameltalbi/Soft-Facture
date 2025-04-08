@@ -20,7 +20,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Edit, MoreHorizontal, Trash2, UserPlus } from "lucide-react";
 import { ClientFormModal } from "@/components/clients/ClientFormModal";
+import { ClientDetailView } from "@/components/clients/ClientDetailView";
 import { useTranslation } from "react-i18next";
+import { Client } from "@/types";
 
 // Données fictives pour les clients
 const clientsDemo = [
@@ -31,6 +33,7 @@ const clientsDemo = [
     email: "contact@abc.fr",
     telephone: "01 23 45 67 89",
     adresse: "123 Rue de Paris, 75001 Paris",
+    tva: "FR 12 345 678 901",
   },
   {
     id: "2",
@@ -39,6 +42,7 @@ const clientsDemo = [
     email: "jean.dupont@xyz.fr",
     telephone: "06 12 34 56 78",
     adresse: "456 Avenue des Clients, 69002 Lyon",
+    tva: "FR 98 765 432 109",
   },
   {
     id: "3",
@@ -47,6 +51,7 @@ const clientsDemo = [
     email: "marie.martin@def.fr",
     telephone: "07 98 76 54 32",
     adresse: "789 Boulevard Central, 33000 Bordeaux",
+    tva: "FR 45 678 901 234",
   },
   {
     id: "4",
@@ -55,12 +60,16 @@ const clientsDemo = [
     email: "pierre.durand@studio.fr",
     telephone: "06 54 32 10 98",
     adresse: "10 Rue de la Création, 44000 Nantes",
+    tva: "FR 23 456 789 012",
   },
 ];
 
 const ClientsPage = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [openDetailView, setOpenDetailView] = useState<boolean>(false);
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
+  const [selectedDetailClient, setSelectedDetailClient] = useState<Client | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const { t } = useTranslation();
 
   const handleCreateClient = () => {
@@ -68,10 +77,23 @@ const ClientsPage = () => {
     setOpenModal(true);
   };
 
-  const handleEditClient = (id: string) => {
+  const handleEditClient = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent row click event
     setSelectedClient(id);
     setOpenModal(true);
   };
+
+  const handleViewClient = (client: Client) => {
+    setSelectedDetailClient(client);
+    setOpenDetailView(true);
+  };
+
+  const filteredClients = clientsDemo.filter(client => 
+    client.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.societe?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.telephone?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <MainLayout title={t('common.clients')}>
@@ -97,6 +119,8 @@ const ClientsPage = () => {
             <Input
               placeholder={t('client.search')}
               className="max-w-sm"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </CardHeader>
@@ -112,8 +136,12 @@ const ClientsPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {clientsDemo.map((client) => (
-                <TableRow key={client.id}>
+              {filteredClients.map((client) => (
+                <TableRow 
+                  key={client.id} 
+                  className="cursor-pointer hover:bg-muted"
+                  onClick={() => handleViewClient(client)}
+                >
                   <TableCell className="font-medium">{client.nom}</TableCell>
                   <TableCell>{client.societe}</TableCell>
                   <TableCell>{client.email}</TableCell>
@@ -121,18 +149,22 @@ const ClientsPage = () => {
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={(e) => e.stopPropagation()} // Prevent row click
+                        >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => handleEditClient(client.id)}
+                          onClick={(e) => handleEditClient(client.id, e)}
                         >
                           <Edit className="mr-2 h-4 w-4" />
                           {t('invoice.edit')}
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem className="text-destructive" onClick={(e) => e.stopPropagation()}>
                           <Trash2 className="mr-2 h-4 w-4" />
                           {t('invoice.delete')}
                         </DropdownMenuItem>
@@ -141,6 +173,13 @@ const ClientsPage = () => {
                   </TableCell>
                 </TableRow>
               ))}
+              {filteredClients.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-6">
+                    {t('client.no_results')}
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -150,6 +189,12 @@ const ClientsPage = () => {
         open={openModal}
         onOpenChange={setOpenModal}
         clientId={selectedClient}
+      />
+
+      <ClientDetailView
+        open={openDetailView}
+        onOpenChange={setOpenDetailView}
+        client={selectedDetailClient}
       />
     </MainLayout>
   );
