@@ -24,6 +24,18 @@ export function DevisPreview({
   montantTTCEnLettres
 }: DevisPreviewProps) {
   const currencySymbol = getCurrencySymbol(currency);
+  
+  // These would come from the company settings in a real implementation
+  const companyInfo = {
+    name: "Votre Entreprise",
+    address: "123 Rue de Paris",
+    city: "75001 Paris, France",
+    phone: "01 23 45 67 89",
+    email: "contact@votreentreprise.fr",
+    rib: "12345678901",
+    iban: "FR76 1234 5678 9101 1121 3141 5161",
+    swift: "BFRPFRPP"
+  };
 
   return (
     <div className="invoice-paper animate-fade-in py-8 px-10">
@@ -35,11 +47,11 @@ export function DevisPreview({
             </p>
           </div>
           <div className="mt-4 text-sm">
-            <p className="font-semibold">Votre Entreprise</p>
-            <p>123 Rue de Paris</p>
-            <p>75001 Paris, France</p>
-            <p>Tél: 01 23 45 67 89</p>
-            <p>Email: contact@votreentreprise.fr</p>
+            <p className="font-semibold">{companyInfo.name}</p>
+            <p>{companyInfo.address}</p>
+            <p>{companyInfo.city}</p>
+            <p>Tél: {companyInfo.phone}</p>
+            <p>Email: {companyInfo.email}</p>
           </div>
         </div>
         <div className="text-right">
@@ -176,6 +188,9 @@ export function DevisPreview({
         <p>Ce devis est valable pour une durée de 30 jours.</p>
         <p>
           Pour accepter ce devis, veuillez le retourner signé avec la mention "Bon pour accord".
+        </p>
+        <p className="mt-2">
+          Coordonnées bancaires : IBAN {companyInfo.iban}, SWIFT {companyInfo.swift}
         </p>
         <p className="mt-2">
           Merci pour votre confiance. Pour toute question concernant

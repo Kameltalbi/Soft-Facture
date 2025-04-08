@@ -81,11 +81,11 @@ const ParametresPage = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="siret">{t('settings.siret')}</Label>
+                  <Label htmlFor="rib">{t('settings.rib')}</Label>
                   <Input
-                    id="siret"
-                    placeholder={t('settings.siret')}
-                    defaultValue="123 456 789 00012"
+                    id="rib"
+                    placeholder={t('settings.rib')}
+                    defaultValue=""
                   />
                 </div>
               </div>
@@ -122,19 +122,19 @@ const ParametresPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="website">{t('settings.website')}</Label>
+                  <Label htmlFor="iban">{t('settings.iban')}</Label>
                   <Input
-                    id="website"
-                    placeholder={t('settings.website')}
-                    defaultValue="www.votreentreprise.fr"
+                    id="iban"
+                    placeholder="IBAN"
+                    defaultValue="FR76 1234 5678 9101 1121 3141 5161"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="rib">{t('settings.bankDetails')}</Label>
+                  <Label htmlFor="swift">{t('settings.swift')}</Label>
                   <Input
-                    id="rib"
-                    placeholder="IBAN"
-                    defaultValue="FR76 1234 5678 9101 1121 3141 5161"
+                    id="swift"
+                    placeholder="SWIFT"
+                    defaultValue="BFRPFRPP"
                   />
                 </div>
               </div>
