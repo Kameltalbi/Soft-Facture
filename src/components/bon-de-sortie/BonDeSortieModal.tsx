@@ -11,6 +11,7 @@ import { BonDeSortieSettingsPanel } from "./BonDeSortieSettingsPanel";
 import { TaxeInput } from "../factures/TaxeInput";
 import { toast } from "sonner";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
+import { BonDeSortieModalProps } from "@/types";
 
 // Fonction pour convertir un nombre en lettres en français
 const numeroEnLettres = (nombre: number): string => {

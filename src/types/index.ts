@@ -83,3 +83,16 @@ export interface Parametre {
   taxeEnValeur: boolean; // Added field to determine the default tax input mode
   taxesPersonnalisees?: TaxePersonnalisee[]; // Added field to store custom taxes
 }
+
+// Modal Props Types
+export interface FactureModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  factureId: string | null;
+}
+
+export interface BonDeSortieModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  bonDeSortieId: string | null;
+}

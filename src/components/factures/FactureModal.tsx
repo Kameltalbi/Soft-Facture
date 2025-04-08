@@ -10,6 +10,7 @@ import { Trash2, Plus, Settings, Save, ArrowUpRight, X } from "lucide-react";
 import { FactureSettingsPanel } from "./FactureSettingsPanel";
 import { TaxeInput } from "./TaxeInput";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
+import { FactureModalProps } from "@/types";
 
 // Fonction pour convertir un nombre en lettres en français
 const numeroEnLettres = (nombre: number): string => {
