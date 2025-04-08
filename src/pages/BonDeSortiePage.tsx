@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -267,7 +266,6 @@ const BonDeSortiePage = () => {
                 <TableHead>{t('deliveryNote.date')}</TableHead>
                 <TableHead>{t('deliveryNote.dueDate')}</TableHead>
                 <TableHead className="text-right">{t('deliveryNote.amount')}</TableHead>
-                <TableHead>{t('deliveryNote.status')}</TableHead>
                 <TableHead className="text-right">{t('deliveryNote.actions')}</TableHead>
               </TableRow>
             </TableHeader>
@@ -284,15 +282,6 @@ const BonDeSortiePage = () => {
                   </TableCell>
                   <TableCell className="text-right">
                     {bonDeSortie.totalTTC.toLocaleString("fr-FR")} {currencySymbol}
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${getStatusColor(
-                        bonDeSortie.statut
-                      )}`}
-                    >
-                      {getStatusLabel(bonDeSortie.statut)}
-                    </span>
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>

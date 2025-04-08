@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -328,7 +327,6 @@ const DevisPage = () => {
                 <TableHead>{t("quote.date")}</TableHead>
                 <TableHead>{t("quote.dueDate")}</TableHead>
                 <TableHead className="text-right">{t("quote.amount")}</TableHead>
-                <TableHead>{t("quote.status")}</TableHead>
                 <TableHead className="text-right">{t("quote.actions")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -346,15 +344,6 @@ const DevisPage = () => {
                   <TableCell className="text-right">
                     {formatCurrency(devis.totalTTC)} {currencySymbol}
                   </TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${getStatusColor(
-                        devis.statut
-                      )}`}
-                    >
-                      {getStatusLabel(devis.statut)}
-                    </span>
-                  </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -363,70 +352,39 @@ const DevisPage = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {devis.statut !== 'annulee' && devis.statut !== 'payee' && (
-                          <>
-                            <DropdownMenuItem
-                              onClick={() => handleEditDevis(devis.id)}
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              {t('quote.edit')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleDownloadDevis(devis.id)}
-                            >
-                              <DownloadCloud className="mr-2 h-4 w-4" />
-                              {t('quote.download')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleConvertToInvoice(devis.id)}
-                              className="text-blue-600"
-                            >
-                              <FilePlus className="mr-2 h-4 w-4" />
-                              {t('quote.convert_to_invoice')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleValidateDevis(devis.id)}
-                              className="text-invoice-status-paid"
-                            >
-                              <CheckCircle className="mr-2 h-4 w-4" />
-                              {t('quote.validate')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleCancelDevis(devis.id)}
-                              className="text-destructive"
-                            >
-                              <XCircle className="mr-2 h-4 w-4" />
-                              {t('quote.cancel')}
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                        {devis.statut === 'payee' && (
-                          <>
-                            <DropdownMenuItem 
-                              onClick={() => handleDownloadDevis(devis.id)}
-                            >
-                              <DownloadCloud className="mr-2 h-4 w-4" />
-                              {t('quote.download')}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => handleConvertToInvoice(devis.id)}
-                              className="text-blue-600"
-                            >
-                              <FilePlus className="mr-2 h-4 w-4" />
-                              {t('quote.convert_to_invoice')}
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                        {devis.statut === 'annulee' && (
-                          <>
-                            <DropdownMenuItem 
-                              onClick={() => handleDownloadDevis(devis.id)}
-                            >
-                              <DownloadCloud className="mr-2 h-4 w-4" />
-                              {t('quote.download')}
-                            </DropdownMenuItem>
-                          </>
-                        )}
+                        <DropdownMenuItem
+                          onClick={() => handleEditDevis(devis.id)}
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          {t('quote.edit')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleDownloadDevis(devis.id)}
+                        >
+                          <DownloadCloud className="mr-2 h-4 w-4" />
+                          {t('quote.download')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleConvertToInvoice(devis.id)}
+                          className="text-blue-600"
+                        >
+                          <FilePlus className="mr-2 h-4 w-4" />
+                          {t('quote.convert_to_invoice')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleValidateDevis(devis.id)}
+                          className="text-invoice-status-paid"
+                        >
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          {t('quote.validate')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => handleCancelDevis(devis.id)}
+                          className="text-destructive"
+                        >
+                          <XCircle className="mr-2 h-4 w-4" />
+                          {t('quote.cancel')}
+                        </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive">
                           <Trash2 className="mr-2 h-4 w-4" />
                           {t('quote.delete')}
@@ -447,6 +405,7 @@ const DevisPage = () => {
         devisId={selectedDevis}
       />
 
+      {/* Cancel Alert Dialog */}
       <AlertDialog open={openCancelDialog} onOpenChange={setOpenCancelDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -467,6 +426,7 @@ const DevisPage = () => {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Validate Alert Dialog */}
       <AlertDialog open={openValidateDialog} onOpenChange={setOpenValidateDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -487,6 +447,7 @@ const DevisPage = () => {
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Convert to Invoice Alert Dialog */}
       <AlertDialog open={openConvertDialog} onOpenChange={setOpenConvertDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
