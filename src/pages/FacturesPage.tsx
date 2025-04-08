@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -21,10 +20,12 @@ import {
   Search, 
   Plus, 
   ArrowLeft,
-  ArrowRight
+  ArrowRight,
+  FilePdf
 } from "lucide-react";
 import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
 import { FactureModal } from "@/components/factures/FactureModal";
+import { downloadInvoiceAsPDF } from "@/utils/pdfGenerator";
 
 // Données factices pour la démonstration
 const demoFactures = [
@@ -169,6 +170,26 @@ const FacturesPage = () => {
     return t(`invoice.status_${status}`) || status;
   };
   
+  const handleDownloadPDF = (facture: any) => {
+    // Construct invoice data for PDF generation
+    const invoiceData = {
+      id: facture.id.toString(),
+      numero: facture.number,
+      client: {
+        id: "1",
+        nom: facture.client,
+        email: "contact@client.fr",
+      },
+      dateCreation: facture.date,
+      dateEcheance: facture.dueDate,
+      totalTTC: facture.amount,
+      statut: facture.status,
+    };
+    
+    // Download the PDF
+    downloadInvoiceAsPDF(invoiceData);
+  };
+  
   return (
     <MainLayout title={t("invoice.title")}>
       <div className="flex flex-col space-y-6">
@@ -271,43 +292,42 @@ const FacturesPage = () => {
                         <Button 
                           variant="ghost" 
                           size="icon"
-                          onClick={() => openModal("download", facture)}
-                        >
-                          <Download className="h-4 w-4" />
-                          <span className="sr-only">{t("invoice.download")}</span>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => openModal("cancel", facture)}
-                        >
-                          <X className="h-4 w-4" />
-                          <span className="sr-only">{t("invoice.cancel")}</span>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => openModal("validate", facture)}
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                          <span className="sr-only">{t("invoice.validate")}</span>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => openModal("pay", facture)}
-                        >
-                          <CreditCard className="h-4 w-4" />
-                          <span className="sr-only">{t("invoice.pay")}</span>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                          onClick={() => handleDownloadPDF(facture)}
+                      >
+                        <FilePdf className="h-4 w-4" />
+                        <span className="sr-only">{t("invoice.download")}</span>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => openModal("cancel", facture)}
+                      >
+                        <X className="h-4 w-4" />
+                        <span className="sr-only">{t("invoice.cancel")}</span>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => openModal("validate", facture)}
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                        <span className="sr-only">{t("invoice.validate")}</span>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => openModal("pay", facture)}
+                      >
+                        <CreditCard className="h-4 w-4" />
+                        <span className="sr-only">{t("invoice.pay")}</span>
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
       
       {isModalOpen && (

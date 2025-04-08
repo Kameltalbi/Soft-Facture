@@ -1,4 +1,5 @@
-
+import { FilePdf, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { getCurrencySymbol } from "../utils/devisUtils";
 import { ProductLine } from "./ProductLineTable";
 
@@ -11,6 +12,7 @@ interface DevisPreviewProps {
   totalTVA: number;
   totalTTC: number;
   montantTTCEnLettres: string;
+  onDownload?: () => void;
 }
 
 export function DevisPreview({
@@ -21,7 +23,8 @@ export function DevisPreview({
   subtotal,
   totalTVA,
   totalTTC,
-  montantTTCEnLettres
+  montantTTCEnLettres,
+  onDownload
 }: DevisPreviewProps) {
   const currencySymbol = getCurrencySymbol(currency);
   
@@ -38,7 +41,21 @@ export function DevisPreview({
   };
 
   return (
-    <div className="invoice-paper animate-fade-in py-8 px-10">
+    <div className="relative invoice-paper animate-fade-in py-8 px-10">
+      {onDownload && (
+        <div className="absolute top-4 right-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onDownload}
+            className="bg-white/80 hover:bg-white"
+          >
+            <FilePdf className="mr-2 h-4 w-4" />
+            Télécharger PDF
+          </Button>
+        </div>
+      )}
+      
       <div className="flex justify-between items-start mb-8">
         <div>
           <div className="w-52 h-14 bg-invoice-blue-100 flex items-center justify-center rounded">

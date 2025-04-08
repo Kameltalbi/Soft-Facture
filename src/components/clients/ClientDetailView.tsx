@@ -18,9 +18,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DownloadCloud, Edit, MoreHorizontal, Trash2, XCircle, CheckCircle, CreditCard } from "lucide-react";
+import { DownloadCloud, Edit, MoreHorizontal, Trash2, XCircle, CheckCircle, CreditCard, FilePdf } from "lucide-react";
 import { StatutFacture } from "@/types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { downloadInvoiceAsPDF } from "@/utils/pdfGenerator";
 
 // Import from demo data
 import { devisDemo } from "../devis/DevisData";
@@ -126,6 +127,27 @@ export function ClientDetailView({
       default:
         return t('invoice.status_unknown');
     }
+  };
+
+  // Handler for downloading the invoice as PDF
+  const handleDownloadPDF = (invoice: any) => {
+    // Construct invoice data for PDF generation
+    const invoiceData = {
+      id: invoice.id,
+      numero: invoice.numero,
+      client: {
+        id: client?.id || "1",
+        nom: client?.nom || "Client",
+        email: client?.email || "email@client.fr",
+      },
+      dateCreation: invoice.dateCreation,
+      dateEcheance: invoice.dateEcheance,
+      totalTTC: invoice.totalTTC,
+      statut: invoice.statut,
+    };
+    
+    // Download the PDF
+    downloadInvoiceAsPDF(invoiceData);
   };
 
   return (
@@ -268,8 +290,8 @@ export function ClientDetailView({
                                       <Edit className="mr-2 h-4 w-4" />
                                       {t('invoice.edit')}
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                      <DownloadCloud className="mr-2 h-4 w-4" />
+                                    <DropdownMenuItem onClick={() => handleDownloadPDF(invoice)}>
+                                      <FilePdf className="mr-2 h-4 w-4" />
                                       {t('invoice.download')}
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>

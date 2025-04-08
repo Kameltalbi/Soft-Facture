@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Trash2, Plus, Settings, Save, ArrowUpRight, X } from "lucide-react";
+import { Trash2, Plus, Settings, Save, ArrowUpRight, X, FilePdf } from "lucide-react";
 import { FactureSettingsPanel } from "./FactureSettingsPanel";
 import { TaxeInput } from "./TaxeInput";
 import { FactureModalProps } from "@/types";
+import { downloadInvoiceAsPDF } from "@/utils/pdfGenerator";
 
 // Fonction pour convertir un nombre en lettres en français
 const numeroEnLettres = (nombre: number): string => {
@@ -250,6 +251,32 @@ export function FactureModal({
     }
     return `Montant à payer en toutes lettres: ${montantTTCEnLettres}`;
   };
+
+    // Handler for downloading the invoice as PDF
+    const handleDownloadPDF = () => {
+      // Construct invoice data for PDF generation
+      const invoiceData = {
+        id: factureId || "new",
+        numero: isEditing ? "FAC2025-001" : "FAC2025-005",
+        client: {
+          id: "1",
+          nom: "Entreprise ABC",
+          email: "contact@abc.fr",
+          adresse: "456 Avenue des Clients, 69002 Lyon, France"
+        },
+        dateCreation: new Date().toISOString(),
+        dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
+        totalTTC: totalTTC,
+        statut: "brouillon",
+        produits: productLines,
+        applyTVA,
+        showDiscount,
+        currency
+      };
+      
+      // Download the PDF
+      downloadInvoiceAsPDF(invoiceData);
+    };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -690,6 +717,10 @@ export function FactureModal({
         <div className="flex justify-end gap-2 mt-6">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Annuler
+          </Button>
+          <Button variant="outline" onClick={handleDownloadPDF}>
+            <FilePdf className="mr-2 h-4 w-4" />
+            Télécharger PDF
           </Button>
           <Button variant="outline">
             <ArrowUpRight className="mr-2 h-4 w-4" />
