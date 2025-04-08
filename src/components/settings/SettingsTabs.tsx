@@ -1,7 +1,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from 'react-i18next';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EntrepriseTab } from "./tabs/EntrepriseTab";
 import { FacturationTab } from "./tabs/FacturationTab";
 import { TaxesTab } from "./tabs/TaxesTab";
@@ -32,6 +32,21 @@ export function SettingsTabs() {
   const { t } = useTranslation();
   const { toast } = useToast();
 
+  // Load default currency on component mount
+  useEffect(() => {
+    const storedCurrency = localStorage.getItem('defaultCurrency');
+    if (storedCurrency) {
+      // Update the current devise state
+      setDevise(storedCurrency);
+      
+      // Update the devises array to reflect the current default
+      setDevises(prevDevises => prevDevises.map(d => ({
+        ...d,
+        estParDefaut: d.symbole === storedCurrency
+      })));
+    }
+  }, []);
+
   // Function to set a currency as default
   const setDefaultDevise = (symbole: string) => {
     const updatedDevises = devises.map(d => ({
@@ -44,7 +59,7 @@ export function SettingsTabs() {
     // Also set the current devise to the new default
     setDevise(symbole);
     
-    // In a real app, you would save this to localStorage or a database
+    // Save to localStorage
     localStorage.setItem('defaultCurrency', symbole);
   };
 
@@ -66,7 +81,7 @@ export function SettingsTabs() {
   };
 
   return (
-    <Tabs defaultValue="entreprise">
+    <Tabs defaultValue="general">
       <TabsList className="mb-4">
         <TabsTrigger value="entreprise">{t('settings.companyTab')}</TabsTrigger>
         <TabsTrigger value="facturation">{t('settings.billingTab')}</TabsTrigger>

@@ -9,6 +9,8 @@ import LanguageSelector from "@/components/settings/LanguageSelector";
 import { Devise } from "@/types";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useState, useEffect } from "react";
 
 interface GeneralTabProps {
   devise: string;
@@ -20,13 +22,33 @@ interface GeneralTabProps {
 export function GeneralTab({ devise, setDevise, devises, onSave }: GeneralTabProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
+  const [isDefault, setIsDefault] = useState(false);
+
+  // Check if the current currency is the default one
+  useEffect(() => {
+    const selectedDevise = devises.find(d => d.symbole === devise);
+    setIsDefault(selectedDevise?.estParDefaut || false);
+  }, [devise, devises]);
 
   const handleSetDefaultCurrency = (value: string) => {
     // Update current currency
     setDevise(value);
-    
-    // Update the default flag in devises array
-    // This would be handled by the parent component (SettingsTabs)
+  };
+
+  const handleDefaultChange = (checked: boolean) => {
+    setIsDefault(checked);
+    if (checked) {
+      // Save immediately when checkbox is checked
+      localStorage.setItem('defaultCurrency', devise);
+      
+      toast({
+        title: t('settings.defaultCurrencyUpdated'),
+        description: t('settings.defaultCurrencyUpdatedDesc')
+      });
+      
+      // Call the save handler from parent
+      onSave();
+    }
   };
 
   return (
@@ -57,21 +79,15 @@ export function GeneralTab({ devise, setDevise, devises, onSave }: GeneralTabPro
             </SelectContent>
           </Select>
           
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center space-x-2 mt-2">
+            <Checkbox 
+              id="default-currency" 
+              checked={isDefault}
+              onCheckedChange={handleDefaultChange}
+            />
             <Label htmlFor="default-currency" className="cursor-pointer">
               {t('settings.setAsDefaultCurrency')}
             </Label>
-            <Switch 
-              id="default-currency"
-              checked={devises.find(d => d.symbole === devise)?.estParDefaut || false}
-              onCheckedChange={() => {
-                toast({
-                  title: t('settings.defaultCurrencyUpdated'),
-                  description: t('settings.defaultCurrencyUpdatedDesc')
-                });
-                onSave();
-              }}
-            />
           </div>
         </div>
 
