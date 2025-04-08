@@ -1,6 +1,8 @@
+
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { StatutFacture } from "@/types";
+import { getCurrencySymbol } from "@/components/factures/utils/factureUtils";
 
 interface ProductLine {
   name: string;
@@ -32,26 +34,6 @@ interface InvoiceData {
   currency?: string;
 }
 
-// Helper function to get currency symbol
-const getCurrencySymbol = (currency: string = "TND"): string => {
-  switch (currency) {
-    case "TND":
-      return "TND";
-    case "EUR":
-      return "€";
-    case "USD":
-      return "$";
-    case "GBP":
-      return "£";
-    case "CHF":
-      return "CHF";
-    case "CAD":
-      return "C$";
-    default:
-      return currency;
-  }
-};
-
 // Format date according to locale
 const formatDate = (dateString: string, locale: string = "fr-FR"): string => {
   const date = new Date(dateString);
@@ -76,14 +58,8 @@ const getStatusLabel = (statut: StatutFacture, locale: string = "fr"): string =>
   }
 };
 
-export const generateInvoicePDF = (
-  invoiceData: InvoiceData,
-  locale: string = "fr"
-): jsPDF => {
-  const doc = new jsPDF();
-  const currencySymbol = getCurrencySymbol(invoiceData.currency);
-  
-  // Company info (header)
+// Add company information to the PDF
+const addCompanyInfo = (doc: jsPDF): void => {
   doc.setFontSize(20);
   doc.setTextColor(44, 62, 80); // Dark blue color
   doc.text("VOTRE ENTREPRISE", 20, 20);
@@ -94,8 +70,10 @@ export const generateInvoicePDF = (
   doc.text("75001 Paris, France", 20, 35);
   doc.text("Tél: 01 23 45 67 89", 20, 40);
   doc.text("Email: contact@votreentreprise.fr", 20, 45);
-  
-  // Invoice title and info
+};
+
+// Add invoice header with title and info
+const addInvoiceHeader = (doc: jsPDF, invoiceData: InvoiceData, locale: string): void => {
   doc.setFontSize(24);
   doc.setTextColor(44, 62, 80);
   doc.text(locale === "fr" ? "FACTURE" : "INVOICE", 140, 25);
@@ -105,8 +83,10 @@ export const generateInvoicePDF = (
   doc.text(`${locale === "fr" ? "Date d'émission" : "Date"}: ${formatDate(invoiceData.dateCreation, locale === "fr" ? "fr-FR" : "en-US")}`, 140, 40);
   doc.text(`${locale === "fr" ? "Date d'échéance" : "Due Date"}: ${formatDate(invoiceData.dateEcheance, locale === "fr" ? "fr-FR" : "en-US")}`, 140, 45);
   doc.text(`${locale === "fr" ? "Statut" : "Status"}: ${getStatusLabel(invoiceData.statut, locale)}`, 140, 50);
-  
-  // Client info
+};
+
+// Add client information to the PDF
+const addClientInfo = (doc: jsPDF, invoiceData: InvoiceData, locale: string): void => {
   doc.setFontSize(12);
   doc.setTextColor(44, 62, 80);
   doc.text(locale === "fr" ? "FACTURER À" : "BILL TO", 20, 60);
@@ -120,17 +100,10 @@ export const generateInvoicePDF = (
     doc.text("69002 Lyon, France", 20, 77);
   }
   doc.text(`Email: ${invoiceData.client.email}`, 20, invoiceData.client.adresse ? 77 : 82);
-  
-  // Invoice contents
-  const headers = [
-    locale === "fr" ? "Description" : "Description",
-    locale === "fr" ? "Qté" : "Qty",
-    locale === "fr" ? "Prix unitaire" : "Unit Price",
-    ...(invoiceData.applyTVA ? [locale === "fr" ? "TVA" : "Tax"] : []),
-    ...(invoiceData.showDiscount ? [locale === "fr" ? "Remise" : "Discount"] : []),
-    locale === "fr" ? "Total" : "Total",
-  ];
-  
+};
+
+// Prepare product data for the table
+const prepareProductData = (invoiceData: InvoiceData, locale: string, currencySymbol: string): string[][] => {
   // Demo product data if not provided
   const products = invoiceData.produits || [
     {
@@ -145,7 +118,7 @@ export const generateInvoicePDF = (
     },
   ];
   
-  const data = products.map((product) => {
+  return products.map((product) => {
     const row = [
       product.name,
       product.quantity.toString(),
@@ -168,6 +141,24 @@ export const generateInvoicePDF = (
     
     return row;
   });
+};
+
+// Create table headers based on settings
+const createTableHeaders = (invoiceData: InvoiceData, locale: string): string[] => {
+  return [
+    locale === "fr" ? "Description" : "Description",
+    locale === "fr" ? "Qté" : "Qty",
+    locale === "fr" ? "Prix unitaire" : "Unit Price",
+    ...(invoiceData.applyTVA ? [locale === "fr" ? "TVA" : "Tax"] : []),
+    ...(invoiceData.showDiscount ? [locale === "fr" ? "Remise" : "Discount"] : []),
+    locale === "fr" ? "Total" : "Total",
+  ];
+};
+
+// Add product table to the PDF
+const addProductTable = (doc: jsPDF, invoiceData: InvoiceData, locale: string, currencySymbol: string): number => {
+  const headers = createTableHeaders(invoiceData, locale);
+  const data = prepareProductData(invoiceData, locale, currencySymbol);
   
   // Generate table
   autoTable(doc, {
@@ -186,13 +177,15 @@ export const generateInvoicePDF = (
     },
   });
   
-  // Calculate totals
-  const finalY = (doc as any).lastAutoTable.finalY + 10;
-  
-  // Totals section with better spacing
+  // Return the final Y position for subsequent elements
+  return (doc as any).lastAutoTable.finalY + 10;
+};
+
+// Add totals section to the PDF
+const addTotalsSection = (doc: jsPDF, invoiceData: InvoiceData, finalY: number, locale: string, currencySymbol: string): void => {
   doc.setFontSize(10);
   
-  // Create a formatted totals section
+  // Create a formatted totals section with better spacing
   // Sous-total
   doc.text(locale === "fr" ? "Sous-total:" : "Subtotal:", 120, finalY);
   doc.text(`${invoiceData.totalTTC.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")} ${currencySymbol}`, 170, finalY, { align: "right" });
@@ -210,12 +203,15 @@ export const generateInvoicePDF = (
   doc.setFont(undefined, "bold");
   doc.text(locale === "fr" ? "Total TTC:" : "Total Amount:", 120, finalY + 15);
   doc.text(`${invoiceData.totalTTC.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")} ${currencySymbol}`, 170, finalY + 15, { align: "right" });
-  
-  // Footer
+};
+
+// Add footer with payment terms and thank you note
+const addFooter = (doc: jsPDF, finalY: number, locale: string): void => {
   doc.setFontSize(9);
   doc.setFont(undefined, "normal");
   doc.setTextColor(100, 100, 100);
   const footerY = finalY + 30;
+  
   doc.text(locale === "fr" ? "Conditions de paiement:" : "Payment Terms:", 20, footerY);
   doc.text(locale === "fr" ? "Payable sous 30 jours." : "Payable within 30 days.", 20, footerY + 5);
   doc.text(locale === "fr" ? "Coordonnées bancaires: IBAN FR76 1234 5678 9101 1121 3141 5161" : 
@@ -229,10 +225,38 @@ export const generateInvoicePDF = (
     20, 
     footerY + 20
   );
+};
+
+// Main function to generate the invoice PDF
+export const generateInvoicePDF = (
+  invoiceData: InvoiceData,
+  locale: string = "fr"
+): jsPDF => {
+  const doc = new jsPDF();
+  const currencySymbol = getCurrencySymbol(invoiceData.currency || "TND");
+  
+  // Add company information
+  addCompanyInfo(doc);
+  
+  // Add invoice header
+  addInvoiceHeader(doc, invoiceData, locale);
+  
+  // Add client information
+  addClientInfo(doc, invoiceData, locale);
+  
+  // Add product table and get the ending Y position
+  const finalY = addProductTable(doc, invoiceData, locale, currencySymbol);
+  
+  // Add totals section
+  addTotalsSection(doc, invoiceData, finalY, locale, currencySymbol);
+  
+  // Add footer
+  addFooter(doc, finalY, locale);
   
   return doc;
 };
 
+// Function to download the invoice as PDF
 export const downloadInvoiceAsPDF = (
   invoiceData: InvoiceData,
   locale: string = "fr"
@@ -240,3 +264,4 @@ export const downloadInvoiceAsPDF = (
   const doc = generateInvoicePDF(invoiceData, locale);
   doc.save(`${invoiceData.numero}.pdf`);
 };
+

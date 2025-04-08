@@ -1,5 +1,5 @@
 
-import { getCurrencySymbol } from "@/utils/formatters";
+import { getCurrencySymbol } from "@/components/factures/utils/factureUtils";
 
 interface FacturePreviewProps {
   productLines: any[];
