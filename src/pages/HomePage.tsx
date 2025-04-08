@@ -1,10 +1,10 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, ArrowRight, BarChart2, Calendar, FileText, Users, Settings, Shield } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import Logo from "@/components/ui/logo";
 
 const HomePage = () => {
   const { t } = useTranslation();
@@ -84,9 +84,9 @@ const HomePage = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Navbar simple */}
+      {/* Navbar with logo */}
       <header className="w-full py-4 px-6 bg-white shadow-sm flex items-center justify-between">
-        <div className="text-2xl font-bold text-blue-600">LOGO</div>
+        <Logo size="lg" />
         <div className="flex items-center gap-4">
           <Link to="/login" className="text-sm font-medium text-gray-600 hover:text-blue-600">
             Connexion
@@ -222,7 +222,9 @@ const HomePage = () => {
       <footer className="bg-gray-900 text-white py-12 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <div className="text-2xl font-bold mb-4">LOGO</div>
+            <div className="mb-4">
+              <Logo variant="light" size="lg" />
+            </div>
             <p className="text-gray-400 mb-4">
               Solution complète pour la gestion de votre entreprise. Simplifiez vos tâches administratives et concentrez-vous sur votre cœur de métier.
             </p>
@@ -249,7 +251,7 @@ const HomePage = () => {
         
         <div className="max-w-6xl mx-auto mt-8 pt-8 border-t border-gray-800">
           <div className="text-gray-400 text-sm">
-            © {new Date().getFullYear()} Votre Entreprise. Tous droits réservés.
+            © {new Date().getFullYear()} Softfacture. Tous droits réservés.
           </div>
         </div>
       </footer>
