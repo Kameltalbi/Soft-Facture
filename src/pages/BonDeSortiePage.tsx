@@ -17,7 +17,9 @@ import {
   Download, 
   Trash, 
   Search, 
-  Plus 
+  Plus, 
+  ArrowLeft,
+  ArrowRight
 } from "lucide-react";
 import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
 
@@ -74,6 +76,34 @@ const BonDeSortiePage = () => {
     console.log("Filtering delivery notes for period:", dateRange);
   };
   
+  // Navigate to previous month
+  const goToPreviousMonth = () => {
+    const newFrom = new Date(selectedPeriod.from);
+    newFrom.setMonth(newFrom.getMonth() - 1);
+    
+    const newTo = new Date(newFrom);
+    newTo.setMonth(newTo.getMonth() + 1);
+    newTo.setDate(0); // Set to last day of month
+    
+    const newPeriod = { from: newFrom, to: newTo };
+    setSelectedPeriod(newPeriod);
+    handlePeriodChange(newPeriod);
+  };
+  
+  // Navigate to next month
+  const goToNextMonth = () => {
+    const newFrom = new Date(selectedPeriod.from);
+    newFrom.setMonth(newFrom.getMonth() + 1);
+    
+    const newTo = new Date(newFrom);
+    newTo.setMonth(newTo.getMonth() + 1);
+    newTo.setDate(0); // Set to last day of month
+    
+    const newPeriod = { from: newFrom, to: newTo };
+    setSelectedPeriod(newPeriod);
+    handlePeriodChange(newPeriod);
+  };
+  
   // Filter delivery notes based on search query and selected period
   const filteredData = demoData.filter(item => {
     const matchesSearch = 
@@ -97,17 +127,27 @@ const BonDeSortiePage = () => {
             <h1 className="text-3xl font-bold tracking-tight">
               {t("common.bonDeSortie")}
             </h1>
-            <p className="text-muted-foreground">
-              Gérez vos bons de sortie et vos livraisons
-            </p>
           </div>
           
           <div className="flex items-center space-x-4">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={goToPreviousMonth}
+              aria-label="Previous month"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            
             <PeriodSelector onPeriodChange={handlePeriodChange} />
-          
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Nouveau bon de sortie
+            
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={goToNextMonth}
+              aria-label="Next month"
+            >
+              <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -122,6 +162,11 @@ const BonDeSortiePage = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+          
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Nouveau bon de sortie
+          </Button>
         </div>
         
         <div className="rounded-md border">
