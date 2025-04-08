@@ -42,3 +42,25 @@ export const devisData = [
     statut: "sent"
   }
 ];
+
+// Demo data for quotes displayed in client detail view
+export const devisDemo = [
+  {
+    id: "1",
+    numero: "DEV2025-001",
+    client: { id: "1", nom: "Entreprise ABC", email: "contact@abc.fr" },
+    dateCreation: "2025-04-01",
+    dateEcheance: "2025-05-01",
+    totalTTC: 1200,
+    statut: "draft"
+  },
+  {
+    id: "2",
+    numero: "DEV2025-002",
+    client: { id: "2", nom: "Société XYZ", email: "info@xyz.fr" },
+    dateCreation: "2025-04-03",
+    dateEcheance: "2025-05-03",
+    totalTTC: 850,
+    statut: "sent"
+  }
+];

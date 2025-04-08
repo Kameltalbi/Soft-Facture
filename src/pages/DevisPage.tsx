@@ -7,7 +7,6 @@ import { DevisDialogs } from "@/components/devis/DevisDialogs";
 import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
 
 // Import the demo data correctly
-// Assuming DevisData is exported from DevisData.ts
 import { devisData } from "@/components/devis/DevisData";
 
 const DevisPage = () => {
@@ -53,6 +52,13 @@ const DevisPage = () => {
     setSelectedDevis(null);
     setCurrentAction("");
   };
+
+  // Map actions to handler functions for DevisTable
+  const handleEdit = (id: string) => handleActionClick("edit", filteredDevis.find(d => d.id.toString() === id));
+  const handleCancel = (id: string) => handleActionClick("cancel", filteredDevis.find(d => d.id.toString() === id));
+  const handleValidate = (id: string) => handleActionClick("validate", filteredDevis.find(d => d.id.toString() === id));
+  const handleConvert = (id: string) => handleActionClick("convert", filteredDevis.find(d => d.id.toString() === id));
+  const handleDownload = (id: string) => handleActionClick("download", filteredDevis.find(d => d.id.toString() === id));
   
   return (
     <MainLayout title="quote.title">
@@ -68,11 +74,12 @@ const DevisPage = () => {
         </div>
         
         <DevisTable 
-          devis={filteredDevis} 
-          onEditClick={(devis) => handleActionClick("edit", devis)}
-          onDeleteClick={(devis) => handleActionClick("delete", devis)}
-          onViewClick={(devis) => handleActionClick("view", devis)}
-          onDownloadClick={(devis) => handleActionClick("download", devis)}
+          devisList={filteredDevis} 
+          onEdit={handleEdit}
+          onCancel={handleCancel}
+          onValidate={handleValidate}
+          onConvert={handleConvert}
+          onDownload={handleDownload}
         />
         
         <DevisDialogs 

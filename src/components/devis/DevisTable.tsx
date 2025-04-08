@@ -79,18 +79,7 @@ export function DevisTable({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>{t("quote.list")}</CardTitle>
-          <div className="flex items-center space-x-2">
-            <Input
-              placeholder={t("quote.search")}
-              className="max-w-sm"
-            />
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+        <CardTitle>{t("quote.list")}</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
@@ -99,8 +88,8 @@ export function DevisTable({
               <TableHead>{t("quote.number")}</TableHead>
               <TableHead>{t("quote.client")}</TableHead>
               <TableHead>{t("quote.date")}</TableHead>
-              <TableHead>{t("quote.dueDate")}</TableHead>
-              <TableHead className="text-right">{t("quote.amount")}</TableHead>
+              <TableHead>{t("quote.amount")}</TableHead>
+              <TableHead>{t("quote.status")}</TableHead>
               <TableHead className="text-right">{t("quote.actions")}</TableHead>
             </TableRow>
           </TableHeader>
@@ -108,15 +97,18 @@ export function DevisTable({
             {devisList.map((devis) => (
               <TableRow key={devis.id}>
                 <TableCell className="font-medium">{devis.numero}</TableCell>
-                <TableCell>{devis.client.nom}</TableCell>
+                <TableCell>{devis.client}</TableCell>
+                <TableCell>{formatDate(devis.date)}</TableCell>
+                <TableCell>{formatCurrency(devis.montant)} {currencySymbol}</TableCell>
                 <TableCell>
-                  {formatDate(devis.dateCreation)}
-                </TableCell>
-                <TableCell>
-                  {formatDate(devis.dateEcheance)}
-                </TableCell>
-                <TableCell className="text-right">
-                  {formatCurrency(devis.totalTTC)} {currencySymbol}
+                  <span className={`px-2 py-1 rounded-full text-xs ${
+                    devis.statut === 'accepted' ? 'bg-invoice-status-paid/10 text-invoice-status-paid' :
+                    devis.statut === 'rejected' ? 'bg-destructive/10 text-destructive' :
+                    devis.statut === 'sent' ? 'bg-invoice-status-pending/10 text-invoice-status-pending' :
+                    'bg-invoice-status-draft/10 text-invoice-status-draft'
+                  }`}>
+                    {t(`quote.status.${devis.statut}`)}
+                  </span>
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
@@ -158,10 +150,6 @@ export function DevisTable({
                       >
                         <XCircle className="mr-2 h-4 w-4" />
                         {t('quote.cancel')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {t('quote.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
