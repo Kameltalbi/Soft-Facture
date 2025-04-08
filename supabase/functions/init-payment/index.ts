@@ -86,37 +86,51 @@ serve(async (req) => {
 
     console.log(`Réponse API Konnect status: ${response.status}`);
 
-    // Récupérer la réponse de l'API avec gestion des erreurs non-JSON
-    let responseData;
+    // Récupérer la réponse de l'API en gérant séparément les cas JSON et non-JSON
+    if (!response.ok) {
+      // En cas d'erreur, on clone la réponse avant de la traiter
+      // pour éviter le problème de "Body already consumed"
+      const clonedResponse = response.clone();
+      
+      let errorDetails;
+      try {
+        errorDetails = await clonedResponse.json();
+        console.error("Erreur API Konnect (JSON):", errorDetails);
+      } catch (e) {
+        const text = await response.text();
+        console.error("Erreur API Konnect (texte brut):", text);
+        return new Response(
+          JSON.stringify({ error: "Erreur lors de l'initialisation du paiement", raw: text }),
+          { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ error: "Erreur lors de l'initialisation du paiement", details: errorDetails }),
+        { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Si la réponse est OK, on la parse en JSON
     try {
-      responseData = await response.json();
-      console.log("Réponse API Konnect (JSON):", JSON.stringify(responseData));
+      const responseData = await response.json();
+      console.log("Réponse API Konnect (JSON réussi):", JSON.stringify(responseData));
+      
+      // Retourner la réponse de l'API
+      return new Response(
+        JSON.stringify(responseData),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     } catch (e) {
+      console.error("Erreur parsing JSON réponse:", e);
       const text = await response.text();
-      console.error("Erreur de parsing JSON:", e);
-      console.error("Réponse brute:", text);
       return new Response(
         JSON.stringify({ error: "Réponse non JSON", raw: text }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    // Vérifier si la réponse contient une erreur
-    if (!response.ok) {
-      console.error("Erreur API Konnect:", responseData);
-      return new Response(
-        JSON.stringify({ error: "Erreur lors de l'initialisation du paiement", details: responseData }),
-        { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Retourner la réponse de l'API
-    return new Response(
-      JSON.stringify(responseData),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
   } catch (error) {
-    // Gérer les erreurs
+    // Gérer les erreurs générales
     console.error("Erreur générale:", error);
     return new Response(
       JSON.stringify({ error: "Erreur serveur", details: error.message }),
