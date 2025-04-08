@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// Define our own DateRange interface to avoid confusion with the react-day-picker DateRange
 export interface DateRange {
   from: Date;
   to: Date;
@@ -122,6 +123,18 @@ const PeriodSelector = ({ onPeriodChange }: PeriodSelectorProps) => {
     }
   };
   
+  // Handle calendar date selection with our custom DateRange type
+  const handleCalendarSelect = (range: any) => {
+    if (range && range.from) {
+      // Ensure we always have both from and to dates
+      const newRange: DateRange = {
+        from: range.from,
+        to: range.to || range.from,
+      };
+      setCustomDateRange(newRange);
+    }
+  };
+  
   return (
     <div className="flex items-center space-x-2">
       <Select
@@ -156,8 +169,11 @@ const PeriodSelector = ({ onPeriodChange }: PeriodSelectorProps) => {
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               mode="range"
-              selected={customDateRange}
-              onSelect={(range) => range && setCustomDateRange(range)}
+              selected={{
+                from: customDateRange.from,
+                to: customDateRange.to
+              }}
+              onSelect={handleCalendarSelect}
               initialFocus
               className={cn("p-3 pointer-events-auto")}
             />

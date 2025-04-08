@@ -4,8 +4,11 @@ import { useState } from "react";
 import { DevisHeader } from "@/components/devis/DevisHeader";
 import { DevisTable } from "@/components/devis/DevisTable";
 import { DevisDialogs } from "@/components/devis/DevisDialogs";
-import { DevisData } from "@/components/devis/DevisData";
 import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
+
+// Import the demo data correctly
+// Assuming DevisData is exported from DevisData.ts
+import { devisData } from "@/components/devis/DevisData";
 
 const DevisPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,7 +28,7 @@ const DevisPage = () => {
   };
   
   // Filter quotes based on search query and selected period
-  const filteredDevis = DevisData.filter(devis => {
+  const filteredDevis = devisData.filter(devis => {
     const matchesSearch = 
       devis.numero.toLowerCase().includes(searchQuery.toLowerCase()) ||
       devis.client.toLowerCase().includes(searchQuery.toLowerCase());

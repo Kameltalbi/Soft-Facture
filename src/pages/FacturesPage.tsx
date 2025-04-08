@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,7 @@ import {
   FileText 
 } from "lucide-react";
 import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
-import FactureModal from "@/components/factures/FactureModal";
+import { FactureModal } from "@/components/factures/FactureModal";
 
 // Données factices pour la démonstration
 const demoFactures = [
@@ -265,10 +264,9 @@ const FacturesPage = () => {
       
       {isModalOpen && (
         <FactureModal
-          isOpen={isModalOpen}
-          onClose={closeModal}
-          facture={selectedFacture}
-          action={modalAction}
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+          factureId={selectedFacture?.id || null}
         />
       )}
     </MainLayout>
