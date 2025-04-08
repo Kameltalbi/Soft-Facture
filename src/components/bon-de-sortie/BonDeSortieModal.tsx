@@ -695,8 +695,8 @@ export function BonDeSortieModal({
                     </p>
                   </div>
 
-                  {/* Footer with pagination - height of 1cm (approximately 38px) */}
-                  <div className="h-[1cm] border-t pt-2 flex items-center justify-center">
+                  {/* Smaller footer with exactly 1cm height (approximately 38px or 0.3937in) */}
+                  <div className="h-[0.3937in] border-t flex items-center justify-center">
                     <Pagination>
                       <PaginationContent>
                         <PaginationItem>
