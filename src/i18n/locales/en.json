@@ -1,3 +1,4 @@
+
 {
   "common": {
     "dashboard": "Dashboard",
@@ -33,7 +34,35 @@
     "due_date": "Due Date",
     "amount": "Amount",
     "status": "Status",
-    "view_all": "View All"
+    "view_all": "View All",
+    "revenue": "Revenue",
+    "activeClients": "Active Clients",
+    "issuedInvoices": "Issued Invoices",
+    "unpaidInvoices": "Unpaid Invoices",
+    "vsLastMonth": "vs. last month",
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "year": "Year",
+    "monthlyPerformance": "Monthly Performance",
+    "monthlyPerformanceDesc": "Revenue and expense overview for the selected period",
+    "revenueChart": "Revenue chart will appear here",
+    "recentInvoices": "Recent Invoices",
+    "recentInvoicesDesc": "Your latest invoices from the selected period",
+    "clientsBySector": "Clients by Sector",
+    "clientsBySectorDesc": "Distribution of clients by industry sector",
+    "clientDistribution": "Client distribution chart will appear here",
+    "status": {
+      "paid": "Paid",
+      "pending": "Pending",
+      "draft": "Draft"
+    },
+    "selectPeriod": "Select Period",
+    "currentMonth": "Current Month",
+    "lastMonth": "Last Month",
+    "currentQuarter": "Current Quarter",
+    "currentYear": "Current Year",
+    "customPeriod": "Custom Period"
   },
   "invoice": {
     "title": "Invoices",

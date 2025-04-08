@@ -1,16 +1,34 @@
 
+import { useState, useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronUp, CircleDollarSign, Users, ReceiptText, TrendingUp, AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
 
 const Dashboard = () => {
   const { t } = useTranslation();
+  const [selectedPeriod, setSelectedPeriod] = useState<DateRange>({
+    from: new Date(),
+    to: new Date()
+  });
+  
+  // This function would typically fetch data based on the selected period
+  const handlePeriodChange = (dateRange: DateRange) => {
+    setSelectedPeriod(dateRange);
+    // In a real app, you would fetch data for this period here
+    console.log("Fetching data for period:", dateRange);
+  };
   
   return (
     <MainLayout title="dashboard.title">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-3xl font-bold tracking-tight">{t('dashboard.welcome')}</h2>
+        <PeriodSelector onPeriodChange={handlePeriodChange} />
+      </div>
+      
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -124,11 +142,16 @@ const Dashboard = () => {
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-6">
         <Card className="col-span-2">
-          <CardHeader>
-            <CardTitle>{t('dashboard.recentInvoices')}</CardTitle>
-            <CardDescription>
-              {t('dashboard.recentInvoicesDesc')}
-            </CardDescription>
+          <CardHeader className="flex items-center justify-between">
+            <div>
+              <CardTitle>{t('dashboard.recentInvoices')}</CardTitle>
+              <CardDescription>
+                {t('dashboard.recentInvoicesDesc')}
+              </CardDescription>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {selectedPeriod.from.toLocaleDateString()} - {selectedPeriod.to.toLocaleDateString()}
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

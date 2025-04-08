@@ -1,3 +1,4 @@
+
 {
   "common": {
     "dashboard": "Tableau de bord",
@@ -34,7 +35,35 @@
     "monthly_revenue": "Revenu mensuel",
     "monthly_expenses": "Dépenses mensuelles",
     "net_profit": "Bénéfice net",
-    "view_all": "Voir tout"
+    "view_all": "Voir tout",
+    "revenue": "Chiffre d'affaires",
+    "activeClients": "Clients actifs",
+    "issuedInvoices": "Factures émises",
+    "unpaidInvoices": "Factures impayées",
+    "vsLastMonth": "vs. mois précédent",
+    "day": "Jour",
+    "week": "Semaine",
+    "month": "Mois",
+    "year": "Année",
+    "monthlyPerformance": "Performance mensuelle",
+    "monthlyPerformanceDesc": "Aperçu des revenus et dépenses pour la période sélectionnée",
+    "revenueChart": "Le graphique des revenus apparaîtra ici",
+    "recentInvoices": "Factures récentes",
+    "recentInvoicesDesc": "Vos dernières factures de la période sélectionnée",
+    "clientsBySector": "Clients par secteur",
+    "clientsBySectorDesc": "Répartition des clients par secteur d'activité",
+    "clientDistribution": "Le graphique de répartition des clients apparaîtra ici",
+    "status": {
+      "paid": "Payée",
+      "pending": "En attente",
+      "draft": "Brouillon"
+    },
+    "selectPeriod": "Sélectionner une période",
+    "currentMonth": "Mois en cours",
+    "lastMonth": "Mois précédent",
+    "currentQuarter": "Trimestre en cours",
+    "currentYear": "Année en cours",
+    "customPeriod": "Période personnalisée"
   },
   "invoice": {
     "title": "Factures",
