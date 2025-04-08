@@ -1,12 +1,14 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/auth-context";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, UserPlus, CheckCircle2 } from "lucide-react";
 import Logo from "@/components/ui/logo";
+import { SubscriptionPlan } from "@/hooks/use-subscription";
 
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
@@ -15,13 +17,24 @@ const RegisterPage = () => {
   const [nom, setNom] = useState("");
   const [telephone, setTelephone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signup, authStatus } = useAuth();
+  const { signup, authStatus, updateSubscription } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const plan = searchParams.get("plan") as SubscriptionPlan || "trial";
 
   // Redirect if already logged in
+  useEffect(() => {
+    if (authStatus === 'authenticated') {
+      if (plan === 'annual') {
+        navigate(`/paiement?plan=${plan}&montant=390`);
+      } else {
+        navigate('/dashboard');
+      }
+    }
+  }, [authStatus, navigate, plan]);
+
   if (authStatus === 'authenticated') {
-    navigate('/');
     return null;
   }
 
@@ -43,11 +56,22 @@ const RegisterPage = () => {
       const result = await signup(email, password, nom, telephone);
       
       if (result.success) {
-        toast({
-          title: "Inscription réussie",
-          description: "Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.",
-        });
-        navigate('/login');
+        // Essayer de créer l'abonnement d'essai immédiatement
+        // Note : le déclencheur SQL va également créer un abonnement d'essai par défaut
+        if (plan === 'trial') {
+          await updateSubscription('trial');
+          toast({
+            title: "Inscription réussie",
+            description: "Votre essai gratuit de 14 jours a été activé. Bienvenue !",
+          });
+          navigate('/dashboard');
+        } else if (plan === 'annual') {
+          toast({
+            title: "Inscription réussie",
+            description: "Votre compte a été créé. Vous allez être redirigé vers la page de paiement.",
+          });
+          navigate(`/paiement?plan=${plan}&montant=390`);
+        }
       } else {
         toast({
           title: "Erreur d'inscription",
@@ -64,6 +88,14 @@ const RegisterPage = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Modifier le texte en fonction du plan choisi
+  const getPlanText = () => {
+    if (plan === 'annual') {
+      return "Vous avez choisi l'abonnement annuel. Après l'inscription, vous serez redirigé vers la page de paiement.";
+    }
+    return "Vous avez choisi l'essai gratuit de 14 jours. Après l'inscription, vous aurez accès à toutes les fonctionnalités.";
   };
 
   return (
@@ -121,7 +153,7 @@ const RegisterPage = () => {
           <div className="text-center">
             <h2 className="text-3xl font-bold tracking-tight">Créer un compte</h2>
             <p className="mt-2 text-muted-foreground">
-              Rejoignez-nous et simplifiez votre gestion d'entreprise
+              {getPlanText()}
             </p>
           </div>
           

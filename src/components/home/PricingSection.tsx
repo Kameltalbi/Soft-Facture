@@ -1,7 +1,10 @@
 
 import PricingCard from "./PricingCard";
+import { useAuth } from "@/contexts/auth-context";
 
 const PricingSection = () => {
+  const { authStatus, hasActiveSubscription } = useAuth();
+  
   const plans = [
     {
       name: "Essai Gratuit",
@@ -18,7 +21,7 @@ const PricingSection = () => {
       ],
       buttonText: "Commencer gratuitement",
       buttonVariant: "outline" as const,
-      link: "/register"
+      link: authStatus === 'authenticated' ? "/paiement?plan=trial" : "/register?plan=trial"
     },
     {
       name: "Abonnement Annuel",
@@ -37,10 +40,25 @@ const PricingSection = () => {
       ],
       buttonText: "S'abonner maintenant",
       buttonVariant: "default" as const,
-      link: "/register",
+      link: authStatus === 'authenticated' ? "/paiement?plan=annual&montant=390" : "/register?plan=annual",
       popular: true
     }
   ];
+
+  // Afficher différemment si l'utilisateur a déjà un abonnement actif
+  const renderAbonnementActif = () => {
+    return (
+      <div className="text-center mb-8 p-6 bg-green-50 border border-green-200 rounded-lg">
+        <h3 className="text-xl font-bold text-green-700 mb-2">Vous avez déjà un abonnement actif</h3>
+        <p className="text-green-600">
+          Vous pouvez accéder à toutes les fonctionnalités de l'application.
+        </p>
+        <a href="/dashboard" className="inline-block mt-4 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+          Accéder au tableau de bord
+        </a>
+      </div>
+    );
+  };
 
   return (
     <section className="py-20 px-6 bg-gray-50">
@@ -51,6 +69,8 @@ const PricingSection = () => {
             Choisissez le plan qui convient le mieux à vos besoins, sans frais cachés.
           </p>
         </div>
+
+        {authStatus === 'authenticated' && hasActiveSubscription && renderAbonnementActif()}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {plans.map((plan, index) => (

@@ -2,6 +2,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useAuthPermissions, AuthStatus } from '@/hooks/use-auth-permissions';
 import { Session } from '@supabase/supabase-js';
+import { useSubscription, SubscriptionInfo, SubscriptionPlan } from '@/hooks/use-subscription';
 
 interface AuthContextType {
   session: Session | null;
@@ -11,14 +12,34 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (email: string, password: string, nom: string, telephone?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<{ success: boolean; error?: string }>;
+  // Ajout des propriétés d'abonnement
+  subscription: SubscriptionInfo;
+  isSubscriptionLoading: boolean;
+  hasActiveSubscription: boolean;
+  updateSubscription: (plan: SubscriptionPlan, paymentRef?: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const auth = useAuthPermissions();
+  const { 
+    subscription, 
+    isLoading: isSubscriptionLoading, 
+    hasActiveSubscription,
+    updateSubscription 
+  } = useSubscription();
 
-  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+  // Combiner les données d'auth et d'abonnement
+  const authContextValue = {
+    ...auth,
+    subscription,
+    isSubscriptionLoading,
+    hasActiveSubscription,
+    updateSubscription
+  };
+
+  return <AuthContext.Provider value={authContextValue}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
@@ -29,16 +50,16 @@ export function useAuth() {
   return context;
 }
 
-// Utility component to protect routes that require authentication
+// Modifier pour intégrer la vérification d'abonnement
 export function RequireAuth({ children, permissions = [] }: { children: ReactNode; permissions?: string[] }) {
-  const { authStatus, hasPermission } = useAuth();
+  const { authStatus, hasPermission, hasActiveSubscription, isSubscriptionLoading } = useAuth();
   
-  if (authStatus === 'loading') {
+  if (authStatus === 'loading' || isSubscriptionLoading) {
     return <div className="flex items-center justify-center h-screen">Chargement...</div>;
   }
   
   if (authStatus === 'unauthenticated') {
-    // You can redirect to login page or show a message
+    // Rediriger vers la page de connexion
     return (
       <div className="flex flex-col items-center justify-center h-screen">
         <h2 className="text-2xl font-semibold mb-4">Accès restreint</h2>
@@ -50,7 +71,20 @@ export function RequireAuth({ children, permissions = [] }: { children: ReactNod
     );
   }
   
-  // Check if all required permissions are present
+  // Vérifier si l'utilisateur a un abonnement actif
+  if (!hasActiveSubscription) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <h2 className="text-2xl font-semibold mb-4">Abonnement requis</h2>
+        <p className="text-muted-foreground mb-4">Vous devez avoir un abonnement actif pour accéder à cette page.</p>
+        <a href="/" className="bg-primary text-white px-4 py-2 rounded-md">
+          Voir les offres
+        </a>
+      </div>
+    );
+  }
+  
+  // Vérifier les permissions
   const hasAllPermissions = permissions.length === 0 || 
     permissions.every(permission => hasPermission(permission));
   

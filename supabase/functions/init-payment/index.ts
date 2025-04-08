@@ -1,9 +1,15 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0';
 
 // Récupérer les clés depuis les variables d'environnement
-const API_KEY = Deno.env.get("KONNECT_API_KEY");
-const WALLET_ID = Deno.env.get("KONNECT_WALLET_ID");
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
+const KONNECT_API_KEY = Deno.env.get("KONNECT_API_KEY") || "";
+const KONNECT_WALLET_ID = Deno.env.get("KONNECT_WALLET_ID") || "";
+
+// Initialiser le client Supabase
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // CORS headers pour permettre l'accès depuis n'importe quelle origine
 const corsHeaders = {
@@ -13,7 +19,7 @@ const corsHeaders = {
 
 // Rate limiting - Map stockant les IP et leurs tentatives
 const ipLimitCache = new Map();
-const MAX_REQUESTS = 20; // Maximum de requêtes
+const MAX_REQUESTS = 10; // Maximum de requêtes
 const WINDOW_MS = 60000; // Fenêtre de 1 minute (en ms)
 
 // Fonction pour vérifier le rate limiting
@@ -47,59 +53,45 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-// Fonction pour valider les données de la requête
-function validatePaymentData(data: any): { valid: boolean; errors: string[] } {
-  const errors: string[] = [];
-  
+// Fonction pour valider les paramètres d'entrée
+function validateInput(data: any): { valid: boolean; error?: string } {
   if (!data) {
-    errors.push("Données manquantes");
-    return { valid: false, errors };
+    return { valid: false, error: "Données manquantes" };
   }
   
-  // Vérifier les champs obligatoires
-  if (!data.amount || typeof data.amount !== 'number' || data.amount <= 0) {
-    errors.push("Montant invalide ou manquant");
+  // Valider le montant
+  if (!data.amount || isNaN(data.amount) || data.amount <= 0) {
+    return { valid: false, error: "Montant invalide" };
   }
   
-  if (!data.orderId || typeof data.orderId !== 'string' || data.orderId.length < 3) {
-    errors.push("ID de commande invalide ou manquant");
-  } else if (!/^[a-zA-Z0-9-]+$/.test(data.orderId)) {
-    errors.push("Format d'ID de commande invalide (caractères alphanumériques uniquement)");
+  // Valider la description
+  if (!data.description || typeof data.description !== "string") {
+    return { valid: false, error: "Description manquante" };
   }
   
-  // Vérification des champs optionnels mais avec validation si présents
-  if (data.email && typeof data.email === 'string') {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(data.email)) {
-      errors.push("Format d'email invalide");
-    }
+  // Valider l'orderId si présent
+  if (data.orderId && (typeof data.orderId !== "string" || !/^[a-zA-Z0-9-]+$/.test(data.orderId))) {
+    return { valid: false, error: "Format d'ID de commande invalide" };
   }
   
-  if (data.phoneNumber && typeof data.phoneNumber === 'string') {
-    if (!/^\d{8,}$/.test(data.phoneNumber.replace(/[+\s-]/g, ''))) {
-      errors.push("Format de numéro de téléphone invalide");
-    }
+  // Valider l'email si présent
+  if (data.email && (typeof data.email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))) {
+    return { valid: false, error: "Format d'email invalide" };
   }
   
-  // Vérifier les limites de montant (pour éviter les transactions très élevées par erreur)
-  if (data.amount > 10000000) { // 10,000 TND (en millimes)
-    errors.push("Montant supérieur à la limite autorisée");
+  // Limiter le montant maximum pour la sécurité
+  if (data.amount > 10000000) { // 10,000 TND
+    return { valid: false, error: "Montant supérieur à la limite autorisée" };
   }
   
-  return {
-    valid: errors.length === 0,
-    errors
-  };
+  return { valid: true };
 }
 
-// Fonction servant à initialiser un paiement via l'API Konnect
+// Fonction servant à initialiser un paiement Konnect
 serve(async (req) => {
   // Récupérer l'adresse IP
   const forwarded = req.headers.get("x-forwarded-for");
   const ip = forwarded ? forwarded.split(/\s*,\s*/)[0] : "0.0.0.0";
-  
-  // Log la requête pour l'audit
-  console.log(`Requête de paiement reçue de ${ip} à ${new Date().toISOString()}`);
   
   // Gérer les requêtes OPTIONS (CORS preflight)
   if (req.method === 'OPTIONS') {
@@ -115,7 +107,7 @@ serve(async (req) => {
         { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    
+
     // Vérifier le rate limiting
     if (!checkRateLimit(ip)) {
       console.warn(`Rate limit dépassé pour l'IP: ${ip}`);
@@ -126,7 +118,7 @@ serve(async (req) => {
     }
 
     // Vérifier que les clés API sont disponibles
-    if (!API_KEY || !WALLET_ID) {
+    if (!KONNECT_API_KEY || !KONNECT_WALLET_ID) {
       console.error("Configuration serveur incomplète - Clés API manquantes");
       return new Response(
         JSON.stringify({ error: "Configuration serveur incomplète" }),
@@ -134,140 +126,115 @@ serve(async (req) => {
       );
     }
 
-    // Récupérer les données du corps de la requête
-    let requestData;
-    try {
-      requestData = await req.json();
-    } catch (e) {
-      console.error(`Corps JSON invalide depuis ${ip}`);
-      return new Response(
-        JSON.stringify({ error: "Corps JSON invalide" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    // Récupérer la session utilisateur pour permettre la journalisation
+    const authHeader = req.headers.get('Authorization');
+    let userId = null;
+    
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '');
+      try {
+        const { data: { user } } = await supabase.auth.getUser(token);
+        if (user) {
+          userId = user.id;
+        }
+      } catch (error) {
+        console.warn('Erreur lors de la vérification du token:', error);
+        // On continue sans userId
+      }
     }
 
-    // Valider les données de paiement
-    const validation = validatePaymentData(requestData);
+    // Récupérer les données de la requête
+    const requestData = await req.json();
+    
+    // Valider les données d'entrée
+    const validation = validateInput(requestData);
     if (!validation.valid) {
-      console.error(`Données de paiement invalides depuis ${ip}:`, validation.errors);
       return new Response(
-        JSON.stringify({ error: "Données de paiement invalides", details: validation.errors }),
+        JSON.stringify({ error: validation.error }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    
+    // Générer un identifiant unique pour le paiement (si non fourni)
+    const paymentRef = requestData.orderId || `PAY-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const plan = requestData.plan || null;
 
-    const { amount, description, firstName, lastName, email, phoneNumber, orderId } = requestData;
-
-    console.log(`Initialisation de paiement pour ${orderId}: ${amount} millimes, IP: ${ip}`);
-
-    // Déterminer le domaine de base pour les redirections et webhooks
-    const baseDomain = "https://effaassdrpabvpgoulrq.functions.supabase.co";
-    const webhookUrl = `${baseDomain}/payment-webhook`;
-
-    // Préparer le corps de la requête pour Konnect
-    const konnectRequestBody = {
-      receiverWalletId: WALLET_ID,
-      token: "TND",
-      amount: amount, // Montant en millimes
-      type: "immediate",
-      description: description || `Paiement facture #${orderId}`,
-      acceptedPaymentMethods: ["bank_card", "wallet", "e-DINAR"],
-      lifespan: 10,
-      checkoutForm: true,
-      addPaymentFeesToAmount: true,
-      firstName: firstName || "",
-      lastName: lastName || "",
-      phoneNumber: phoneNumber || "",
-      email: email || "",
-      orderId: orderId,
-      webhook: webhookUrl, // Notre URL de webhook
-      silentWebhook: true,
-      successUrl: "https://softfacture.tn/paiement-reussi", // URL de succès
-      failUrl: "https://softfacture.tn/paiement-echoue", // URL d'échec
-      theme: "light"
+    // Préparer les données pour l'API Konnect
+    const konnectData = {
+      receiver: KONNECT_WALLET_ID,
+      amount: requestData.amount, 
+      accept_free_amount: false,
+      payment_link_mode: false,
+      first_name: requestData.firstName || "",
+      last_name: requestData.lastName || "",
+      email: requestData.email || "",
+      phone: "",
+      order_id: paymentRef,
+      success_link: `${req.headers.get('origin')}/paiement-reussi?ref=${paymentRef}${plan ? `&plan=${plan}` : ''}`,
+      fail_link: `${req.headers.get('origin')}/paiement-echoue?ref=${paymentRef}${plan ? `&plan=${plan}` : ''}`,
+      webHook: `${SUPABASE_URL}/functions/v1/payment-webhook`,
+      payment_method: ["bank_card", "e-DINAR", "flouci"],
+      subscription: false,
+      description: requestData.description,
+      image: `${req.headers.get('origin')}/favicon.ico`
     };
 
-    console.log(`Appel API Konnect pour ${orderId} depuis ${ip}`);
-    
-    // URL de l'API Konnect
-    const apiUrl = "https://api.konnect.network/api/v2/payments/init-payment";
+    // Appeler l'API Konnect pour créer un paiement
+    const response = await fetch('https://api.konnect.network/api/v2/payments/init-payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': KONNECT_API_KEY
+      },
+      body: JSON.stringify(konnectData)
+    });
 
-    // Ajouter un timeout pour éviter les requêtes qui bloquent
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 secondes timeout
-    
-    try {
-      // Appel à l'API Konnect
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "x-api-key": API_KEY,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(konnectRequestBody),
-        signal: controller.signal
-      });
+    // Traiter la réponse de Konnect
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Erreur Konnect:', response.status, errorText);
       
-      clearTimeout(timeoutId);
-      
-      console.log(`Réponse API Konnect status: ${response.status} pour ${orderId}`);
-
-      // En cas d'erreur HTTP
-      if (!response.ok) {
-        // Cloner la réponse pour éviter le problème "Body already consumed"
-        const clonedResponse = response.clone();
-        
-        let errorDetails;
-        try {
-          errorDetails = await clonedResponse.json();
-          console.error(`Erreur API Konnect (JSON) pour ${orderId}:`, errorDetails);
-        } catch (e) {
-          const text = await response.text();
-          console.error(`Erreur API Konnect (texte brut) pour ${orderId}:`, text);
-          return new Response(
-            JSON.stringify({ error: "Erreur lors de l'initialisation du paiement", raw: text }),
-            { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-
-        return new Response(
-          JSON.stringify({ error: "Erreur lors de l'initialisation du paiement", details: errorDetails }),
-          { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      // Parser la réponse JSON
+      let errorMessage = "Erreur lors de l'initialisation du paiement";
       try {
-        const responseData = await response.json();
-        console.log(`Paiement initialisé avec succès pour ${orderId}, ref: ${responseData.paymentRef || 'N/A'}`);
-        
-        // Retourner la réponse de l'API
-        return new Response(
-          JSON.stringify(responseData),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        const errorJson = JSON.parse(errorText);
+        errorMessage = errorJson.message || errorMessage;
       } catch (e) {
-        console.error(`Erreur parsing JSON réponse pour ${orderId}:`, e);
-        const text = await response.text();
-        return new Response(
-          JSON.stringify({ error: "Réponse non JSON", raw: text }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        // Utiliser le message par défaut
       }
-    } catch (error) {
-      clearTimeout(timeoutId);
-      if (error.name === 'AbortError') {
-        console.error(`Timeout de l'API Konnect pour ${orderId}`);
-        return new Response(
-          JSON.stringify({ error: "Timeout de l'API de paiement" }),
-          { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      throw error;
+      
+      return new Response(
+        JSON.stringify({ error: errorMessage }),
+        { status: response.status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
+
+    const konnectResponse = await response.json();
+    
+    // Log pour l'audit
+    console.log(`Paiement initialisé: ${JSON.stringify({
+      timestamp: new Date().toISOString(),
+      ip,
+      userId,
+      paymentRef,
+      amount: requestData.amount,
+      plan
+    })}`);
+
+    // Retourner l'URL de paiement au client
+    return new Response(
+      JSON.stringify({ 
+        payUrl: konnectResponse.payUrl,
+        paymentRef
+      }),
+      { 
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      }
+    );
+
   } catch (error) {
     // Gérer les erreurs générales
-    console.error(`Erreur générale pour l'initialisation du paiement depuis ${ip}:`, error);
+    console.error(`Erreur lors de l'initialisation du paiement depuis ${ip}:`, error);
     return new Response(
       JSON.stringify({ error: "Erreur serveur", details: error.message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

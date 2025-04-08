@@ -121,6 +121,56 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
+// Fonction pour mettre à jour l'abonnement en fonction du résultat du paiement
+async function updateSubscription(orderId: string, status: string): Promise<void> {
+  // Vérifier si c'est un ID d'abonnement
+  if (!orderId.startsWith("SUB-")) {
+    return; // Pas un ID d'abonnement
+  }
+  
+  try {
+    // Extraire le plan de l'orderId (SUB-plan-timestamp)
+    const parts = orderId.split('-');
+    if (parts.length < 3) return;
+    
+    const plan = parts[1];
+    if (plan !== 'annual' && plan !== 'trial') return;
+    
+    // Récupérer l'abonnement par référence de paiement
+    const { data: subscriptionData, error: fetchError } = await supabase
+      .from('abonnements')
+      .select('*')
+      .eq('reference_paiement', orderId)
+      .limit(1)
+      .single();
+    
+    if (fetchError || !subscriptionData) {
+      console.log("Pas d'abonnement trouvé avec cette référence:", orderId);
+      return;
+    }
+    
+    // Mettre à jour le statut de l'abonnement
+    if (status === 'completed') {
+      // Le paiement est réussi, rien à faire car l'abonnement est déjà actif
+      console.log(`Abonnement ${subscriptionData.id} confirmé comme actif`);
+    } else if (['failed', 'expired', 'canceled'].includes(status)) {
+      // Le paiement a échoué, marquer l'abonnement comme expiré
+      const { error: updateError } = await supabase
+        .from('abonnements')
+        .update({ statut: 'annule' })
+        .eq('id', subscriptionData.id);
+      
+      if (updateError) {
+        console.error("Erreur lors de l'annulation de l'abonnement:", updateError);
+      } else {
+        console.log(`Abonnement ${subscriptionData.id} marqué comme annulé`);
+      }
+    }
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de l'abonnement:", error);
+  }
+}
+
 // Fonction servant à recevoir et traiter les webhooks de Konnect
 serve(async (req) => {
   // Récupérer l'adresse IP
@@ -215,39 +265,45 @@ serve(async (req) => {
 
     console.log(`Webhook validé pour paiement ${reference}, statut: ${status}, orderId: ${orderId}, IP: ${ip}`);
 
-    // Mettre à jour le statut de la facture dans la base de données
+    // Traiter les différents types de paiements
     if (orderId) {
-      let newStatus;
-      if (status === "completed") {
-        newStatus = "payee"; // Paiement réussi
-      } else if (status === "failed" || status === "expired" || status === "canceled") {
-        newStatus = "envoyee"; // Paiement échoué, garder la facture en statut envoyée
+      // Vérifier s'il s'agit d'un abonnement
+      if (orderId.startsWith("SUB-")) {
+        await updateSubscription(orderId, status);
       } else {
-        // Autre statut, on ne change pas le statut de la facture
-        newStatus = null;
-      }
-
-      // Si nous avons un nouveau statut, mettre à jour la facture
-      if (newStatus) {
-        // Valider l'ID de facture avant la requête
-        if (!/^[a-zA-Z0-9-]+$/.test(orderId)) {
-          console.error(`Format d'ID de facture invalide: ${orderId}`);
-          return new Response(
-            JSON.stringify({ error: "Format d'ID de facture invalide" }),
-            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+        // C'est une facture, mettre à jour son statut
+        let newStatus;
+        if (status === "completed") {
+          newStatus = "payee"; // Paiement réussi
+        } else if (status === "failed" || status === "expired" || status === "canceled") {
+          newStatus = "envoyee"; // Paiement échoué, garder la facture en statut envoyée
+        } else {
+          // Autre statut, on ne change pas le statut de la facture
+          newStatus = null;
         }
 
-        const { data, error } = await supabase
-          .from('factures')
-          .update({ statut: newStatus })
-          .eq('numero', orderId)
-          .select();
+        // Si nous avons un nouveau statut, mettre à jour la facture
+        if (newStatus) {
+          // Valider l'ID de facture avant la requête
+          if (!/^[a-zA-Z0-9-]+$/.test(orderId)) {
+            console.error(`Format d'ID de facture invalide: ${orderId}`);
+            return new Response(
+              JSON.stringify({ error: "Format d'ID de facture invalide" }),
+              { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
 
-        if (error) {
-          console.error(`Erreur lors de la mise à jour de la facture ${orderId}:`, error);
-        } else {
-          console.log(`Facture ${orderId} mise à jour avec statut ${newStatus}`);
+          const { data, error } = await supabase
+            .from('factures')
+            .update({ statut: newStatus })
+            .eq('numero', orderId)
+            .select();
+
+          if (error) {
+            console.error(`Erreur lors de la mise à jour de la facture ${orderId}:`, error);
+          } else {
+            console.log(`Facture ${orderId} mise à jour avec statut ${newStatus}`);
+          }
         }
       }
     }

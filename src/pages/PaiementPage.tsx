@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from "@/components/ui/separator";
 import { Loader2, ShieldAlert } from "lucide-react";
 import PaymentSummary from "@/components/payment/PaymentSummary";
+import { useAuth } from "@/contexts/auth-context";
+import { SubscriptionPlan } from "@/hooks/use-subscription";
 
 const PaiementPage = () => {
   const [searchParams] = useSearchParams();
@@ -15,22 +17,69 @@ const PaiementPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isValidating, setIsValidating] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const { session, authStatus, hasActiveSubscription, updateSubscription } = useAuth();
 
   // Récupérer les paramètres de l'URL
   const factureId = searchParams.get("id") || "";
   const montant = searchParams.get("montant") || "0";
   const nom = searchParams.get("nom") || "";
   const email = searchParams.get("email") || "";
-  const description = searchParams.get("description") || `Paiement facture #${factureId}`;
+  const plan = searchParams.get("plan") as SubscriptionPlan || null;
+  const description = searchParams.get("description") || plan === 'annual' 
+    ? "Abonnement annuel" 
+    : factureId 
+      ? `Paiement facture #${factureId}`
+      : "Paiement";
   
   // Convertir le montant en millimes (centimes)
   const montantEnMillimes = Math.round(parseFloat(montant) * 1000);
 
+  // S'assurer que l'utilisateur est connecté pour accéder à cette page
+  useEffect(() => {
+    if (authStatus === 'unauthenticated') {
+      navigate('/login');
+    }
+  }, [authStatus, navigate]);
+
   // Valider les paramètres d'entrée
-  useState(() => {
+  useEffect(() => {
     setIsValidating(true);
     
-    // Vérifier les valeurs minimales requises
+    // Si c'est un paiement d'abonnement, vérifier seulement le plan et le montant
+    if (plan) {
+      if (plan !== 'annual' && plan !== 'trial') {
+        setValidationError("Plan d'abonnement invalide");
+        setIsValidating(false);
+        return;
+      }
+      
+      if (plan === 'annual' && montantEnMillimes !== 390000) { // 390 DT
+        setValidationError("Montant invalide pour l'abonnement annuel");
+        setIsValidating(false);
+        return;
+      }
+      
+      if (plan === 'trial') {
+        // Pour le plan d'essai, rediriger directement vers le tableau de bord
+        updateSubscription('trial').then(() => {
+          navigate('/dashboard');
+        });
+        return;
+      }
+      
+      // Si l'utilisateur a déjà un abonnement actif
+      if (hasActiveSubscription) {
+        setValidationError("Vous avez déjà un abonnement actif");
+        setIsValidating(false);
+        return;
+      }
+      
+      setValidationError(null);
+      setIsValidating(false);
+      return;
+    }
+    
+    // Pour les factures, vérifier l'ID et le montant
     if (!factureId) {
       setValidationError("Identifiant de facture manquant");
       setIsValidating(false);
@@ -59,7 +108,7 @@ const PaiementPage = () => {
     
     setValidationError(null);
     setIsValidating(false);
-  });
+  }, [factureId, montantEnMillimes, email, plan, hasActiveSubscription, navigate, updateSubscription]);
 
   const handlePayment = async () => {
     if (validationError) {
@@ -67,7 +116,7 @@ const PaiementPage = () => {
       return;
     }
 
-    if (!factureId || !montant || montantEnMillimes <= 0) {
+    if ((!factureId && !plan) || montantEnMillimes <= 0) {
       toast.error("Informations de paiement incomplètes");
       return;
     }
@@ -75,6 +124,9 @@ const PaiementPage = () => {
     setIsLoading(true);
 
     try {
+      // Utiliser l'e-mail de l'utilisateur connecté si disponible
+      const userEmail = session?.user.email || email;
+      
       // Appeler la fonction Edge pour initialiser le paiement
       const { data, error } = await supabase.functions.invoke("init-payment", {
         body: {
@@ -82,8 +134,9 @@ const PaiementPage = () => {
           description,
           firstName: nom.split(" ")[0] || "",
           lastName: nom.split(" ").slice(1).join(" ") || "",
-          email,
-          orderId: factureId
+          email: userEmail,
+          orderId: factureId || `SUB-${plan}-${Date.now()}`, // Pour les abonnements, générer un ID unique
+          plan: plan // Passer le plan pour traitement dans la fonction webhook
         }
       });
 
@@ -99,6 +152,11 @@ const PaiementPage = () => {
         
         setIsLoading(false);
         return;
+      }
+
+      // Si c'est un paiement d'abonnement, mettre à jour l'abonnement dans la base de données
+      if (plan && data?.paymentRef) {
+        await updateSubscription(plan, data.paymentRef);
       }
 
       // Rediriger vers l'URL de paiement Konnect
@@ -154,7 +212,9 @@ const PaiementPage = () => {
     <div className="flex min-h-screen bg-gray-50 items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Paiement en ligne</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">
+            {plan === 'annual' ? "Abonnement annuel" : "Paiement en ligne"}
+          </CardTitle>
           <CardDescription className="text-center">
             Paiement sécurisé via Konnect
           </CardDescription>
@@ -163,8 +223,9 @@ const PaiementPage = () => {
           <PaymentSummary 
             factureId={factureId}
             montant={parseFloat(montant)}
-            nom={nom}
-            email={email}
+            nom={nom || (session?.user?.user_metadata?.nom as string) || ""}
+            email={email || session?.user?.email || ""}
+            description={plan === 'annual' ? "Abonnement annuel - Accès complet pendant 1 an" : undefined}
           />
         </CardContent>
         <CardFooter className="flex flex-col">

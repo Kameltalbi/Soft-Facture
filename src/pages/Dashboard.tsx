@@ -7,8 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronUp, CircleDollarSign, Users, ReceiptText, TrendingUp, AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
+import { RequireAuth } from "@/contexts/auth-context";
 
-const Dashboard = () => {
+const DashboardContent = () => {
   const { t } = useTranslation();
   const [selectedPeriod, setSelectedPeriod] = useState<DateRange>({
     from: new Date(),
@@ -201,6 +202,15 @@ const Dashboard = () => {
         </Card>
       </div>
     </MainLayout>
+  );
+};
+
+// Wrapper qui utilise RequireAuth pour protéger cette page
+const Dashboard = () => {
+  return (
+    <RequireAuth>
+      <DashboardContent />
+    </RequireAuth>
   );
 };
 
