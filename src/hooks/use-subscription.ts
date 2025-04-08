@@ -36,8 +36,7 @@ export function useSubscription(session: Session | null, authStatus: string) {
       }
 
       try {
-        // Récupérer l'abonnement actif de l'utilisateur
-        // Nous utilisons select(*) pour éviter les problèmes de typage avec la table abonnements
+        // Utiliser une requête générique pour éviter les problèmes de typage
         const { data, error } = await supabase
           .from('abonnements')
           .select('*')
@@ -56,8 +55,7 @@ export function useSubscription(session: Session | null, authStatus: string) {
           });
         } else if (data) {
           const now = new Date();
-          // TypeScript ne connaît pas encore le type abonnements, donc on utilise any pour contourner
-          const expiresAt = new Date((data as any).date_fin);
+          const expiresAt = new Date(data.date_fin);
           
           // Vérifier si l'abonnement est expiré malgré le statut "actif"
           if (expiresAt < now) {
@@ -65,17 +63,17 @@ export function useSubscription(session: Session | null, authStatus: string) {
             await supabase
               .from('abonnements')
               .update({ statut: 'expire' })
-              .eq('id', (data as any).id);
+              .eq('id', data.id);
               
             setSubscription({
               status: 'expired',
-              plan: (data as any).plan as SubscriptionPlan,
+              plan: data.plan as SubscriptionPlan,
               expiresAt
             });
           } else {
             setSubscription({
               status: 'active',
-              plan: (data as any).plan as SubscriptionPlan,
+              plan: data.plan as SubscriptionPlan,
               expiresAt
             });
           }
