@@ -28,7 +28,7 @@ export function BonDeSortieSettingsPanel({
   return (
     <Card className="w-80 h-fit">
       <CardHeader>
-        <CardTitle className="text-base">{t('settings.deliveryNoteSettings')}</CardTitle>
+        <CardTitle className="text-base">{t('deliveryNote.settings')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-4">

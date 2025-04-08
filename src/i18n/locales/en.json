@@ -1,4 +1,3 @@
-
 {
   "common": {
     "dashboard": "Dashboard",
@@ -170,5 +169,30 @@
     "status_overdue": "Pending",
     "status_draft": "Draft",
     "status_unknown": "Unknown"
+  },
+  "deliveryNote": {
+    "title": "Delivery Note Management",
+    "subtitle": "Create, edit, and track the status of your delivery notes.",
+    "new": "New Delivery Note",
+    "list": "Delivery Note List",
+    "search": "Search for a delivery note...",
+    "number": "Note #",
+    "client": "Client",
+    "date": "Date",
+    "dueDate": "Due Date",
+    "amount": "Amount",
+    "status": "Status",
+    "actions": "Actions",
+    "edit": "Edit",
+    "view": "View",
+    "download": "Download",
+    "print": "Print",
+    "delete": "Delete",
+    "status_paid": "Accepted",
+    "status_sent": "Sent",
+    "status_overdue": "Pending",
+    "status_draft": "Draft",
+    "status_unknown": "Unknown",
+    "settings": "Delivery Note Settings"
   }
 }

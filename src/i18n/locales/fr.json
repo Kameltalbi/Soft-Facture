@@ -169,5 +169,30 @@
     "status_overdue": "En attente",
     "status_draft": "Brouillon",
     "status_unknown": "Inconnu"
+  },
+  "deliveryNote": {
+    "title": "Gestion des bons de sortie",
+    "subtitle": "Créez, modifiez et suivez l'état de vos bons de sortie.",
+    "new": "Nouveau bon de sortie",
+    "list": "Liste des bons de sortie",
+    "search": "Rechercher un bon de sortie...",
+    "number": "N° Bon",
+    "client": "Client",
+    "date": "Date",
+    "dueDate": "Échéance",
+    "amount": "Montant",
+    "status": "Statut",
+    "actions": "Actions",
+    "edit": "Modifier",
+    "view": "Aperçu",
+    "download": "Télécharger",
+    "print": "Imprimer",
+    "delete": "Supprimer",
+    "status_paid": "Accepté",
+    "status_sent": "Envoyé",
+    "status_overdue": "En attente",
+    "status_draft": "Brouillon",
+    "status_unknown": "Inconnu",
+    "settings": "Paramètres du bon de sortie"
   }
 }
