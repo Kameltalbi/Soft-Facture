@@ -17,9 +17,7 @@ export function DevisHeader({ onCreateDevis, searchQuery, onSearchChange }: Devi
     <div className="flex flex-col space-y-4">
       <div className="space-y-1">
         <h2 className="text-2xl font-bold tracking-tight">{t("quote.title")}</h2>
-        <p className="text-muted-foreground">
-          {t("quote.subtitle")}
-        </p>
+        {/* Subtitle removed as requested */}
       </div>
       <div className="flex items-center justify-between">
         <Input

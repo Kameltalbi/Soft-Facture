@@ -5,6 +5,8 @@ import { DevisHeader } from "@/components/devis/DevisHeader";
 import { DevisTable } from "@/components/devis/DevisTable";
 import { DevisDialogs } from "@/components/devis/DevisDialogs";
 import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 // Import the demo data correctly
 import { devisData } from "@/components/devis/DevisData";
@@ -24,6 +26,34 @@ const DevisPage = () => {
     setSelectedPeriod(dateRange);
     // In a real app, you would fetch or filter quotes for this period here
     console.log("Filtering quotes for period:", dateRange);
+  };
+  
+  // Navigate to previous month
+  const goToPreviousMonth = () => {
+    const newFrom = new Date(selectedPeriod.from);
+    newFrom.setMonth(newFrom.getMonth() - 1);
+    
+    const newTo = new Date(newFrom);
+    newTo.setMonth(newTo.getMonth() + 1);
+    newTo.setDate(0); // Set to last day of month
+    
+    const newPeriod = { from: newFrom, to: newTo };
+    setSelectedPeriod(newPeriod);
+    handlePeriodChange(newPeriod);
+  };
+  
+  // Navigate to next month
+  const goToNextMonth = () => {
+    const newFrom = new Date(selectedPeriod.from);
+    newFrom.setMonth(newFrom.getMonth() + 1);
+    
+    const newTo = new Date(newFrom);
+    newTo.setMonth(newTo.getMonth() + 1);
+    newTo.setDate(0); // Set to last day of month
+    
+    const newPeriod = { from: newFrom, to: newTo };
+    setSelectedPeriod(newPeriod);
+    handlePeriodChange(newPeriod);
   };
   
   // Filter quotes based on search query and selected period
@@ -70,7 +100,27 @@ const DevisPage = () => {
             onSearchChange={setSearchQuery}
           />
           
-          <PeriodSelector onPeriodChange={handlePeriodChange} />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={goToPreviousMonth}
+              aria-label="Previous month"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            
+            <PeriodSelector onPeriodChange={handlePeriodChange} />
+            
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={goToNextMonth}
+              aria-label="Next month"
+            >
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
         
         <DevisTable 

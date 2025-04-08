@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,8 @@ import {
   CreditCard, 
   Search, 
   Plus, 
-  FileText 
+  ArrowLeft,
+  ArrowRight
 } from "lucide-react";
 import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
 import { FactureModal } from "@/components/factures/FactureModal";
@@ -91,6 +93,34 @@ const FacturesPage = () => {
     console.log("Filtering invoices for period:", dateRange);
   };
   
+  // Navigate to previous month
+  const goToPreviousMonth = () => {
+    const newFrom = new Date(selectedPeriod.from);
+    newFrom.setMonth(newFrom.getMonth() - 1);
+    
+    const newTo = new Date(newFrom);
+    newTo.setMonth(newTo.getMonth() + 1);
+    newTo.setDate(0); // Set to last day of month
+    
+    const newPeriod = { from: newFrom, to: newTo };
+    setSelectedPeriod(newPeriod);
+    handlePeriodChange(newPeriod);
+  };
+  
+  // Navigate to next month
+  const goToNextMonth = () => {
+    const newFrom = new Date(selectedPeriod.from);
+    newFrom.setMonth(newFrom.getMonth() + 1);
+    
+    const newTo = new Date(newFrom);
+    newTo.setMonth(newTo.getMonth() + 1);
+    newTo.setDate(0); // Set to last day of month
+    
+    const newPeriod = { from: newFrom, to: newTo };
+    setSelectedPeriod(newPeriod);
+    handlePeriodChange(newPeriod);
+  };
+  
   // Filter invoices based on search query and selected period
   const filteredFactures = demoFactures.filter(facture => {
     const matchesSearch = 
@@ -147,12 +177,30 @@ const FacturesPage = () => {
             <h1 className="text-3xl font-bold tracking-tight">
               {t("invoice.title")}
             </h1>
-            <p className="text-muted-foreground">
-              {t("invoice.subtitle")}
-            </p>
+            {/* Subtitle removed as requested */}
           </div>
           
-          <PeriodSelector onPeriodChange={handlePeriodChange} />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={goToPreviousMonth}
+              aria-label="Previous month"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            
+            <PeriodSelector onPeriodChange={handlePeriodChange} />
+            
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={goToNextMonth}
+              aria-label="Next month"
+            >
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
           
           <Button 
             onClick={() => openModal("new")} 
