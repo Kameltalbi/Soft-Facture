@@ -670,23 +670,12 @@ export function FactureModal({
                     </div>
                   </div>
 
-                  <div className="bg-invoice-blue-50 p-4 rounded-md mb-8">
+                  <div className="bg-invoice-blue-50 p-4 rounded-md">
                     <p className="text-sm">
                       <span className="font-semibold">
                         {getMontantEnLettresText()}
                       </span>
                     </p>
-                  </div>
-
-                  {/* Smaller footer with exactly 1cm height (approximately 38px or 0.3937in) */}
-                  <div className="h-[0.3937in] border-t flex items-center justify-center">
-                    <Pagination>
-                      <PaginationContent>
-                        <PaginationItem>
-                          <PaginationLink>1</PaginationLink>
-                        </PaginationItem>
-                      </PaginationContent>
-                    </Pagination>
                   </div>
                 </div>
               </TabsContent>

@@ -1,5 +1,4 @@
 
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import { getCurrencySymbol, montantEnLettres } from "../utils/bonDeSortieUtils";
 
 interface ProductLine {
@@ -175,23 +174,12 @@ export function BonDeSortiePreview({
         </div>
       </div>
 
-      <div className="bg-invoice-blue-50 p-4 rounded-md mb-8">
+      <div className="bg-invoice-blue-50 p-4 rounded-md">
         <p className="text-sm">
           <span className="font-semibold">
             Montant à payer en toutes lettres: {montantTTCEnLettres}
           </span>
         </p>
-      </div>
-
-      {/* Smaller footer with exactly 1cm height (approximately 38px or 0.3937in) */}
-      <div className="h-[0.3937in] border-t flex items-center justify-center">
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationLink>1</PaginationLink>
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
       </div>
     </div>
   );
