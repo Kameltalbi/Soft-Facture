@@ -91,11 +91,11 @@ const ProduitsPage = () => {
     : produitsDemo.filter(product => product.categorie.id === activeCategory);
 
   return (
-    <MainLayout title={t('product.title')}>
+    <MainLayout title={t('common.products')}>
       <div className="flex items-center justify-between mb-6">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold tracking-tight">
-            {t('product.title')}
+            {t('common.products')}
           </h2>
           <p className="text-muted-foreground">
             {t('product.subtitle')}
@@ -106,7 +106,7 @@ const ProduitsPage = () => {
             variant="outline"
             onClick={() => setOpenCategoriesModal(true)}
           >
-            {t('product.manageCategories')}
+            {t('product.categories.title')}
           </Button>
           <Button onClick={handleCreateProduit}>
             <Plus className="mr-2 h-4 w-4" />
@@ -119,9 +119,9 @@ const ProduitsPage = () => {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>{t('product.catalog')}</CardTitle>
+              <CardTitle>{t('product.list')}</CardTitle>
               <Input
-                placeholder={t('product.searchProduct')}
+                placeholder={t('product.search')}
                 className="max-w-sm"
               />
             </div>

@@ -133,6 +133,19 @@
     "list": "Product List",
     "new": "New Product",
     "search": "Search products...",
+    "all": "All",
+    "catalog": "Catalog",
+    "manageCategories": "Manage Categories",
+    "searchProduct": "Search for a product...",
+    "table": {
+      "name": "Name",
+      "category": "Category",
+      "unitPrice": "Unit Price",
+      "vatRate": "VAT Rate",
+      "actions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
     "categories": {
       "title": "Categories",
       "new": "New Category",
