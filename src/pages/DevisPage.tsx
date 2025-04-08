@@ -112,8 +112,8 @@ const DevisPage = () => {
       setSelectedDevis(id);
       setOpenModal(true);
       toast({
-        title: t('quote.edit_started', 'Editing Quote'),
-        description: t('quote.edit_quote_number', { number: devisToEdit.numero }, 'Now editing quote #{{number}}'),
+        title: t('quote.edit_started'),
+        description: t('quote.edit_invoice_number', { number: devisToEdit.numero }),
       });
     }
   };

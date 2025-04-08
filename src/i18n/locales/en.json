@@ -1,4 +1,3 @@
-
 {
   "common": {
     "welcome": "Welcome to Your Business Management App",
@@ -67,6 +66,8 @@
     "subtitle": "Manage your quotes",
     "new": "New Quote",
     "edit": "Edit",
+    "edit_started": "Editing Quote",
+    "edit_invoice_number": "Now editing quote #{{number}}",
     "view": "View",
     "delete": "Delete",
     "download": "Download",

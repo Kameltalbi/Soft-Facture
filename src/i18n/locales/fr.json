@@ -67,6 +67,8 @@
     "subtitle": "Gérez vos devis",
     "new": "Nouveau devis",
     "edit": "Modifier",
+    "edit_started": "Modification de devis",
+    "edit_invoice_number": "Modification du devis N°{{number}}",
     "view": "Voir",
     "delete": "Supprimer",
     "download": "Télécharger",
