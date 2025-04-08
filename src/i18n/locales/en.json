@@ -45,6 +45,8 @@
     "view": "View",
     "delete": "Delete",
     "download": "Download",
+    "download_started": "Downloading Invoice",
+    "download_invoice_number": "Invoice #{{number}} has been downloaded",
     "print": "Print",
     "list": "Invoices List",
     "number": "Number",

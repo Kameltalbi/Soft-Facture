@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -44,6 +43,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { downloadInvoiceAsPDF } from "@/utils/pdfGenerator";
 
 // Données fictives pour les factures
 const facturesDemo = [
@@ -201,6 +201,22 @@ const FacturesPage = () => {
     }
   };
 
+  const handleDownloadInvoice = (id: string) => {
+    // Find the invoice to download
+    const factureToDownload = invoiceDataList.find(facture => facture.id === id);
+    
+    if (factureToDownload) {
+      // Download the invoice as PDF
+      downloadInvoiceAsPDF(factureToDownload, i18n.language);
+      
+      // Show success toast
+      toast({
+        title: t('invoice.download_started'),
+        description: t('invoice.download_invoice_number', { number: factureToDownload.numero }),
+      });
+    }
+  };
+
   const getStatusColor = (statut: StatutFacture) => {
     switch (statut) {
       case "payee":
@@ -326,7 +342,9 @@ const FacturesPage = () => {
                               <Eye className="mr-2 h-4 w-4" />
                               {t('invoice.view')}
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDownloadInvoice(facture.id)}
+                            >
                               <DownloadCloud className="mr-2 h-4 w-4" />
                               {t('invoice.download')}
                             </DropdownMenuItem>
@@ -356,7 +374,9 @@ const FacturesPage = () => {
                               <Eye className="mr-2 h-4 w-4" />
                               {t('invoice.view')}
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDownloadInvoice(facture.id)}
+                            >
                               <DownloadCloud className="mr-2 h-4 w-4" />
                               {t('invoice.download')}
                             </DropdownMenuItem>
@@ -371,6 +391,12 @@ const FacturesPage = () => {
                             <DropdownMenuItem>
                               <Eye className="mr-2 h-4 w-4" />
                               {t('invoice.view')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDownloadInvoice(facture.id)}
+                            >
+                              <DownloadCloud className="mr-2 h-4 w-4" />
+                              {t('invoice.download')}
                             </DropdownMenuItem>
                           </>
                         )}

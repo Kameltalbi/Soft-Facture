@@ -45,6 +45,8 @@
     "view": "Voir",
     "delete": "Supprimer",
     "download": "Télécharger",
+    "download_started": "Téléchargement de facture",
+    "download_invoice_number": "La facture N°{{number}} a été téléchargée",
     "print": "Imprimer",
     "list": "Liste des factures",
     "number": "Numéro",
