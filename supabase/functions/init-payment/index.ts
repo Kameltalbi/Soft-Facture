@@ -49,6 +49,11 @@ serve(async (req) => {
 
     console.log(`Initialisation de paiement pour ${orderId}: ${amount} millimes`);
 
+    // Déterminer le domaine de base pour les redirections et webhooks
+    // Pour déploiement, utilisez votre domaine réel
+    const baseDomain = "https://effaassdrpabvpgoulrq.functions.supabase.co";
+    const webhookUrl = `${baseDomain}/payment-webhook`;
+
     // Préparer le corps de la requête pour Konnect
     const konnectRequestBody = {
       receiverWalletId: WALLET_ID,
@@ -65,7 +70,7 @@ serve(async (req) => {
       phoneNumber: phoneNumber || "",
       email: email || "",
       orderId: orderId,
-      webhook: "https://softfacture.tn/api/konnect/webhook", // À remplacer par votre webhook
+      webhook: webhookUrl, // Notre nouvelle URL de webhook
       silentWebhook: true,
       successUrl: "https://softfacture.tn/paiement-reussi", // À remplacer par votre URL de succès
       failUrl: "https://softfacture.tn/paiement-echoue", // À remplacer par votre URL d'échec
