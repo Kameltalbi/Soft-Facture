@@ -1,4 +1,3 @@
-
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { StatutFacture } from "@/types";
@@ -190,14 +189,17 @@ export const generateInvoicePDF = (
   // Calculate totals
   const finalY = (doc as any).lastAutoTable.finalY + 10;
   
-  // Totals
+  // Totals section with better spacing
   doc.setFontSize(10);
-  doc.text(locale === "fr" ? "Sous-total:" : "Subtotal:", 140, finalY);
+  
+  // Create a formatted totals section
+  // Sous-total
+  doc.text(locale === "fr" ? "Sous-total:" : "Subtotal:", 120, finalY);
   doc.text(`${invoiceData.totalTTC.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")} ${currencySymbol}`, 170, finalY, { align: "right" });
   
   // Tax total if applicable
   if (invoiceData.applyTVA) {
-    doc.text(locale === "fr" ? "TVA:" : "Tax:", 140, finalY + 7);
+    doc.text(locale === "fr" ? "TVA:" : "Tax:", 120, finalY + 7);
     // Demo tax calculation (20%)
     const tax = invoiceData.totalTTC * 0.2;
     doc.text(`${tax.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")} ${currencySymbol}`, 170, finalY + 7, { align: "right" });
@@ -206,7 +208,7 @@ export const generateInvoicePDF = (
   // Total with tax
   doc.setFontSize(12);
   doc.setFont(undefined, "bold");
-  doc.text(locale === "fr" ? "Total TTC:" : "Total Amount:", 140, finalY + 15);
+  doc.text(locale === "fr" ? "Total TTC:" : "Total Amount:", 120, finalY + 15);
   doc.text(`${invoiceData.totalTTC.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")} ${currencySymbol}`, 170, finalY + 15, { align: "right" });
   
   // Footer

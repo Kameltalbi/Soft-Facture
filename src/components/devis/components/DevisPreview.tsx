@@ -170,25 +170,25 @@ export function DevisPreview({
       </div>
 
       <div className="flex justify-end mb-8">
-        <div className="w-64">
+        <div className="w-80">
           <div className="flex justify-between py-1">
-            <span>Sous-total</span>
+            <span className="w-28 text-left">Sous-total</span>
             <span>{subtotal.toLocaleString("fr-FR")} {currencySymbol}</span>
           </div>
           {applyTVA && (
             <div className="flex justify-between py-1">
-              <span>TVA</span>
+              <span className="w-28 text-left">TVA</span>
               <span>{totalTVA.toLocaleString("fr-FR")} {currencySymbol}</span>
             </div>
           )}
           {showDiscount && (
             <div className="flex justify-between py-1">
-              <span>Remise globale</span>
+              <span className="w-28 text-left">Remise globale</span>
               <span>0.00 {currencySymbol}</span>
             </div>
           )}
           <div className="flex justify-between py-2 border-t border-t-gray-300 font-bold">
-            <span>Total TTC</span>
+            <span className="w-28 text-left">Total TTC</span>
             <span>{totalTTC.toLocaleString("fr-FR")} {currencySymbol}</span>
           </div>
         </div>

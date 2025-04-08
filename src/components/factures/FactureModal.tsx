@@ -12,6 +12,7 @@ import { FactureSettingsPanel } from "./FactureSettingsPanel";
 import { TaxeInput } from "./TaxeInput";
 import { FactureModalProps } from "@/types";
 import { downloadInvoiceAsPDF } from "@/utils/pdfGenerator";
+import { StatutFacture } from "@/types";
 
 // Fonction pour convertir un nombre en lettres en français
 const numeroEnLettres = (nombre: number): string => {
@@ -268,7 +269,7 @@ export function FactureModal({
         dateCreation: new Date().toISOString(),
         dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
         totalTTC: totalTTC,
-        statut: "brouillon",
+        statut: "brouillon" as StatutFacture,
         produits: productLines,
         applyTVA,
         showDiscount,
@@ -659,31 +660,31 @@ export function FactureModal({
                   </div>
 
                   <div className="flex justify-end mb-8">
-                    <div className="w-64">
+                    <div className="w-80">
                       <div className="flex justify-between py-1">
-                        <span>Sous-total</span>
+                        <span className="w-28 text-left">Sous-total</span>
                         <span>{subtotal.toLocaleString("fr-FR")} {currencySymbol}</span>
                       </div>
                       {applyTVA && (
                         <div className="flex justify-between py-1">
-                          <span>TVA</span>
+                          <span className="w-28 text-left">TVA</span>
                           <span>{totalTVA.toLocaleString("fr-FR")} {currencySymbol}</span>
                         </div>
                       )}
                       {showDiscount && (
                         <div className="flex justify-between py-1">
-                          <span>Remise globale</span>
+                          <span className="w-28 text-left">Remise globale</span>
                           <span>0.00 {currencySymbol}</span>
                         </div>
                       )}
                       {showAdvancePayment && (
                         <div className="flex justify-between py-1">
-                          <span>Avance perçue</span>
+                          <span className="w-28 text-left">Avance perçue</span>
                           <span>{advancePaymentAmount.toLocaleString("fr-FR")} {currencySymbol}</span>
                         </div>
                       )}
                       <div className="flex justify-between py-2 border-t border-t-gray-300 font-bold">
-                        <span>Total TTC</span>
+                        <span className="w-28 text-left">Total TTC</span>
                         <span>{showAdvancePayment ? finalAmount.toLocaleString("fr-FR") : totalTTC.toLocaleString("fr-FR")} {currencySymbol}</span>
                       </div>
                     </div>
