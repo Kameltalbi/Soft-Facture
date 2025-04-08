@@ -3,25 +3,22 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/auth-context";
-import Dashboard from "./pages/Dashboard";
-import FacturesPage from "./pages/FacturesPage";
-import DevisPage from "./pages/DevisPage";
-import BonDeSortiePage from "./pages/BonDeSortiePage";
-import ClientsPage from "./pages/ClientsPage";
-import ProduitsPage from "./pages/ProduitsPage";
-import CategoriesPage from "./pages/CategoriesPage";
-import ParametresPage from "./pages/ParametresPage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import HomePage from "./pages/HomePage";
-import NotFound from "./pages/NotFound";
+import Routes from "./routes";
 
-// Import i18n
+// Import i18n de manière séparée pour faciliter le chunking
 import './i18n/i18n';
 
-const queryClient = new QueryClient();
+// Configuration de QueryClient avec des options optimisées
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
+      retry: 1, // Limiter les retries pour économiser la bande passante
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -29,22 +26,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/factures" element={<FacturesPage />} />
-            <Route path="/devis" element={<DevisPage />} />
-            <Route path="/bon-de-sortie" element={<BonDeSortiePage />} />
-            <Route path="/clients" element={<ClientsPage />} />
-            <Route path="/produits" element={<ProduitsPage />} />
-            <Route path="/categories" element={<CategoriesPage />} />
-            <Route path="/parametres" element={<ParametresPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <Routes />
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
