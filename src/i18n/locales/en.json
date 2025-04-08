@@ -1,3 +1,4 @@
+
 {
   "common": {
     "welcome": "Welcome to Your Business Management App",
@@ -59,7 +60,12 @@
     "status_sent": "Sent",
     "status_overdue": "Overdue",
     "status_draft": "Draft",
-    "status_unknown": "Unknown"
+    "status_unknown": "Unknown",
+    "status_cancelled": "Cancelled",
+    "cancel": "Cancel Invoice",
+    "cancel_started": "Cancelling Invoice",
+    "cancel_invoice_number": "Invoice #{{number}} has been cancelled",
+    "cancel_confirm": "Are you sure you want to cancel this invoice?"
   },
   "quote": {
     "title": "Quotes",

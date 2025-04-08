@@ -27,11 +27,22 @@ import {
   Plus,
   Printer,
   Trash2,
+  XCircle,
 } from "lucide-react";
 import { StatutFacture } from "@/types";
 import { FactureModal } from "@/components/factures/FactureModal";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // Données fictives pour les factures
 const facturesDemo = [
@@ -96,6 +107,9 @@ const getCurrencySymbol = (currency: string): string => {
 const FacturesPage = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedFacture, setSelectedFacture] = useState<string | null>(null);
+  const [invoiceDataList, setInvoiceDataList] = useState(facturesDemo);
+  const [openCancelDialog, setOpenCancelDialog] = useState<boolean>(false);
+  const [invoiceToCancel, setInvoiceToCancel] = useState<string | null>(null);
   const currencySymbol = getCurrencySymbol("TND"); // Default to TND
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
@@ -107,7 +121,7 @@ const FacturesPage = () => {
 
   const handleEditInvoice = (id: string) => {
     // Find the invoice to edit
-    const factureToEdit = facturesDemo.find(facture => facture.id === id);
+    const factureToEdit = invoiceDataList.find(facture => facture.id === id);
     if (factureToEdit) {
       setSelectedFacture(id);
       setOpenModal(true);
@@ -115,6 +129,39 @@ const FacturesPage = () => {
         title: t('invoice.edit_started'),
         description: t('invoice.edit_invoice_number', { number: factureToEdit.numero }),
       });
+    }
+  };
+
+  const handleCancelInvoice = (id: string) => {
+    setInvoiceToCancel(id);
+    setOpenCancelDialog(true);
+  };
+
+  const confirmCancelInvoice = () => {
+    if (invoiceToCancel) {
+      // Find the invoice to cancel
+      const factureToCancel = invoiceDataList.find(facture => facture.id === invoiceToCancel);
+      
+      if (factureToCancel) {
+        // Update the invoice status to cancelled
+        const updatedInvoices = invoiceDataList.map(facture => 
+          facture.id === invoiceToCancel 
+            ? { ...facture, statut: 'annulee' as StatutFacture } 
+            : facture
+        );
+        
+        setInvoiceDataList(updatedInvoices);
+        
+        // Show success toast
+        toast({
+          title: t('invoice.cancel_started'),
+          description: t('invoice.cancel_invoice_number', { number: factureToCancel.numero }),
+        });
+      }
+      
+      // Close the dialog
+      setOpenCancelDialog(false);
+      setInvoiceToCancel(null);
     }
   };
 
@@ -128,6 +175,8 @@ const FacturesPage = () => {
         return "bg-invoice-status-overdue/10 text-invoice-status-overdue";
       case "brouillon":
         return "bg-invoice-status-draft/10 text-invoice-status-draft";
+      case "annulee":
+        return "bg-destructive/10 text-destructive";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -143,6 +192,8 @@ const FacturesPage = () => {
         return t('invoice.status_overdue');
       case "brouillon":
         return t('invoice.status_draft');
+      case "annulee":
+        return t('invoice.status_cancelled');
       default:
         return t('invoice.status_unknown');
     }
@@ -197,7 +248,7 @@ const FacturesPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {facturesDemo.map((facture) => (
+              {invoiceDataList.map((facture) => (
                 <TableRow key={facture.id}>
                   <TableCell className="font-medium">{facture.numero}</TableCell>
                   <TableCell>{facture.client.nom}</TableCell>
@@ -227,24 +278,35 @@ const FacturesPage = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleEditInvoice(facture.id)}
-                        >
-                          <Edit className="mr-2 h-4 w-4" />
-                          {t('invoice.edit')}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Eye className="mr-2 h-4 w-4" />
-                          {t('invoice.view')}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <DownloadCloud className="mr-2 h-4 w-4" />
-                          {t('invoice.download')}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Printer className="mr-2 h-4 w-4" />
-                          {t('invoice.print')}
-                        </DropdownMenuItem>
+                        {facture.statut !== 'annulee' && (
+                          <>
+                            <DropdownMenuItem
+                              onClick={() => handleEditInvoice(facture.id)}
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              {t('invoice.edit')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Eye className="mr-2 h-4 w-4" />
+                              {t('invoice.view')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <DownloadCloud className="mr-2 h-4 w-4" />
+                              {t('invoice.download')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Printer className="mr-2 h-4 w-4" />
+                              {t('invoice.print')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleCancelInvoice(facture.id)}
+                              className="text-destructive"
+                            >
+                              <XCircle className="mr-2 h-4 w-4" />
+                              {t('invoice.cancel')}
+                            </DropdownMenuItem>
+                          </>
+                        )}
                         <DropdownMenuItem className="text-destructive">
                           <Trash2 className="mr-2 h-4 w-4" />
                           {t('invoice.delete')}
@@ -264,6 +326,26 @@ const FacturesPage = () => {
         onOpenChange={setOpenModal}
         factureId={selectedFacture}
       />
+
+      <AlertDialog open={openCancelDialog} onOpenChange={setOpenCancelDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('invoice.cancel')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('invoice.cancel_confirm')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmCancelInvoice}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {t('invoice.cancel')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </MainLayout>
   );
 };

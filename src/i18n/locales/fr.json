@@ -60,7 +60,12 @@
     "status_sent": "Envoyée",
     "status_overdue": "En retard",
     "status_draft": "Brouillon",
-    "status_unknown": "Inconnu"
+    "status_unknown": "Inconnu",
+    "status_cancelled": "Annulée",
+    "cancel": "Annuler la facture",
+    "cancel_started": "Annulation de facture",
+    "cancel_invoice_number": "La facture N°{{number}} a été annulée",
+    "cancel_confirm": "Êtes-vous sûr de vouloir annuler cette facture ?"
   },
   "quote": {
     "title": "Devis",

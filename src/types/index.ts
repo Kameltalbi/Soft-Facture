@@ -47,7 +47,7 @@ export interface LigneProduit {
   sousTotal: number;
 }
 
-export type StatutFacture = 'brouillon' | 'envoyee' | 'payee' | 'retard';
+export type StatutFacture = 'brouillon' | 'envoyee' | 'payee' | 'retard' | 'annulee';
 
 export interface Facture {
   id: string;
