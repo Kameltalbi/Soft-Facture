@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,12 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Trash2, Plus, Settings, Save, ArrowUpRight, X } from "lucide-react";
 import { FactureSettingsPanel } from "./FactureSettingsPanel";
 import { TaxeInput } from "./TaxeInput";
-
-interface FactureModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  factureId: string | null;
-}
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 
 // Fonction pour convertir un nombre en lettres en français
 const numeroEnLettres = (nombre: number): string => {
@@ -260,6 +254,7 @@ export function FactureModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[95vw] sm:max-h-[90vh] overflow-y-auto">
+        
         <DialogHeader>
           <DialogTitle className="sr-only">
             {isEditing ? "Modifier la facture" : "Nouvelle facture"}
@@ -682,17 +677,15 @@ export function FactureModal({
                     </p>
                   </div>
 
-                  <div className="text-xs text-muted-foreground border-t pt-4">
-                    <p className="font-medium mb-2">Conditions de paiement</p>
-                    <p>Payable sous 30 jours.</p>
-                    <p>
-                      Coordonnées bancaires : IBAN FR76 1234 5678 9101 1121 3141
-                      5161
-                    </p>
-                    <p className="mt-2">
-                      Merci pour votre confiance. Pour toute question concernant
-                      cette facture, veuillez nous contacter.
-                    </p>
+                  {/* Footer with pagination - height of 1cm (approximately 38px) */}
+                  <div className="h-[1cm] border-t pt-2 flex items-center justify-center">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
                   </div>
                 </div>
               </TabsContent>

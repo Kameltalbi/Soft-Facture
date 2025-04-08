@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,12 +10,7 @@ import { Trash2, Plus, Settings, Save, ArrowUpRight, X } from "lucide-react";
 import { BonDeSortieSettingsPanel } from "./BonDeSortieSettingsPanel";
 import { TaxeInput } from "../factures/TaxeInput";
 import { toast } from "sonner";
-
-interface BonDeSortieModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  bonDeSortieId: string | null;
-}
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 
 // Fonction pour convertir un nombre en lettres en français
 const numeroEnLettres = (nombre: number): string => {
@@ -297,6 +291,7 @@ export function BonDeSortieModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[95vw] sm:max-h-[90vh] overflow-y-auto">
+        
         <DialogHeader>
           <DialogTitle className="sr-only">
             {isEditing ? "Modifier le bon de sortie" : "Nouveau bon de sortie"}
@@ -699,16 +694,15 @@ export function BonDeSortieModal({
                     </p>
                   </div>
 
-                  <div className="text-xs text-muted-foreground border-t pt-4">
-                    <p className="font-medium mb-2">Conditions du bon de sortie</p>
-                    <p>Ce bon de sortie est valable pour une durée de 30 jours.</p>
-                    <p>
-                      Pour accepter ce bon de sortie, veuillez le retourner signé avec la mention "Bon pour accord".
-                    </p>
-                    <p className="mt-2">
-                      Merci pour votre confiance. Pour toute question concernant
-                      ce bon de sortie, veuillez nous contacter.
-                    </p>
+                  {/* Footer with pagination - height of 1cm (approximately 38px) */}
+                  <div className="h-[1cm] border-t pt-2 flex items-center justify-center">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationLink>1</PaginationLink>
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
                   </div>
                 </div>
               </TabsContent>
