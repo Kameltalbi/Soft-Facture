@@ -1,7 +1,5 @@
-
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import {
@@ -94,14 +92,9 @@ const ProduitsPage = () => {
           </p>
         </div>
         <div className="flex space-x-2">
-          <Button
-            variant="outline"
-            asChild
-          >
-            <Link to="/categories">
-              <Tags className="mr-2 h-4 w-4" />
-              {t('product.categories.title')}
-            </Link>
+          <Button variant="outline">
+            <Import className="mr-2 h-4 w-4" />
+            {t('common.import')}
           </Button>
           <Button onClick={handleCreateProduit}>
             <Plus className="mr-2 h-4 w-4" />
@@ -119,10 +112,6 @@ const ProduitsPage = () => {
                 placeholder={t('product.search')}
                 className="max-w-sm"
               />
-              <Button variant="outline">
-                <Import className="mr-2 h-4 w-4" />
-                {t('common.import')}
-              </Button>
             </div>
           </div>
         </CardHeader>
