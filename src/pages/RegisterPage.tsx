@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { useNavigate, Link } from "react-router-dom";
@@ -73,7 +72,7 @@ const RegisterPage = () => {
       <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 text-white p-8 flex flex-col justify-center order-2 md:order-1">
         <div className="max-w-md mx-auto space-y-8">
           <div className="mb-8 flex justify-center">
-            <Logo variant="light" size="lg" />
+            <Logo variant="light" size="lg" compact={true} />
           </div>
           
           <h1 className="text-3xl md:text-4xl font-bold">

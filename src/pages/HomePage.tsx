@@ -86,9 +86,9 @@ const HomePage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navbar with logo */}
-      <header className="w-full py-4 px-6 bg-white shadow-sm flex items-center justify-between">
-        <Logo size="lg" />
-        <div className="flex items-center gap-4">
+      <header className="w-full py-4 px-4 md:px-6 bg-white shadow-sm flex items-center justify-between">
+        <Logo size="lg" compact={true} />
+        <div className="flex items-center gap-2 md:gap-4">
           <Link to="/login" className="text-sm font-medium text-gray-600 hover:text-blue-600">
             Connexion
           </Link>
