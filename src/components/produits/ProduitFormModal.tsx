@@ -1,4 +1,5 @@
 
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,7 @@ export function ProduitFormModal({
   produitId,
   categories,
 }: ProduitFormModalProps) {
+  const { t } = useTranslation();
   const isEditing = produitId !== null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -39,16 +41,16 @@ export function ProduitFormModal({
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "Modifier le produit" : "Nouveau produit"}
+            {isEditing ? t('product.edit') : t('product.new')}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="nom">Nom du produit</Label>
+            <Label htmlFor="nom">{t('product.form.productName')}</Label>
             <Input
               id="nom"
-              placeholder="Nom du produit ou service"
+              placeholder={t('product.form.productNamePlaceholder')}
               defaultValue={isEditing ? "Développement site web" : ""}
               required
             />
@@ -56,10 +58,10 @@ export function ProduitFormModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="categorie">Catégorie</Label>
+              <Label htmlFor="categorie">{t('product.form.category')}</Label>
               <Select defaultValue={isEditing ? "1" : undefined}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner une catégorie" />
+                  <SelectValue placeholder={t('product.form.selectCategory')} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
@@ -71,7 +73,7 @@ export function ProduitFormModal({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="prix">Prix unitaire (€)</Label>
+              <Label htmlFor="prix">{t('product.form.unitPrice')}</Label>
               <Input
                 id="prix"
                 type="number"
@@ -86,7 +88,7 @@ export function ProduitFormModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="tva">Taux de TVA (%)</Label>
+              <Label htmlFor="tva">{t('product.form.vatRate')}</Label>
               <Input
                 id="tva"
                 type="number"
@@ -98,26 +100,26 @@ export function ProduitFormModal({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="unite">Unité</Label>
+              <Label htmlFor="unite">{t('product.form.unit')}</Label>
               <Select defaultValue="unite">
                 <SelectTrigger>
-                  <SelectValue placeholder="Unité" />
+                  <SelectValue placeholder={t('product.form.unit')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="unite">Unité</SelectItem>
-                  <SelectItem value="heure">Heure</SelectItem>
-                  <SelectItem value="jour">Jour</SelectItem>
-                  <SelectItem value="mois">Mois</SelectItem>
+                  <SelectItem value="unite">{t('product.form.unitType')}</SelectItem>
+                  <SelectItem value="heure">{t('product.form.hourType')}</SelectItem>
+                  <SelectItem value="jour">{t('product.form.dayType')}</SelectItem>
+                  <SelectItem value="mois">{t('product.form.monthType')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('product.form.description')}</Label>
             <Textarea
               id="description"
-              placeholder="Description du produit ou service"
+              placeholder={t('product.form.descriptionPlaceholder')}
               rows={3}
               defaultValue={
                 isEditing
@@ -133,11 +135,11 @@ export function ProduitFormModal({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Annuler
+              {t('product.form.cancel')}
             </Button>
             <Button type="submit">
               <Save className="mr-2 h-4 w-4" />
-              Enregistrer
+              {t('product.form.save')}
             </Button>
           </div>
         </form>

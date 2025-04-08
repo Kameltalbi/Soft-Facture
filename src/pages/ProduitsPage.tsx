@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import {
@@ -68,6 +69,7 @@ const categoriesDemo = [
 ];
 
 const ProduitsPage = () => {
+  const { t } = useTranslation();
   const [openProduitModal, setOpenProduitModal] = useState<boolean>(false);
   const [selectedProduit, setSelectedProduit] = useState<string | null>(null);
   const [openCategoriesModal, setOpenCategoriesModal] = useState<boolean>(false);
@@ -89,14 +91,14 @@ const ProduitsPage = () => {
     : produitsDemo.filter(product => product.categorie.id === activeCategory);
 
   return (
-    <MainLayout title="Produits et Services">
+    <MainLayout title={t('product.title')}>
       <div className="flex items-center justify-between mb-6">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold tracking-tight">
-            Produits et Services
+            {t('product.title')}
           </h2>
           <p className="text-muted-foreground">
-            Gérez votre catalogue de produits et services.
+            {t('product.subtitle')}
           </p>
         </div>
         <div className="flex space-x-2">
@@ -104,11 +106,11 @@ const ProduitsPage = () => {
             variant="outline"
             onClick={() => setOpenCategoriesModal(true)}
           >
-            Gérer les catégories
+            {t('product.manageCategories')}
           </Button>
           <Button onClick={handleCreateProduit}>
             <Plus className="mr-2 h-4 w-4" />
-            Nouveau produit
+            {t('product.new')}
           </Button>
         </div>
       </div>
@@ -117,16 +119,16 @@ const ProduitsPage = () => {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Catalogue</CardTitle>
+              <CardTitle>{t('product.catalog')}</CardTitle>
               <Input
-                placeholder="Rechercher un produit..."
+                placeholder={t('product.searchProduct')}
                 className="max-w-sm"
               />
             </div>
           </CardHeader>
           <div className="px-6">
             <TabsList className="mb-4">
-              <TabsTrigger value="all">Tous</TabsTrigger>
+              <TabsTrigger value="all">{t('product.all')}</TabsTrigger>
               {categoriesDemo.map((category) => (
                 <TabsTrigger key={category.id} value={category.id}>
                   {category.nom}
@@ -139,11 +141,11 @@ const ProduitsPage = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nom</TableHead>
-                    <TableHead>Catégorie</TableHead>
-                    <TableHead className="text-right">Prix unitaire</TableHead>
-                    <TableHead className="text-right">TVA (%)</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t('product.table.name')}</TableHead>
+                    <TableHead>{t('product.table.category')}</TableHead>
+                    <TableHead className="text-right">{t('product.table.unitPrice')}</TableHead>
+                    <TableHead className="text-right">{t('product.table.vatRate')}</TableHead>
+                    <TableHead className="text-right">{t('product.table.actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -178,11 +180,11 @@ const ProduitsPage = () => {
                               onClick={() => handleEditProduit(produit.id)}
                             >
                               <Edit className="mr-2 h-4 w-4" />
-                              Modifier
+                              {t('product.table.edit')}
                             </DropdownMenuItem>
                             <DropdownMenuItem className="text-destructive">
                               <Trash2 className="mr-2 h-4 w-4" />
-                              Supprimer
+                              {t('product.table.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

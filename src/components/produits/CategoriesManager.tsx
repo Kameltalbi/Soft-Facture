@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +32,7 @@ export function CategoriesManager({
   onOpenChange,
   categories: initialCategories,
 }: CategoriesManagerProps) {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState<Categorie[]>(initialCategories);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
@@ -77,22 +79,22 @@ export function CategoriesManager({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Gérer les catégories</DialogTitle>
+          <DialogTitle>{t('product.categories.title')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="newCategory">Nouvelle catégorie</Label>
+            <Label htmlFor="newCategory">{t('product.categories.new')}</Label>
             <div className="flex space-x-2">
               <Input
                 id="newCategory"
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder="Nom de la catégorie"
+                placeholder={t('product.categories.categoryNamePlaceholder')}
               />
               <Button type="button" onClick={handleAddCategory}>
                 <Plus className="h-4 w-4 mr-2" />
-                Ajouter
+                {t('product.categories.add')}
               </Button>
             </div>
           </div>
@@ -101,8 +103,8 @@ export function CategoriesManager({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nom de la catégorie</TableHead>
-                  <TableHead className="w-[120px]">Actions</TableHead>
+                  <TableHead>{t('product.categories.categoryName')}</TableHead>
+                  <TableHead className="w-[120px]">{t('product.categories.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -164,7 +166,7 @@ export function CategoriesManager({
                 {categories.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={2} className="text-center py-4">
-                      Aucune catégorie. Ajoutez-en une !
+                      {t('product.categories.noCategories')}
                     </TableCell>
                   </TableRow>
                 )}
@@ -173,7 +175,9 @@ export function CategoriesManager({
           </div>
 
           <div className="flex justify-end">
-            <Button onClick={() => onOpenChange(false)}>Fermer</Button>
+            <Button onClick={() => onOpenChange(false)}>
+              {t('product.categories.close')}
+            </Button>
           </div>
         </div>
       </DialogContent>

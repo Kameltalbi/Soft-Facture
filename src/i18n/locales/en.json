@@ -194,5 +194,51 @@
     "status_draft": "Draft",
     "status_unknown": "Unknown",
     "settings": "Delivery Note Settings"
+  },
+  "product": {
+    "title": "Products and Services",
+    "subtitle": "Manage your product and service catalog.",
+    "new": "New Product",
+    "edit": "Edit Product",
+    "manageCategories": "Manage Categories",
+    "catalog": "Catalog",
+    "searchProduct": "Search for a product...",
+    "all": "All",
+    "form": {
+      "productName": "Product Name",
+      "productNamePlaceholder": "Product or service name",
+      "category": "Category",
+      "selectCategory": "Select a category",
+      "unitPrice": "Unit Price (€)",
+      "vatRate": "VAT Rate (%)",
+      "unit": "Unit",
+      "unitType": "Unit",
+      "hourType": "Hour",
+      "dayType": "Day",
+      "monthType": "Month",
+      "description": "Description",
+      "descriptionPlaceholder": "Product or service description",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "table": {
+      "name": "Name",
+      "category": "Category",
+      "unitPrice": "Unit Price",
+      "vatRate": "VAT (%)",
+      "actions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "categories": {
+      "title": "Manage Categories",
+      "new": "New Category",
+      "categoryName": "Category Name",
+      "categoryNamePlaceholder": "Category name",
+      "add": "Add",
+      "actions": "Actions",
+      "noCategories": "No categories. Add one!",
+      "close": "Close"
+    }
   }
 }

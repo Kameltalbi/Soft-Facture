@@ -194,5 +194,51 @@
     "status_draft": "Brouillon",
     "status_unknown": "Inconnu",
     "settings": "Paramètres du bon de sortie"
+  },
+  "product": {
+    "title": "Produits et Services",
+    "subtitle": "Gérez votre catalogue de produits et services.",
+    "new": "Nouveau produit",
+    "edit": "Modifier le produit",
+    "manageCategories": "Gérer les catégories",
+    "catalog": "Catalogue",
+    "searchProduct": "Rechercher un produit...",
+    "all": "Tous",
+    "form": {
+      "productName": "Nom du produit",
+      "productNamePlaceholder": "Nom du produit ou service",
+      "category": "Catégorie",
+      "selectCategory": "Sélectionner une catégorie",
+      "unitPrice": "Prix unitaire (€)",
+      "vatRate": "Taux de TVA (%)",
+      "unit": "Unité",
+      "unitType": "Unité",
+      "hourType": "Heure",
+      "dayType": "Jour",
+      "monthType": "Mois",
+      "description": "Description",
+      "descriptionPlaceholder": "Description du produit ou service",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "table": {
+      "name": "Nom",
+      "category": "Catégorie",
+      "unitPrice": "Prix unitaire",
+      "vatRate": "TVA (%)",
+      "actions": "Actions",
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    },
+    "categories": {
+      "title": "Gérer les catégories",
+      "new": "Nouvelle catégorie",
+      "categoryName": "Nom de la catégorie",
+      "categoryNamePlaceholder": "Nom de la catégorie",
+      "add": "Ajouter",
+      "actions": "Actions",
+      "noCategories": "Aucune catégorie. Ajoutez-en une !",
+      "close": "Fermer"
+    }
   }
 }
