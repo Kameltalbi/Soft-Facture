@@ -12,7 +12,8 @@ import {
   Menu,
   ChevronLeft,
   FileText,
-  Package2
+  Package2,
+  Tags
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,11 @@ const Sidebar = () => {
       name: t('common.products'),
       path: "/produits",
       icon: <ShoppingCart size={20} />
+    },
+    {
+      name: t('product.categories.title'),
+      path: "/categories",
+      icon: <Tags size={20} />
     },
     {
       name: t('common.settings'),

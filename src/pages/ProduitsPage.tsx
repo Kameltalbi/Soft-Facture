@@ -1,6 +1,6 @@
-
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,9 +20,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Edit, MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import { Edit, MoreHorizontal, Plus, Trash2, Tags } from "lucide-react";
 import { ProduitFormModal } from "@/components/produits/ProduitFormModal";
-import { CategoriesManager } from "@/components/produits/CategoriesManager";
 
 // Données fictives pour les produits
 const produitsDemo = [
@@ -72,7 +71,6 @@ const ProduitsPage = () => {
   const { t } = useTranslation();
   const [openProduitModal, setOpenProduitModal] = useState<boolean>(false);
   const [selectedProduit, setSelectedProduit] = useState<string | null>(null);
-  const [openCategoriesModal, setOpenCategoriesModal] = useState<boolean>(false);
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const handleCreateProduit = () => {
@@ -104,9 +102,12 @@ const ProduitsPage = () => {
         <div className="flex space-x-2">
           <Button
             variant="outline"
-            onClick={() => setOpenCategoriesModal(true)}
+            asChild
           >
-            {t('product.categories.title')}
+            <Link to="/categories">
+              <Tags className="mr-2 h-4 w-4" />
+              {t('product.categories.title')}
+            </Link>
           </Button>
           <Button onClick={handleCreateProduit}>
             <Plus className="mr-2 h-4 w-4" />
@@ -202,12 +203,6 @@ const ProduitsPage = () => {
         open={openProduitModal}
         onOpenChange={setOpenProduitModal}
         produitId={selectedProduit}
-        categories={categoriesDemo}
-      />
-
-      <CategoriesManager
-        open={openCategoriesModal}
-        onOpenChange={setOpenCategoriesModal}
         categories={categoriesDemo}
       />
     </MainLayout>

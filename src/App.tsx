@@ -10,6 +10,7 @@ import DevisPage from "./pages/DevisPage";
 import BonDeSortiePage from "./pages/BonDeSortiePage";
 import ClientsPage from "./pages/ClientsPage";
 import ProduitsPage from "./pages/ProduitsPage";
+import CategoriesPage from "./pages/CategoriesPage";
 import ParametresPage from "./pages/ParametresPage";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/bon-de-sortie" element={<BonDeSortiePage />} />
           <Route path="/clients" element={<ClientsPage />} />
           <Route path="/produits" element={<ProduitsPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/parametres" element={<ParametresPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
