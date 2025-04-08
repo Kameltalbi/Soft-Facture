@@ -73,9 +73,13 @@ serve(async (req) => {
     };
 
     console.log("Appel API Konnect avec corps:", JSON.stringify(konnectRequestBody));
+    
+    // URL corrigée de l'API Konnect
+    const apiUrl = "https://api.konnect.network/api/v2/payments/init-payment";
+    console.log("URL de l'API Konnect:", apiUrl);
 
     // Appel à l'API Konnect
-    const response = await fetch("https://gateway.konnect.network/api/payments/init-payment", {
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "x-api-key": API_KEY,
