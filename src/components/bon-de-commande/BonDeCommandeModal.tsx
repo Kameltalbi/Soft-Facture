@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,14 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Trash2, Plus, Settings, Save, ArrowUpRight, X } from "lucide-react";
-import { BonDeSortieSettingsPanel } from "./BonDeSortieSettingsPanel";
 import { TaxeInput } from "../factures/TaxeInput";
+import { BonDeCommandeSettingsPanel } from "./BonDeCommandeSettingsPanel";
 import { toast } from "sonner";
 
-interface BonDeSortieModalProps {
+interface BonDeCommandeModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  bonDeSortieId: string | null;
+  bonDeCommandeId: string | null;
 }
 
 // Fonction pour convertir un nombre en lettres en français
@@ -135,31 +134,31 @@ const getCurrencySymbol = (currency: string): string => {
   }
 };
 
-export function BonDeSortieModal({
+export function BonDeCommandeModal({
   open,
   onOpenChange,
-  bonDeSortieId,
-}: BonDeSortieModalProps) {
+  bonDeCommandeId,
+}: BonDeCommandeModalProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [applyTVA, setApplyTVA] = useState(true);
   const [showDiscount, setShowDiscount] = useState(false);
   const [currency, setCurrency] = useState("TND");
   const currencySymbol = getCurrencySymbol(currency);
 
-  const isEditing = bonDeSortieId !== null;
+  const isEditing = bonDeCommandeId !== null;
 
   // Lignes de produits avec ajout des nouveaux champs pour la TVA
   const [productLines, setProductLines] = useState([
     {
       id: "1",
-      name: "Développement site web",
+      name: "Fourniture de matériel",
       quantity: 1,
-      unitPrice: 1200,
+      unitPrice: 1500,
       tva: 20,
       montantTVA: 0,
       estTauxTVA: true, // Par défaut, on utilise un taux de TVA
       discount: 0,
-      total: 1200,
+      total: 1500,
     },
   ]);
 
@@ -283,14 +282,14 @@ export function BonDeSortieModal({
   const montantTTCEnLettres = montantEnLettres(totalTTC, currency);
 
   const handleSave = () => {
-    // Here you would typically save the bon de sortie data
-    toast.success("Bon de sortie enregistré avec succès");
+    // Here you would typically save the bon de commande data
+    toast.success("Bon de commande enregistré avec succès");
     onOpenChange(false);
   };
 
   const handleSend = () => {
-    // Here you would typically send the bon de sortie to the client
-    toast.success("Bon de sortie envoyé avec succès");
+    // Here you would typically send the bon de commande to the supplier
+    toast.success("Bon de commande envoyé avec succès");
     onOpenChange(false);
   };
 
@@ -299,24 +298,24 @@ export function BonDeSortieModal({
       <DialogContent className="sm:max-w-[95vw] sm:max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="sr-only">
-            {isEditing ? "Modifier le bon de sortie" : "Nouveau bon de sortie"}
+            {isEditing ? "Modifier le bon de commande" : "Nouveau bon de commande"}
           </DialogTitle>
           <DialogDescription className="sr-only">
             {isEditing
-              ? "Modifiez les détails du bon de sortie existant"
-              : "Créez un nouveau bon de sortie pour un client"}
+              ? "Modifiez les détails du bon de commande existant"
+              : "Créez un nouveau bon de commande pour un fournisseur"}
           </DialogDescription>
         </DialogHeader>
         
         <div className="flex justify-between items-start mb-6">
           <div>
             <h2 className="text-2xl font-bold">
-              {isEditing ? "Modifier le bon de sortie" : "Nouveau bon de sortie"}
+              {isEditing ? "Modifier le bon de commande" : "Nouveau bon de commande"}
             </h2>
             <p className="text-sm text-muted-foreground">
               {isEditing
-                ? "Modifiez les détails du bon de sortie existant"
-                : "Créez un nouveau bon de sortie pour un client"}
+                ? "Modifiez les détails du bon de commande existant"
+                : "Créez un nouveau bon de commande pour un fournisseur"}
             </p>
           </div>
           <Button
@@ -342,10 +341,10 @@ export function BonDeSortieModal({
               <TabsContent value="edition" className="space-y-6 mt-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-3">
-                    <Label htmlFor="numero">Numéro de bon de sortie</Label>
+                    <Label htmlFor="numero">Numéro de bon de commande</Label>
                     <Input
                       id="numero"
-                      defaultValue={isEditing ? "BDS2025-001" : "BDS2025-005"}
+                      defaultValue={isEditing ? "BDC2025-001" : "BDC2025-005"}
                       readOnly
                     />
                   </div>
@@ -358,7 +357,7 @@ export function BonDeSortieModal({
                     />
                   </div>
                   <div className="space-y-3">
-                    <Label htmlFor="echeance">Date d'échéance</Label>
+                    <Label htmlFor="echeance">Date de livraison souhaitée</Label>
                     <Input
                       id="echeance"
                       type="date"
@@ -375,16 +374,16 @@ export function BonDeSortieModal({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-3">
-                    <Label htmlFor="client">Client</Label>
+                    <Label htmlFor="fournisseur">Fournisseur</Label>
                     <Select defaultValue="1">
                       <SelectTrigger>
-                        <SelectValue placeholder="Sélectionner un client" />
+                        <SelectValue placeholder="Sélectionner un fournisseur" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">Entreprise ABC</SelectItem>
-                        <SelectItem value="2">Société XYZ</SelectItem>
-                        <SelectItem value="3">Consulting DEF</SelectItem>
-                        <SelectItem value="4">Studio Design</SelectItem>
+                        <SelectItem value="1">Fournisseur Materials PRO</SelectItem>
+                        <SelectItem value="2">Equipements Industriels SA</SelectItem>
+                        <SelectItem value="3">Matériaux Construction Plus</SelectItem>
+                        <SelectItem value="4">Outillage Express</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -392,13 +391,14 @@ export function BonDeSortieModal({
                     <Label htmlFor="statut">Statut</Label>
                     <Select defaultValue="brouillon">
                       <SelectTrigger>
-                        <SelectValue placeholder="Statut du bon de sortie" />
+                        <SelectValue placeholder="Statut du bon de commande" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="brouillon">Brouillon</SelectItem>
                         <SelectItem value="envoyee">Envoyé</SelectItem>
-                        <SelectItem value="payee">Accepté</SelectItem>
-                        <SelectItem value="retard">En attente</SelectItem>
+                        <SelectItem value="confirmee">Confirmé</SelectItem>
+                        <SelectItem value="en_cours">En cours</SelectItem>
+                        <SelectItem value="livree">Livré</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -407,7 +407,7 @@ export function BonDeSortieModal({
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <Label className="text-base font-medium">
-                      Produits et services
+                      Articles et services
                     </Label>
                     <Button
                       variant="outline"
@@ -424,7 +424,7 @@ export function BonDeSortieModal({
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-[40%]">
-                            Produit / Service
+                            Article / Service
                           </TableHead>
                           <TableHead className="text-center">Quantité</TableHead>
                           <TableHead className="text-center">
@@ -546,10 +546,10 @@ export function BonDeSortieModal({
                 </div>
 
                 <div className="space-y-3">
-                  <Label htmlFor="notes">Notes</Label>
+                  <Label htmlFor="notes">Instructions de commande</Label>
                   <Input
                     id="notes"
-                    placeholder="Ajouter des notes ou des conditions particulières"
+                    placeholder="Ajouter des instructions ou conditions spéciales"
                   />
                 </div>
               </TabsContent>
@@ -572,11 +572,11 @@ export function BonDeSortieModal({
                     </div>
                     <div className="text-right">
                       <h1 className="text-2xl font-bold text-invoice-blue-600 mb-2">
-                        BON DE SORTIE
+                        BON DE COMMANDE
                       </h1>
                       <div className="text-sm">
                         <p>
-                          <span className="font-medium">№ :</span> BDS2025-005
+                          <span className="font-medium">№ :</span> BDC2025-005
                         </p>
                         <p>
                           <span className="font-medium">Date d'émission :</span>{" "}
@@ -584,7 +584,7 @@ export function BonDeSortieModal({
                         </p>
                         <p>
                           <span className="font-medium">
-                            Date d'échéance :
+                            Date de livraison souhaitée :
                           </span>{" "}
                           {new Date(
                             new Date().setDate(new Date().getDate() + 30)
@@ -596,13 +596,13 @@ export function BonDeSortieModal({
 
                   <div className="border-t border-b py-6 my-8">
                     <h2 className="text-sm font-semibold mb-1 text-muted-foreground">
-                      CLIENT
+                      FOURNISSEUR
                     </h2>
                     <div>
-                      <p className="font-semibold">Entreprise ABC</p>
-                      <p>456 Avenue des Clients</p>
-                      <p>69002 Lyon, France</p>
-                      <p>Email: contact@abc.fr</p>
+                      <p className="font-semibold">Fournisseur Materials PRO</p>
+                      <p>123 Avenue de l'Industrie</p>
+                      <p>75015 Paris, France</p>
+                      <p>Email: contact@materials-pro.fr</p>
                     </div>
                   </div>
 
@@ -700,14 +700,13 @@ export function BonDeSortieModal({
                   </div>
 
                   <div className="text-xs text-muted-foreground border-t pt-4">
-                    <p className="font-medium mb-2">Conditions du bon de sortie</p>
-                    <p>Ce bon de sortie est valable pour une durée de 30 jours.</p>
+                    <p className="font-medium mb-2">Conditions du bon de commande</p>
+                    <p>Ce bon de commande est valable pour une durée de 30 jours.</p>
                     <p>
-                      Pour accepter ce bon de sortie, veuillez le retourner signé avec la mention "Bon pour accord".
+                      Veuillez confirmer la réception de cette commande et la date de livraison prévue.
                     </p>
                     <p className="mt-2">
-                      Merci pour votre confiance. Pour toute question concernant
-                      ce bon de sortie, veuillez nous contacter.
+                      Pour toute question concernant cette commande, veuillez nous contacter.
                     </p>
                   </div>
                 </div>
@@ -716,7 +715,7 @@ export function BonDeSortieModal({
           </div>
 
           {showSettings && (
-            <BonDeSortieSettingsPanel
+            <BonDeCommandeSettingsPanel
               applyTVA={applyTVA}
               setApplyTVA={setApplyTVA}
               showDiscount={showDiscount}
