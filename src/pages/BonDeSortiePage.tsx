@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -22,6 +21,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
+import { BonDeSortieModal } from "@/components/bon-de-sortie/BonDeSortieModal";
 
 const demoData = [
   {
@@ -68,6 +68,8 @@ const BonDeSortiePage = () => {
     from: new Date(),
     to: new Date()
   });
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedBonDeSortieId, setSelectedBonDeSortieId] = useState<string | null>(null);
   
   // This function would typically filter data based on the selected period
   const handlePeriodChange = (dateRange: DateRange) => {
@@ -102,6 +104,18 @@ const BonDeSortiePage = () => {
     const newPeriod = { from: newFrom, to: newTo };
     setSelectedPeriod(newPeriod);
     handlePeriodChange(newPeriod);
+  };
+
+  // Open modal for creating new bon de sortie
+  const handleNewBonDeSortie = () => {
+    setSelectedBonDeSortieId(null);
+    setModalOpen(true);
+  };
+
+  // Open modal for editing existing bon de sortie
+  const handleEditBonDeSortie = (id: number) => {
+    setSelectedBonDeSortieId(id.toString());
+    setModalOpen(true);
   };
   
   // Filter delivery notes based on search query and selected period
@@ -163,7 +177,7 @@ const BonDeSortiePage = () => {
             />
           </div>
           
-          <Button>
+          <Button onClick={handleNewBonDeSortie}>
             <Plus className="mr-2 h-4 w-4" />
             Nouveau bon de sortie
           </Button>
@@ -201,6 +215,7 @@ const BonDeSortiePage = () => {
                         <Button 
                           variant="ghost" 
                           size="icon"
+                          onClick={() => handleEditBonDeSortie(item.id)}
                         >
                           <Edit className="h-4 w-4" />
                           <span className="sr-only">Modifier</span>
@@ -228,6 +243,12 @@ const BonDeSortiePage = () => {
           </Table>
         </div>
       </div>
+      
+      <BonDeSortieModal 
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        bonDeSortieId={selectedBonDeSortieId}
+      />
     </MainLayout>
   );
 };
