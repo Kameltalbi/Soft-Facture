@@ -12,7 +12,6 @@ const TopBar = ({ title }: TopBarProps) => {
   const { t, i18n } = useTranslation();
   const [isFrench, setIsFrench] = useState(i18n.language === 'fr');
   const [currentDateTime, setCurrentDateTime] = useState<string>("");
-  const [companyName, setCompanyName] = useState<string>("Soft-Facture");
   
   useEffect(() => {
     setIsFrench(i18n.language === 'fr');
@@ -27,14 +26,6 @@ const TopBar = ({ title }: TopBarProps) => {
     
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
-  }, []);
-  
-  // Load company name from localStorage if available
-  useEffect(() => {
-    const storedCompanyName = localStorage.getItem('companyName');
-    if (storedCompanyName) {
-      setCompanyName(storedCompanyName);
-    }
   }, []);
   
   const updateDateTime = () => {
@@ -59,14 +50,9 @@ const TopBar = ({ title }: TopBarProps) => {
     <div className="flex items-center justify-between py-4 px-6 border-b">
       <h1 className="text-2xl font-semibold">{title}</h1>
       
-      {/* Centered company name and date/time element */}
-      <div className="absolute left-1/2 transform -translate-x-1/2 text-center">
-        <div className="font-bold text-invoice-blue-600 text-[16px] mb-1">
-          {companyName}
-        </div>
-        <div className="font-bold text-[#228B22] text-[14px]">
-          {currentDateTime}
-        </div>
+      {/* Centered date/time element */}
+      <div className="font-bold text-[#228B22] text-[14px] absolute left-1/2 transform -translate-x-1/2">
+        {currentDateTime}
       </div>
       
       <div className="flex items-center space-x-4">
