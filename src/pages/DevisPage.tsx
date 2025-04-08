@@ -4,6 +4,7 @@ import { useState } from "react";
 import { DevisHeader } from "@/components/devis/DevisHeader";
 import { DevisTable } from "@/components/devis/DevisTable";
 import { DevisDialogs } from "@/components/devis/DevisDialogs";
+import { DevisModal } from "@/components/devis/DevisModal";
 import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -16,6 +17,8 @@ const DevisPage = () => {
   const [currentAction, setCurrentAction] = useState("");
   const [selectedDevis, setSelectedDevis] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDevisId, setSelectedDevisId] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<DateRange>({
     from: new Date(),
     to: new Date()
@@ -83,8 +86,20 @@ const DevisPage = () => {
     setCurrentAction("");
   };
 
+  // Open modal for creating new devis
+  const handleNewDevis = () => {
+    setSelectedDevisId(null);
+    setIsModalOpen(true);
+  };
+
+  // Open modal for editing existing devis
+  const handleEditDevis = (id: string) => {
+    setSelectedDevisId(id);
+    setIsModalOpen(true);
+  };
+
   // Map actions to handler functions for DevisTable
-  const handleEdit = (id: string) => handleActionClick("edit", filteredDevis.find(d => d.id.toString() === id));
+  const handleEdit = (id: string) => handleEditDevis(id);
   const handleCancel = (id: string) => handleActionClick("cancel", filteredDevis.find(d => d.id.toString() === id));
   const handleValidate = (id: string) => handleActionClick("validate", filteredDevis.find(d => d.id.toString() === id));
   const handleConvert = (id: string) => handleActionClick("convert", filteredDevis.find(d => d.id.toString() === id));
@@ -95,7 +110,7 @@ const DevisPage = () => {
       <div className="flex flex-col space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <DevisHeader 
-            onCreateDevis={() => handleActionClick("create")} 
+            onCreateDevis={handleNewDevis} 
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
@@ -137,6 +152,12 @@ const DevisPage = () => {
           action={currentAction}
           devis={selectedDevis}
           onClose={handleCloseDialog}
+        />
+
+        <DevisModal
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+          devisId={selectedDevisId}
         />
       </div>
     </MainLayout>

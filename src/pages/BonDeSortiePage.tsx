@@ -1,7 +1,5 @@
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { 
   Table, 
   TableBody, 
@@ -15,13 +13,14 @@ import {
   Edit, 
   Download, 
   Trash, 
-  Search, 
-  Plus, 
   ArrowLeft,
   ArrowRight
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
 import { BonDeSortieModal } from "@/components/bon-de-sortie/BonDeSortieModal";
+import { BonDeSortieHeader } from "@/components/bon-de-sortie/BonDeSortieHeader";
+import { Input } from "@/components/ui/input";
 
 const demoData = [
   {
@@ -166,22 +165,11 @@ const BonDeSortiePage = () => {
           </div>
         </div>
         
-        <div className="flex items-center justify-between">
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher un bon de sortie..."
-              className="pl-8"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          
-          <Button onClick={handleNewBonDeSortie}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nouveau bon de sortie
-          </Button>
-        </div>
+        <BonDeSortieHeader
+          onCreateBonDeSortie={handleNewBonDeSortie}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
         
         <div className="rounded-md border">
           <Table>
