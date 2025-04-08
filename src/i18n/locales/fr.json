@@ -246,7 +246,12 @@
     "userManagement": "Gestion des utilisateurs",
     "userManagementDesc": "Gérez les comptes utilisateurs et les permissions",
     "userManagementUnavailable": "La gestion des utilisateurs n'est pas disponible dans la version actuelle",
-    "addUser": "Ajouter un utilisateur"
+    "addUser": "Ajouter un utilisateur",
+    "setAsDefaultCurrency": "Définir comme devise par défaut",
+    "defaultCurrencyUpdated": "Devise par défaut mise à jour",
+    "defaultCurrencyUpdatedDesc": "Votre devise par défaut a été mise à jour avec succès",
+    "saveSuccess": "Enregistré avec succès",
+    "saveSuccessDesc": "Vos paramètres ont été enregistrés avec succès"
   },
   "client": {
     "title": "Clients",

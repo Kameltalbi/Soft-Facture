@@ -181,7 +181,7 @@
     "general": "General",
     "company": "Company",
     "invoice": "Invoice",
-    "quote": "Quote",
+    "quote": "Devis",
     "taxes": "Taxes",
     "language": "Language",
     "selectLanguage": "Select a language",
@@ -251,7 +251,12 @@
     "userManagement": "User Management",
     "userManagementDesc": "Manage user accounts and permissions",
     "userManagementUnavailable": "User management is not available in the current version",
-    "addUser": "Add User"
+    "addUser": "Add User",
+    "setAsDefaultCurrency": "Set as default currency",
+    "defaultCurrencyUpdated": "Default currency updated",
+    "defaultCurrencyUpdatedDesc": "Your default currency has been successfully updated",
+    "saveSuccess": "Saved successfully",
+    "saveSuccessDesc": "Your settings have been saved successfully"
   },
   "client": {
     "title": "Clients",
