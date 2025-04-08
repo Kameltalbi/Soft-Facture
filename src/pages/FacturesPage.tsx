@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,8 @@ import {
   Printer,
   Trash2,
   XCircle,
-  CheckCircle
+  CheckCircle,
+  CreditCard
 } from "lucide-react";
 import { StatutFacture } from "@/types";
 import { FactureModal } from "@/components/factures/FactureModal";
@@ -111,8 +113,10 @@ const FacturesPage = () => {
   const [invoiceDataList, setInvoiceDataList] = useState(facturesDemo);
   const [openCancelDialog, setOpenCancelDialog] = useState<boolean>(false);
   const [openValidateDialog, setOpenValidateDialog] = useState<boolean>(false);
+  const [openPayDialog, setOpenPayDialog] = useState<boolean>(false);
   const [invoiceToCancel, setInvoiceToCancel] = useState<string | null>(null);
   const [invoiceToValidate, setInvoiceToValidate] = useState<string | null>(null);
+  const [invoiceToPay, setInvoiceToPay] = useState<string | null>(null);
   const currencySymbol = getCurrencySymbol("TND"); // Default to TND
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
@@ -143,6 +147,11 @@ const FacturesPage = () => {
   const handleValidateInvoice = (id: string) => {
     setInvoiceToValidate(id);
     setOpenValidateDialog(true);
+  };
+
+  const handlePayInvoice = (id: string) => {
+    setInvoiceToPay(id);
+    setOpenPayDialog(true);
   };
 
   const confirmCancelInvoice = () => {
@@ -198,6 +207,34 @@ const FacturesPage = () => {
       // Close the dialog
       setOpenValidateDialog(false);
       setInvoiceToValidate(null);
+    }
+  };
+
+  const confirmPayInvoice = () => {
+    if (invoiceToPay) {
+      // Find the invoice to pay
+      const factureToPay = invoiceDataList.find(facture => facture.id === invoiceToPay);
+      
+      if (factureToPay) {
+        // Update the invoice status to paid
+        const updatedInvoices = invoiceDataList.map(facture => 
+          facture.id === invoiceToPay 
+            ? { ...facture, statut: 'payee' as StatutFacture } 
+            : facture
+        );
+        
+        setInvoiceDataList(updatedInvoices);
+        
+        // Show success toast
+        toast({
+          title: t('invoice.pay_started'),
+          description: t('invoice.pay_invoice_number', { number: factureToPay.numero }),
+        });
+      }
+      
+      // Close the dialog
+      setOpenPayDialog(false);
+      setInvoiceToPay(null);
     }
   };
 
@@ -353,6 +390,13 @@ const FacturesPage = () => {
                               {t('invoice.print')}
                             </DropdownMenuItem>
                             <DropdownMenuItem 
+                              onClick={() => handlePayInvoice(facture.id)}
+                              className="text-invoice-status-paid"
+                            >
+                              <CreditCard className="mr-2 h-4 w-4" />
+                              {t('invoice.pay')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
                               onClick={() => handleValidateInvoice(facture.id)}
                               className="text-invoice-status-paid"
                             >
@@ -455,6 +499,26 @@ const FacturesPage = () => {
               className="bg-invoice-status-paid hover:bg-invoice-status-paid/90"
             >
               {t('invoice.validate')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={openPayDialog} onOpenChange={setOpenPayDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('invoice.pay')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('invoice.pay_confirm')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmPayInvoice}
+              className="bg-invoice-status-paid hover:bg-invoice-status-paid/90"
+            >
+              {t('invoice.pay')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

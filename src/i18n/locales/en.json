@@ -68,10 +68,14 @@
     "cancel_started": "Cancelling Invoice",
     "cancel_invoice_number": "Invoice #{{number}} has been cancelled",
     "cancel_confirm": "Are you sure you want to cancel this invoice?",
-    "validate": "Validate Invoice",
-    "validate_started": "Validating Invoice",
-    "validate_invoice_number": "Invoice #{{number}} has been validated as paid",
-    "validate_confirm": "Are you sure you want to mark this invoice as paid?"
+    "validate": "Mark as Paid",
+    "validate_started": "Processing Payment",
+    "validate_invoice_number": "Invoice #{{number}} has been marked as paid",
+    "validate_confirm": "Are you sure you want to mark this invoice as paid?",
+    "pay": "Pay Invoice",
+    "pay_started": "Processing Payment",
+    "pay_invoice_number": "Payment for invoice #{{number}} has been processed",
+    "pay_confirm": "Are you sure you want to process payment for this invoice?"
   },
   "quote": {
     "title": "Quotes",
