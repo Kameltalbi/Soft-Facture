@@ -1,6 +1,7 @@
 
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 interface BonDeCommandeSettingsPanelProps {
   applyTVA: boolean;
@@ -25,13 +26,11 @@ export function BonDeCommandeSettingsPanel({
       <div className="space-y-6">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="apply-tva">Appliquer la TVA</Label>
-            <input
+            <Label htmlFor="apply-tva" className="cursor-pointer">Appliquer la TVA</Label>
+            <Switch
               id="apply-tva"
-              type="checkbox"
               checked={applyTVA}
-              onChange={(e) => setApplyTVA(e.target.checked)}
-              className="h-4 w-4"
+              onCheckedChange={setApplyTVA}
             />
           </div>
           <p className="text-xs text-muted-foreground">
@@ -41,13 +40,11 @@ export function BonDeCommandeSettingsPanel({
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="show-discount">Afficher les remises</Label>
-            <input
+            <Label htmlFor="show-discount" className="cursor-pointer">Afficher les remises</Label>
+            <Switch
               id="show-discount"
-              type="checkbox"
               checked={showDiscount}
-              onChange={(e) => setShowDiscount(e.target.checked)}
-              className="h-4 w-4"
+              onCheckedChange={setShowDiscount}
             />
           </div>
           <p className="text-xs text-muted-foreground">

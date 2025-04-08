@@ -57,7 +57,7 @@ export function DevisSettingsPanel({
         <div className="space-y-3">
           <Label htmlFor="currency">{t('settings.currency')}</Label>
           <Select value={currency} onValueChange={setCurrency}>
-            <SelectTrigger>
+            <SelectTrigger id="currency">
               <SelectValue placeholder={t('settings.selectCurrency')} />
             </SelectTrigger>
             <SelectContent>
