@@ -1,4 +1,3 @@
-
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +13,7 @@ import { TaxePersonnaliseeManager } from "@/components/taxes/TaxePersonnaliseeMa
 import { TaxePersonnalisee } from "@/types";
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from "@/components/settings/LanguageSelector";
+import { useToast } from "@/hooks/use-toast";
 
 const ParametresPage = () => {
   const [taxeEnValeur, setTaxeEnValeur] = useState(false);
@@ -24,6 +24,15 @@ const ParametresPage = () => {
   const [devise, setDevise] = useState("TND");
   const [resetNumberingOption, setResetNumberingOption] = useState("annually");
   const { t } = useTranslation();
+  const { toast } = useToast();
+
+  const handleSaveSettings = () => {
+    // Here you would typically save all settings to your backend or local storage
+    toast({
+      title: t('settings.saveSuccess'),
+      description: t('settings.saveSuccessDesc'),
+    });
+  };
 
   return (
     <MainLayout title={t('settings.title')}>
@@ -141,7 +150,7 @@ const ParametresPage = () => {
               </div>
 
               <div className="flex justify-end">
-                <Button>
+                <Button onClick={handleSaveSettings}>
                   <Save className="mr-2 h-4 w-4" />
                   {t('settings.save')}
                 </Button>
@@ -251,7 +260,7 @@ const ParametresPage = () => {
               </div>
 
               <div className="flex justify-end">
-                <Button>
+                <Button onClick={handleSaveSettings}>
                   <Save className="mr-2 h-4 w-4" />
                   {t('settings.save')}
                 </Button>
@@ -382,7 +391,7 @@ const ParametresPage = () => {
               />
 
               <div className="flex justify-end">
-                <Button>
+                <Button onClick={handleSaveSettings}>
                   <Save className="mr-2 h-4 w-4" />
                   {t('settings.save')}
                 </Button>
@@ -422,7 +431,7 @@ const ParametresPage = () => {
               </div>
 
               <div className="flex justify-end">
-                <Button>
+                <Button onClick={handleSaveSettings}>
                   <Save className="mr-2 h-4 w-4" />
                   {t('settings.save')}
                 </Button>

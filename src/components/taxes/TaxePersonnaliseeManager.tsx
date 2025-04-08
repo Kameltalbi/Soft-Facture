@@ -12,6 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/hooks/use-toast";
 
 interface TaxePersonnaliseeManagerProps {
   taxes: TaxePersonnalisee[];
@@ -30,6 +31,7 @@ type TaxeFormValues = z.infer<typeof taxeSchema>;
 export function TaxePersonnaliseeManager({ taxes, onTaxesChange }: TaxePersonnaliseeManagerProps) {
   const [open, setOpen] = useState(false);
   const [editingTaxe, setEditingTaxe] = useState<TaxePersonnalisee | null>(null);
+  const { toast } = useToast();
 
   // Initialize the form with react-hook-form
   const form = useForm<TaxeFormValues>({
@@ -69,6 +71,10 @@ export function TaxePersonnaliseeManager({ taxes, onTaxesChange }: TaxePersonnal
 
   const handleDelete = (id: string) => {
     onTaxesChange(taxes.filter(tax => tax.id !== id));
+    toast({
+      title: "Taxe supprimée",
+      description: "La taxe a été supprimée avec succès",
+    });
   };
 
   const onSubmit = (data: TaxeFormValues) => {
@@ -80,6 +86,10 @@ export function TaxePersonnaliseeManager({ taxes, onTaxesChange }: TaxePersonnal
             : t
         )
       );
+      toast({
+        title: "Taxe mise à jour",
+        description: "La taxe a été mise à jour avec succès",
+      });
     } else {
       // Ensure all required properties are explicitly provided
       const newTaxe: TaxePersonnalisee = {
@@ -89,6 +99,10 @@ export function TaxePersonnaliseeManager({ taxes, onTaxesChange }: TaxePersonnal
         estMontantFixe: data.estMontantFixe  // Explicitly provide the required property
       };
       onTaxesChange([...taxes, newTaxe]);
+      toast({
+        title: "Taxe ajoutée",
+        description: "La nouvelle taxe a été ajoutée avec succès",
+      });
     }
     
     setOpen(false);
