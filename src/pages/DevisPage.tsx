@@ -21,17 +21,29 @@ import { Input } from "@/components/ui/input";
 import {
   DownloadCloud,
   Edit,
-  Eye,
   Filter,
   MoreHorizontal,
   Plus,
-  Printer,
   Trash2,
+  XCircle,
+  CheckCircle,
+  FilePlus
 } from "lucide-react";
 import { StatutFacture } from "@/types";
 import { DevisModal } from "@/components/devis/DevisModal";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { downloadInvoiceAsPDF } from "@/utils/pdfGenerator";
 
 // Données fictives pour les devis
 const devisDemo = [
@@ -96,6 +108,13 @@ const getCurrencySymbol = (currency: string): string => {
 const DevisPage = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedDevis, setSelectedDevis] = useState<string | null>(null);
+  const [devisDataList, setDevisDataList] = useState(devisDemo);
+  const [openCancelDialog, setOpenCancelDialog] = useState<boolean>(false);
+  const [openValidateDialog, setOpenValidateDialog] = useState<boolean>(false);
+  const [openConvertDialog, setOpenConvertDialog] = useState<boolean>(false);
+  const [devisToCancel, setDevisToCancel] = useState<string | null>(null);
+  const [devisToValidate, setDevisToValidate] = useState<string | null>(null);
+  const [devisToConvert, setDevisToConvert] = useState<string | null>(null);
   const currencySymbol = getCurrencySymbol("TND"); // Default to TND
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
@@ -107,13 +126,123 @@ const DevisPage = () => {
 
   const handleEditDevis = (id: string) => {
     // Find the quote to edit
-    const devisToEdit = devisDemo.find(devis => devis.id === id);
+    const devisToEdit = devisDataList.find(devis => devis.id === id);
     if (devisToEdit) {
       setSelectedDevis(id);
       setOpenModal(true);
       toast({
         title: t('quote.edit_started'),
         description: t('quote.edit_invoice_number', { number: devisToEdit.numero }),
+      });
+    }
+  };
+
+  const handleCancelDevis = (id: string) => {
+    setDevisToCancel(id);
+    setOpenCancelDialog(true);
+  };
+
+  const handleValidateDevis = (id: string) => {
+    setDevisToValidate(id);
+    setOpenValidateDialog(true);
+  };
+
+  const handleConvertToInvoice = (id: string) => {
+    setDevisToConvert(id);
+    setOpenConvertDialog(true);
+  };
+
+  const confirmCancelDevis = () => {
+    if (devisToCancel) {
+      // Find the quote to cancel
+      const devisToCancel = devisDataList.find(devis => devis.id === devisToCancel);
+      
+      if (devisToCancel) {
+        // Update the quote status to cancelled
+        const updatedDevis = devisDataList.map(devis => 
+          devis.id === devisToCancel 
+            ? { ...devis, statut: 'annulee' as StatutFacture } 
+            : devis
+        );
+        
+        setDevisDataList(updatedDevis);
+        
+        // Show success toast
+        toast({
+          title: t('quote.cancel_started'),
+          description: t('quote.cancel_quote_number', { number: devisToCancel.numero }),
+        });
+      }
+      
+      // Close the dialog
+      setOpenCancelDialog(false);
+      setDevisToCancel(null);
+    }
+  };
+
+  const confirmValidateDevis = () => {
+    if (devisToValidate) {
+      // Find the quote to validate
+      const devisToValidate = devisDataList.find(devis => devis.id === devisToValidate);
+      
+      if (devisToValidate) {
+        // Update the quote status to paid
+        const updatedDevis = devisDataList.map(devis => 
+          devis.id === devisToValidate 
+            ? { ...devis, statut: 'payee' as StatutFacture } 
+            : devis
+        );
+        
+        setDevisDataList(updatedDevis);
+        
+        // Show success toast
+        toast({
+          title: t('quote.validate_started'),
+          description: t('quote.validate_quote_number', { number: devisToValidate.numero }),
+        });
+      }
+      
+      // Close the dialog
+      setOpenValidateDialog(false);
+      setDevisToValidate(null);
+    }
+  };
+
+  const confirmConvertToInvoice = () => {
+    if (devisToConvert) {
+      // Find the quote to convert
+      const devisToConvert = devisDataList.find(devis => devis.id === devisToConvert);
+      
+      if (devisToConvert) {
+        // In a real application, we would create a new invoice based on the quote data
+        // For this demo, we just show a success message
+        
+        // Show success toast
+        toast({
+          title: t('quote.convert_started'),
+          description: t('quote.convert_quote_number', { number: devisToConvert.numero }),
+        });
+      }
+      
+      // Close the dialog
+      setOpenConvertDialog(false);
+      setDevisToConvert(null);
+    }
+  };
+
+  const handleDownloadDevis = (id: string) => {
+    // Find the quote to download
+    const devisToDownload = devisDataList.find(devis => devis.id === id);
+    
+    if (devisToDownload) {
+      // Download the quote as PDF
+      // Note: Using the same function as invoices, in a real app we might want a specific function for quotes
+      downloadInvoiceAsPDF(devisToDownload, i18n.language);
+      
+      // Show success toast
+      toast({
+        title: t('quote.download_started'),
+        description: t('quote.download_quote_number', { number: devisToDownload.numero }),
       });
     }
   };
@@ -128,6 +257,8 @@ const DevisPage = () => {
         return "bg-invoice-status-overdue/10 text-invoice-status-overdue";
       case "brouillon":
         return "bg-invoice-status-draft/10 text-invoice-status-draft";
+      case "annulee":
+        return "bg-destructive/10 text-destructive";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -143,6 +274,8 @@ const DevisPage = () => {
         return t("quote.status_overdue");
       case "brouillon":
         return t("quote.status_draft");
+      case "annulee":
+        return t("quote.status_cancelled");
       default:
         return t("quote.status_unknown");
     }
@@ -200,7 +333,7 @@ const DevisPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {devisDemo.map((devis) => (
+              {devisDataList.map((devis) => (
                 <TableRow key={devis.id}>
                   <TableCell className="font-medium">{devis.numero}</TableCell>
                   <TableCell>{devis.client.nom}</TableCell>
@@ -230,27 +363,73 @@ const DevisPage = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleEditDevis(devis.id)}
-                        >
-                          <Edit className="mr-2 h-4 w-4" />
-                          {t("quote.edit")}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Eye className="mr-2 h-4 w-4" />
-                          {t("quote.view")}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <DownloadCloud className="mr-2 h-4 w-4" />
-                          {t("quote.download")}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Printer className="mr-2 h-4 w-4" />
-                          {t("quote.print")}
-                        </DropdownMenuItem>
+                        {devis.statut !== 'annulee' && devis.statut !== 'payee' && (
+                          <>
+                            <DropdownMenuItem
+                              onClick={() => handleEditDevis(devis.id)}
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              {t('quote.edit')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDownloadDevis(devis.id)}
+                            >
+                              <DownloadCloud className="mr-2 h-4 w-4" />
+                              {t('quote.download')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleConvertToInvoice(devis.id)}
+                              className="text-blue-600"
+                            >
+                              <FilePlus className="mr-2 h-4 w-4" />
+                              {t('quote.convert_to_invoice')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleValidateDevis(devis.id)}
+                              className="text-invoice-status-paid"
+                            >
+                              <CheckCircle className="mr-2 h-4 w-4" />
+                              {t('quote.validate')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleCancelDevis(devis.id)}
+                              className="text-destructive"
+                            >
+                              <XCircle className="mr-2 h-4 w-4" />
+                              {t('quote.cancel')}
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        {devis.statut === 'payee' && (
+                          <>
+                            <DropdownMenuItem 
+                              onClick={() => handleDownloadDevis(devis.id)}
+                            >
+                              <DownloadCloud className="mr-2 h-4 w-4" />
+                              {t('quote.download')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleConvertToInvoice(devis.id)}
+                              className="text-blue-600"
+                            >
+                              <FilePlus className="mr-2 h-4 w-4" />
+                              {t('quote.convert_to_invoice')}
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        {devis.statut === 'annulee' && (
+                          <>
+                            <DropdownMenuItem 
+                              onClick={() => handleDownloadDevis(devis.id)}
+                            >
+                              <DownloadCloud className="mr-2 h-4 w-4" />
+                              {t('quote.download')}
+                            </DropdownMenuItem>
+                          </>
+                        )}
                         <DropdownMenuItem className="text-destructive">
                           <Trash2 className="mr-2 h-4 w-4" />
-                          {t("quote.delete")}
+                          {t('quote.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -267,6 +446,66 @@ const DevisPage = () => {
         onOpenChange={setOpenModal}
         devisId={selectedDevis}
       />
+
+      <AlertDialog open={openCancelDialog} onOpenChange={setOpenCancelDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('quote.cancel')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('quote.cancel_confirm')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmCancelDevis}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {t('quote.cancel')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={openValidateDialog} onOpenChange={setOpenValidateDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('quote.validate')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('quote.validate_confirm')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmValidateDevis}
+              className="bg-invoice-status-paid hover:bg-invoice-status-paid/90"
+            >
+              {t('quote.validate')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={openConvertDialog} onOpenChange={setOpenConvertDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('quote.convert_to_invoice')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('quote.convert_confirm')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmConvertToInvoice}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {t('quote.convert')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </MainLayout>
   );
 };
