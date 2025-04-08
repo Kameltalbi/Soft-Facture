@@ -13,6 +13,16 @@ export interface SubscriptionInfo {
   expiresAt: Date | null;
 }
 
+// Type for subscription data returned from RPC
+interface SubscriptionData {
+  id: string;
+  plan: string;
+  date_debut: string;
+  date_fin: string;
+  statut: string;
+  payment_ref: string | null;
+}
+
 export function useSubscription(session: Session | null, authStatus: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [subscription, setSubscription] = useState<SubscriptionInfo>({
@@ -35,7 +45,7 @@ export function useSubscription(session: Session | null, authStatus: string) {
       }
 
       try {
-        // Utiliser l'API RPC de Supabase qui contourne les vérifications de type
+        // Call the RPC function to get subscription data
         const { data, error } = await supabase
           .rpc('get_user_subscription', { p_user_id: session.user.id });
 
@@ -46,27 +56,30 @@ export function useSubscription(session: Session | null, authStatus: string) {
             plan: null,
             expiresAt: null
           });
-        } else if (data) {
+        } else if (data && Object.keys(data).length > 0) {
+          // The data is returned as an array for RPC functions returning tables
+          const subscriptionData = data as unknown as SubscriptionData;
+          
           const now = new Date();
-          const expiresAt = new Date(data.date_fin);
+          const expiresAt = new Date(subscriptionData.date_fin);
           
           // Vérifier si l'abonnement est expiré
           if (expiresAt < now) {
             // Mettre à jour le statut dans la base de données via RPC
             await supabase
               .rpc('expire_subscription', { 
-                p_subscription_id: data.id 
+                p_subscription_id: subscriptionData.id 
               });
               
             setSubscription({
               status: 'expired',
-              plan: data.plan as SubscriptionPlan,
+              plan: subscriptionData.plan as SubscriptionPlan,
               expiresAt
             });
           } else {
             setSubscription({
               status: 'active',
-              plan: data.plan as SubscriptionPlan,
+              plan: subscriptionData.plan as SubscriptionPlan,
               expiresAt
             });
           }
@@ -113,11 +126,14 @@ export function useSubscription(session: Session | null, authStatus: string) {
         return false;
       }
       
+      // Handle the response data as an object
+      const subscriptionData = data as unknown as SubscriptionData;
+      
       // Mettre à jour l'état local
       setSubscription({
         status: 'active',
         plan,
-        expiresAt: new Date(data.date_fin)
+        expiresAt: new Date(subscriptionData.date_fin)
       });
       
       return true;

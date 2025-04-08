@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      abonnements: {
+        Row: {
+          created_at: string
+          date_debut: string
+          date_fin: string
+          id: string
+          payment_ref: string | null
+          plan: string
+          statut: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_debut?: string
+          date_fin: string
+          id?: string
+          payment_ref?: string | null
+          plan: string
+          statut?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_debut?: string
+          date_fin?: string
+          id?: string
+          payment_ref?: string | null
+          plan?: string
+          statut?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       bons_de_sortie: {
         Row: {
           client_id: string
@@ -667,7 +703,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_or_update_subscription: {
+        Args: { p_user_id: string; p_plan: string; p_payment_ref?: string }
+        Returns: string
+      }
+      expire_subscription: {
+        Args: { p_subscription_id: string }
+        Returns: undefined
+      }
+      get_user_subscription: {
+        Args: { p_user_id: string }
+        Returns: {
+          id: string
+          plan: string
+          date_debut: string
+          date_fin: string
+          statut: string
+          payment_ref: string
+        }[]
+      }
+      store_transaction: {
+        Args: {
+          p_reference: string
+          p_order_id: string
+          p_amount: number
+          p_type: string
+          p_metadata: Json
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
