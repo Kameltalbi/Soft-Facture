@@ -22,6 +22,7 @@ const ParametresPage = () => {
     { id: "2", nom: "Éco-contribution", montant: 5, estMontantFixe: true }
   ]);
   const [devise, setDevise] = useState("TND");
+  const [resetNumberingOption, setResetNumberingOption] = useState("annually");
   const { t } = useTranslation();
 
   return (
@@ -180,7 +181,7 @@ const ParametresPage = () => {
                   <Label htmlFor="defaultPaymentTerms">
                     {t('settings.defaultPaymentTerms')}
                   </Label>
-                  <Select defaultValue="30">
+                  <Select defaultValue="0">
                     <SelectTrigger>
                       <SelectValue placeholder={t('settings.defaultPaymentTerms')} />
                     </SelectTrigger>
@@ -213,7 +214,7 @@ const ParametresPage = () => {
 
               <div className="border p-4 rounded-md space-y-4">
                 <h3 className="font-medium">{t('settings.numberingOptions')}</h3>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-4">
                   <div>
                     <Label htmlFor="resetNumberingAnnually" className="text-sm">
                       {t('settings.resetNumberingAnnually')}
@@ -222,19 +223,31 @@ const ParametresPage = () => {
                       {t('settings.resetNumberingAnnuallyDesc')}
                     </p>
                   </div>
-                  <Switch id="resetNumberingAnnually" defaultChecked />
+                  <Switch 
+                    id="resetNumberingAnnually" 
+                    checked={resetNumberingOption === 'annually'} 
+                    onCheckedChange={(checked) => {
+                      if (checked) setResetNumberingOption('annually');
+                    }}
+                  />
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="invoiceFooter">
-                  {t('settings.invoiceFooter')}
-                </Label>
-                <Textarea
-                  id="invoiceFooter"
-                  rows={3}
-                  defaultValue="Merci pour votre confiance. Pour toute question concernant cette facture, veuillez nous contacter."
-                />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="resetNumberingMonthly" className="text-sm">
+                      Réinitialiser la numérotation mensuellement
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      La numérotation des factures recommencera à 001 au début de chaque mois
+                    </p>
+                  </div>
+                  <Switch 
+                    id="resetNumberingMonthly" 
+                    checked={resetNumberingOption === 'monthly'} 
+                    onCheckedChange={(checked) => {
+                      if (checked) setResetNumberingOption('monthly');
+                    }}
+                  />
+                </div>
               </div>
 
               <div className="flex justify-end">

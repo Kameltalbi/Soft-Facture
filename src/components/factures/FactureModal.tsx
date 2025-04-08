@@ -9,7 +9,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Trash2, Plus, Settings, Save, ArrowUpRight, X } from "lucide-react";
 import { FactureSettingsPanel } from "./FactureSettingsPanel";
 import { TaxeInput } from "./TaxeInput";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 import { FactureModalProps } from "@/types";
 
 // Fonction pour convertir un nombre en lettres en français
@@ -516,14 +515,6 @@ export function FactureModal({
                       <span>{showAdvancePayment ? finalAmount.toLocaleString("fr-FR") : totalTTC.toLocaleString("fr-FR")} {currencySymbol}</span>
                     </div>
                   </div>
-                </div>
-
-                <div className="space-y-3">
-                  <Label htmlFor="notes">Notes</Label>
-                  <Input
-                    id="notes"
-                    placeholder="Ajouter des notes ou des conditions particulières"
-                  />
                 </div>
               </TabsContent>
               <TabsContent value="apercu" className="mt-4">
