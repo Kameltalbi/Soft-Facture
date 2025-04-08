@@ -1,4 +1,3 @@
-
 {
   "common": {
     "dashboard": "Tableau de bord",
@@ -22,7 +21,25 @@
     "status": "Statut",
     "search": "Rechercher...",
     "add": "Ajouter",
-    "details": "Détails"
+    "details": "Détails",
+    "import": "Importer"
+  },
+  "import": {
+    "title": "Importer des produits",
+    "description": "Sélectionnez un fichier Excel (.xlsx) ou CSV pour importer des produits.",
+    "categories": {
+      "title": "Importer des catégories",
+      "description": "Sélectionnez un fichier Excel (.xlsx) ou CSV pour importer des catégories."
+    },
+    "clients": {
+      "title": "Importer des clients",
+      "description": "Sélectionnez un fichier Excel (.xlsx) ou CSV pour importer des clients."
+    },
+    "supportedFormats": "Formats supportés : Excel & CSV",
+    "success": "Fichier importé avec succès",
+    "error": {
+      "invalidFormat": "Seuls les fichiers Excel (.xlsx) ou CSV sont supportés"
+    }
   },
   "dashboard": {
     "welcome": "Bienvenue",

@@ -18,11 +18,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Edit, MoreHorizontal, Trash2, UserPlus } from "lucide-react";
+import { Edit, Upload, FileExcel, FileCsv, MoreHorizontal, Trash2, UserPlus } from "lucide-react";
 import { ClientFormModal } from "@/components/clients/ClientFormModal";
 import { ClientDetailView } from "@/components/clients/ClientDetailView";
 import { useTranslation } from "react-i18next";
 import { Client } from "@/types";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 // Données fictives pour les clients
 const clientsDemo = [
@@ -70,6 +72,7 @@ const ClientsPage = () => {
   const [selectedClient, setSelectedClient] = useState<string | null>(null);
   const [selectedDetailClient, setSelectedDetailClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [importDialogOpen, setImportDialogOpen] = useState<boolean>(false);
   const { t } = useTranslation();
 
   const handleCreateClient = () => {
@@ -86,6 +89,25 @@ const ClientsPage = () => {
   const handleViewClient = (client: Client) => {
     setSelectedDetailClient(client);
     setOpenDetailView(true);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    if (fileExtension !== 'xlsx' && fileExtension !== 'csv') {
+      toast.error(t('import.error.invalidFormat', 'Only Excel (.xlsx) or CSV files are supported'));
+      return;
+    }
+
+    // Here you would typically process the file
+    // For demo purposes, we'll just show a success toast
+    toast.success(t('import.success', 'File imported successfully'));
+    setImportDialogOpen(false);
+    
+    // Reset the input
+    event.target.value = '';
   };
 
   const filteredClients = clientsDemo.filter(client => 
@@ -106,10 +128,41 @@ const ClientsPage = () => {
             {t('client.subtitle')}
           </p>
         </div>
-        <Button className="flex items-center" onClick={handleCreateClient}>
-          <UserPlus className="mr-2 h-4 w-4" />
-          {t('client.new')}
-        </Button>
+        <div className="flex space-x-2">
+          <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Upload className="mr-2 h-4 w-4" />
+                {t('common.import')}
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{t('import.clients.title', 'Import Clients')}</DialogTitle>
+              </DialogHeader>
+              <div className="py-4">
+                <p className="mb-4">{t('import.clients.description', 'Select an Excel (.xlsx) or CSV file to import clients.')}</p>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-2">
+                    <FileExcel className="w-10 h-10 text-green-600" />
+                    <FileCsv className="w-10 h-10 text-blue-600" />
+                    <span>{t('import.supportedFormats', 'Supported formats: Excel & CSV')}</span>
+                  </div>
+                  <Input 
+                    type="file" 
+                    accept=".xlsx,.csv" 
+                    onChange={handleFileUpload}
+                    className="cursor-pointer"
+                  />
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Button className="flex items-center" onClick={handleCreateClient}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            {t('client.new')}
+          </Button>
+        </div>
       </div>
 
       <Card>

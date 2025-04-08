@@ -299,5 +299,22 @@
   },
   "purchaseOrder": {
     "settings": "Purchase Order Settings"
+  },
+  "import": {
+    "title": "Import Products",
+    "description": "Select an Excel (.xlsx) or CSV file to import products.",
+    "categories": {
+      "title": "Import Categories",
+      "description": "Select an Excel (.xlsx) or CSV file to import categories."
+    },
+    "clients": {
+      "title": "Import Clients",
+      "description": "Select an Excel (.xlsx) or CSV file to import clients."
+    },
+    "supportedFormats": "Supported formats: Excel & CSV",
+    "success": "File imported successfully",
+    "error": {
+      "invalidFormat": "Only Excel (.xlsx) or CSV files are supported"
+    }
   }
 }
