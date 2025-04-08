@@ -65,7 +65,11 @@
     "cancel": "Annuler la facture",
     "cancel_started": "Annulation de facture",
     "cancel_invoice_number": "La facture N°{{number}} a été annulée",
-    "cancel_confirm": "Êtes-vous sûr de vouloir annuler cette facture ?"
+    "cancel_confirm": "Êtes-vous sûr de vouloir annuler cette facture ?",
+    "validate": "Valider la facture",
+    "validate_started": "Validation de facture",
+    "validate_invoice_number": "La facture N°{{number}} a été validée comme payée",
+    "validate_confirm": "Êtes-vous sûr de vouloir marquer cette facture comme payée ?"
   },
   "quote": {
     "title": "Devis",

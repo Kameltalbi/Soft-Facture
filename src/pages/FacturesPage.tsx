@@ -28,6 +28,7 @@ import {
   Printer,
   Trash2,
   XCircle,
+  CheckCircle
 } from "lucide-react";
 import { StatutFacture } from "@/types";
 import { FactureModal } from "@/components/factures/FactureModal";
@@ -109,7 +110,9 @@ const FacturesPage = () => {
   const [selectedFacture, setSelectedFacture] = useState<string | null>(null);
   const [invoiceDataList, setInvoiceDataList] = useState(facturesDemo);
   const [openCancelDialog, setOpenCancelDialog] = useState<boolean>(false);
+  const [openValidateDialog, setOpenValidateDialog] = useState<boolean>(false);
   const [invoiceToCancel, setInvoiceToCancel] = useState<string | null>(null);
+  const [invoiceToValidate, setInvoiceToValidate] = useState<string | null>(null);
   const currencySymbol = getCurrencySymbol("TND"); // Default to TND
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
@@ -137,6 +140,11 @@ const FacturesPage = () => {
     setOpenCancelDialog(true);
   };
 
+  const handleValidateInvoice = (id: string) => {
+    setInvoiceToValidate(id);
+    setOpenValidateDialog(true);
+  };
+
   const confirmCancelInvoice = () => {
     if (invoiceToCancel) {
       // Find the invoice to cancel
@@ -162,6 +170,34 @@ const FacturesPage = () => {
       // Close the dialog
       setOpenCancelDialog(false);
       setInvoiceToCancel(null);
+    }
+  };
+
+  const confirmValidateInvoice = () => {
+    if (invoiceToValidate) {
+      // Find the invoice to validate
+      const factureToValidate = invoiceDataList.find(facture => facture.id === invoiceToValidate);
+      
+      if (factureToValidate) {
+        // Update the invoice status to paid
+        const updatedInvoices = invoiceDataList.map(facture => 
+          facture.id === invoiceToValidate 
+            ? { ...facture, statut: 'payee' as StatutFacture } 
+            : facture
+        );
+        
+        setInvoiceDataList(updatedInvoices);
+        
+        // Show success toast
+        toast({
+          title: t('invoice.validate_started'),
+          description: t('invoice.validate_invoice_number', { number: factureToValidate.numero }),
+        });
+      }
+      
+      // Close the dialog
+      setOpenValidateDialog(false);
+      setInvoiceToValidate(null);
     }
   };
 
@@ -278,7 +314,7 @@ const FacturesPage = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {facture.statut !== 'annulee' && (
+                        {facture.statut !== 'annulee' && facture.statut !== 'payee' && (
                           <>
                             <DropdownMenuItem
                               onClick={() => handleEditInvoice(facture.id)}
@@ -299,11 +335,42 @@ const FacturesPage = () => {
                               {t('invoice.print')}
                             </DropdownMenuItem>
                             <DropdownMenuItem 
+                              onClick={() => handleValidateInvoice(facture.id)}
+                              className="text-invoice-status-paid"
+                            >
+                              <CheckCircle className="mr-2 h-4 w-4" />
+                              {t('invoice.validate')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
                               onClick={() => handleCancelInvoice(facture.id)}
                               className="text-destructive"
                             >
                               <XCircle className="mr-2 h-4 w-4" />
                               {t('invoice.cancel')}
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        {facture.statut === 'payee' && (
+                          <>
+                            <DropdownMenuItem>
+                              <Eye className="mr-2 h-4 w-4" />
+                              {t('invoice.view')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <DownloadCloud className="mr-2 h-4 w-4" />
+                              {t('invoice.download')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Printer className="mr-2 h-4 w-4" />
+                              {t('invoice.print')}
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        {facture.statut === 'annulee' && (
+                          <>
+                            <DropdownMenuItem>
+                              <Eye className="mr-2 h-4 w-4" />
+                              {t('invoice.view')}
                             </DropdownMenuItem>
                           </>
                         )}
@@ -342,6 +409,26 @@ const FacturesPage = () => {
               className="bg-destructive hover:bg-destructive/90"
             >
               {t('invoice.cancel')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={openValidateDialog} onOpenChange={setOpenValidateDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('invoice.validate')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('invoice.validate_confirm')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmValidateInvoice}
+              className="bg-invoice-status-paid hover:bg-invoice-status-paid/90"
+            >
+              {t('invoice.validate')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
