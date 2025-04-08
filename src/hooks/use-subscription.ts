@@ -13,7 +13,6 @@ export interface SubscriptionInfo {
   expiresAt: Date | null;
 }
 
-// Cette fonction prend les dépendances en paramètres au lieu d'utiliser useAuth
 export function useSubscription(session: Session | null, authStatus: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [subscription, setSubscription] = useState<SubscriptionInfo>({
@@ -36,39 +35,38 @@ export function useSubscription(session: Session | null, authStatus: string) {
       }
 
       try {
-        // Utiliser l'API générique de Supabase qui contourne les vérifications de type
-        const response = await supabase
-          .rpc('get_user_subscription', { p_user_id: session.user.id })
-          .maybeSingle();
+        // Utiliser l'API RPC de Supabase qui contourne les vérifications de type
+        const { data, error } = await supabase
+          .rpc('get_user_subscription', { p_user_id: session.user.id });
 
-        if (response.error) {
-          console.error('Erreur lors de la récupération de l\'abonnement:', response.error);
+        if (error) {
+          console.error('Erreur lors de la récupération de l\'abonnement:', error);
           setSubscription({
             status: 'none',
             plan: null,
             expiresAt: null
           });
-        } else if (response.data) {
+        } else if (data) {
           const now = new Date();
-          const expiresAt = new Date(response.data.date_fin);
+          const expiresAt = new Date(data.date_fin);
           
           // Vérifier si l'abonnement est expiré
           if (expiresAt < now) {
             // Mettre à jour le statut dans la base de données via RPC
             await supabase
               .rpc('expire_subscription', { 
-                p_subscription_id: response.data.id 
+                p_subscription_id: data.id 
               });
               
             setSubscription({
               status: 'expired',
-              plan: response.data.plan as SubscriptionPlan,
+              plan: data.plan as SubscriptionPlan,
               expiresAt
             });
           } else {
             setSubscription({
               status: 'active',
-              plan: response.data.plan as SubscriptionPlan,
+              plan: data.plan as SubscriptionPlan,
               expiresAt
             });
           }
@@ -95,24 +93,23 @@ export function useSubscription(session: Session | null, authStatus: string) {
     
     try {
       // Utiliser une RPC pour créer ou mettre à jour l'abonnement
-      const response = await supabase
+      const { error } = await supabase
         .rpc('create_or_update_subscription', {
           p_user_id: session.user.id,
           p_plan: plan,
           p_payment_ref: paymentRef || null
         });
       
-      if (response.error) {
-        throw response.error;
+      if (error) {
+        throw error;
       }
       
       // Récupérer les détails du nouvel abonnement
-      const { data: newSubscription, error } = await supabase
-        .rpc('get_user_subscription', { p_user_id: session.user.id })
-        .maybeSingle();
+      const { data, error: fetchError } = await supabase
+        .rpc('get_user_subscription', { p_user_id: session.user.id });
       
-      if (error || !newSubscription) {
-        console.error('Erreur lors de la récupération du nouvel abonnement:', error);
+      if (fetchError || !data) {
+        console.error('Erreur lors de la récupération du nouvel abonnement:', fetchError);
         return false;
       }
       
@@ -120,7 +117,7 @@ export function useSubscription(session: Session | null, authStatus: string) {
       setSubscription({
         status: 'active',
         plan,
-        expiresAt: new Date(newSubscription.date_fin)
+        expiresAt: new Date(data.date_fin)
       });
       
       return true;
