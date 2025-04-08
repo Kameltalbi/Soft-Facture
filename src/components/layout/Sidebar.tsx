@@ -124,14 +124,14 @@ const Sidebar = () => {
             <div className="flex items-center">
               <img 
                 src="/logo.png" 
-                alt="InvoiceArchibat" 
+                alt="Soft-Facture" 
                 className="w-8 h-8 mr-2" 
                 onError={handleImageError}
               />
               <div id="fallback-icon" style={{display: 'none'}} className="mr-2">
                 <LayoutDashboard className="text-invoice-blue-500" size={20} />
               </div>
-              <span className="text-xl font-bold text-sidebar-foreground">InvoiceArchibat</span>
+              <span className="text-xl font-bold text-sidebar-foreground">Soft-Facture</span>
             </div>
             <Button 
               variant="ghost" 

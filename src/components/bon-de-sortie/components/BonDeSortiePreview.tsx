@@ -1,4 +1,3 @@
-
 import { getCurrencySymbol, montantEnLettres } from "../utils/bonDeSortieUtils";
 
 interface ProductLine {
@@ -42,15 +41,15 @@ export function BonDeSortiePreview({
         <div>
           <div className="w-52 h-14 bg-invoice-blue-100 flex items-center justify-center rounded">
             <p className="font-bold text-invoice-blue-700">
-              VOTRE LOGO
+              SOFT-FACTURE
             </p>
           </div>
           <div className="mt-4 text-sm">
-            <p className="font-semibold">Votre Entreprise</p>
+            <p className="font-semibold">Soft-Facture</p>
             <p>123 Rue de Paris</p>
             <p>75001 Paris, France</p>
             <p>Tél: 01 23 45 67 89</p>
-            <p>Email: contact@votreentreprise.fr</p>
+            <p>Email: contact@soft-facture.fr</p>
           </div>
         </div>
         <div className="text-right">
