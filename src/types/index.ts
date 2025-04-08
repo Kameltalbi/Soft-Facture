@@ -1,4 +1,5 @@
 
+
 // Client Types
 export interface Client {
   id: string;
@@ -31,6 +32,16 @@ export interface TaxePersonnalisee {
   nom: string;
   montant: number;
   estMontantFixe: boolean;
+}
+
+// Currency Types
+export interface Devise {
+  id: string;
+  nom: string;
+  symbole: string;
+  separateurMillier: string;
+  nbDecimales: number;
+  estParDefaut: boolean;
 }
 
 // Invoice Types

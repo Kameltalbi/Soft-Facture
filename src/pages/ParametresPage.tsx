@@ -1,3 +1,4 @@
+
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,13 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CircleDollarSign, Image, Save, Upload, Percent } from "lucide-react";
+import { CircleDollarSign, Image, Save, Upload, Percent, Plus } from "lucide-react";
 import { useState } from "react";
-import { TaxePersonnaliseeManager } from "@/components/taxes/TaxePersonnaliseeManager";
 import { TaxePersonnalisee } from "@/types";
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from "@/components/settings/LanguageSelector";
 import { useToast } from "@/hooks/use-toast";
+import { DeviseManager } from "@/components/devise/DeviseManager";
+import { Devise } from "@/types";
 
 const ParametresPage = () => {
   const [taxeEnValeur, setTaxeEnValeur] = useState(false);
@@ -23,6 +25,11 @@ const ParametresPage = () => {
   ]);
   const [devise, setDevise] = useState("TND");
   const [resetNumberingOption, setResetNumberingOption] = useState("annually");
+  const [devises, setDevises] = useState<Devise[]>([
+    { id: "1", nom: "Dinar Tunisien", symbole: "TND", separateurMillier: " ", nbDecimales: 3, estParDefaut: true },
+    { id: "2", nom: "Euro", symbole: "€", separateurMillier: " ", nbDecimales: 2, estParDefaut: false },
+    { id: "3", nom: "Dollar US", symbole: "$", separateurMillier: ",", nbDecimales: 2, estParDefaut: false }
+  ]);
   const { t } = useTranslation();
   const { toast } = useToast();
 
@@ -50,6 +57,7 @@ const ParametresPage = () => {
           <TabsTrigger value="entreprise">{t('settings.companyTab')}</TabsTrigger>
           <TabsTrigger value="facturation">{t('settings.billingTab')}</TabsTrigger>
           <TabsTrigger value="taxes">{t('settings.taxesTab')}</TabsTrigger>
+          <TabsTrigger value="devise">Devise</TabsTrigger>
           <TabsTrigger value="general">{t('settings.generalTab')}</TabsTrigger>
           <TabsTrigger value="utilisateurs">{t('settings.usersTab')}</TabsTrigger>
         </TabsList>
@@ -400,6 +408,30 @@ const ParametresPage = () => {
           </Card>
         </TabsContent>
 
+        <TabsContent value="devise">
+          <Card>
+            <CardHeader>
+              <CardTitle>Paramètres de devise</CardTitle>
+              <CardDescription>
+                Gérez vos devises et définissez les paramètres d'affichage des montants
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <DeviseManager 
+                devises={devises}
+                onDevisesChange={setDevises}
+              />
+
+              <div className="flex justify-end">
+                <Button onClick={handleSaveSettings}>
+                  <Save className="mr-2 h-4 w-4" />
+                  {t('settings.save')}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="general">
           <Card>
             <CardHeader>
@@ -420,12 +452,11 @@ const ParametresPage = () => {
                     <SelectValue placeholder={t('settings.selectCurrency')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="TND">Dinar Tunisien (TND)</SelectItem>
-                    <SelectItem value="EUR">Euro (€)</SelectItem>
-                    <SelectItem value="USD">Dollar US ($)</SelectItem>
-                    <SelectItem value="GBP">Livre Sterling (£)</SelectItem>
-                    <SelectItem value="CHF">Franc Suisse (CHF)</SelectItem>
-                    <SelectItem value="CAD">Dollar Canadien (C$)</SelectItem>
+                    {devises.map(devise => (
+                      <SelectItem key={devise.id} value={devise.symbole}>
+                        {devise.nom} ({devise.symbole})
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

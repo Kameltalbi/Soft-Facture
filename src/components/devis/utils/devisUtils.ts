@@ -115,3 +115,12 @@ export const getCurrencySymbol = (currency: string): string => {
       return currency;
   }
 };
+
+// Helper function to format a number according to currency settings
+export const formatMontant = (montant: number, devise: string, separateurMillier: string = " ", nbDecimales: number = 2): string => {
+  return montant.toLocaleString('fr-FR', {
+    minimumFractionDigits: nbDecimales,
+    maximumFractionDigits: nbDecimales,
+    useGrouping: true
+  }).replace(/\s/g, separateurMillier);
+};
