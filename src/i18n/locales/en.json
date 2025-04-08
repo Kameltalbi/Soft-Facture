@@ -185,7 +185,13 @@
     "default_tax": "Default Tax",
     "default_tax_rate": "Default Tax Rate",
     "default_tax_value": "Tax Value",
-    "custom_taxes": "Custom Taxes"
+    "custom_taxes": "Custom Taxes",
+    "quoteSettings": "Quote Settings",
+    "invoiceSettings": "Invoice Settings",
+    "applySalesTax": "Apply Sales Tax",
+    "showDiscount": "Show Discount",
+    "advancePayment": "Show Advance Payment",
+    "selectCurrency": "Select Currency"
   },
   "client": {
     "title": "Clients",
@@ -222,5 +228,11 @@
     "no_invoices": "No invoices for this client",
     "no_quotes": "No quotes for this client",
     "edit": "Edit client"
+  },
+  "deliveryNote": {
+    "settings": "Delivery Note Settings"
+  },
+  "purchaseOrder": {
+    "settings": "Purchase Order Settings"
   }
 }
