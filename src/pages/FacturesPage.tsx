@@ -96,7 +96,7 @@ const FacturesPage = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [selectedFacture, setSelectedFacture] = useState<string | null>(null);
   const currencySymbol = getCurrencySymbol("TND"); // Default to TND
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const handleCreateInvoice = () => {
     setSelectedFacture(null);
@@ -136,6 +136,11 @@ const FacturesPage = () => {
       default:
         return t('invoice.status_unknown');
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat(i18n.language === 'fr' ? 'fr-FR' : 'en-US').format(date);
   };
 
   return (
@@ -187,13 +192,13 @@ const FacturesPage = () => {
                   <TableCell className="font-medium">{facture.numero}</TableCell>
                   <TableCell>{facture.client.nom}</TableCell>
                   <TableCell>
-                    {new Date(facture.dateCreation).toLocaleDateString("fr-FR")}
+                    {formatDate(facture.dateCreation)}
                   </TableCell>
                   <TableCell>
-                    {new Date(facture.dateEcheance).toLocaleDateString("fr-FR")}
+                    {formatDate(facture.dateEcheance)}
                   </TableCell>
                   <TableCell className="text-right">
-                    {facture.totalTTC.toLocaleString("fr-FR")} {currencySymbol}
+                    {facture.totalTTC.toLocaleString(i18n.language === 'fr' ? 'fr-FR' : 'en-US')} {currencySymbol}
                   </TableCell>
                   <TableCell>
                     <span

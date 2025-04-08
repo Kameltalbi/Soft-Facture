@@ -1,3 +1,4 @@
+
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,26 +30,26 @@ const ParametresPage = () => {
         <div className="space-y-1">
           <h2 className="text-2xl font-bold tracking-tight">{t('settings.title')}</h2>
           <p className="text-muted-foreground">
-            Configurez les paramètres de votre application de facturation.
+            {t('settings.generalSettingsDesc')}
           </p>
         </div>
       </div>
 
       <Tabs defaultValue="entreprise">
         <TabsList className="mb-4">
-          <TabsTrigger value="entreprise">Entreprise</TabsTrigger>
-          <TabsTrigger value="facturation">Facturation</TabsTrigger>
-          <TabsTrigger value="taxes">Taxes</TabsTrigger>
-          <TabsTrigger value="general">Général</TabsTrigger>
-          <TabsTrigger value="utilisateurs">Utilisateurs</TabsTrigger>
+          <TabsTrigger value="entreprise">{t('settings.companyTab')}</TabsTrigger>
+          <TabsTrigger value="facturation">{t('settings.billingTab')}</TabsTrigger>
+          <TabsTrigger value="taxes">{t('settings.taxesTab')}</TabsTrigger>
+          <TabsTrigger value="general">{t('settings.generalTab')}</TabsTrigger>
+          <TabsTrigger value="utilisateurs">{t('settings.usersTab')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="entreprise">
           <Card>
             <CardHeader>
-              <CardTitle>Informations de l'entreprise</CardTitle>
+              <CardTitle>{t('settings.companyInfo')}</CardTitle>
               <CardDescription>
-                Ces informations apparaîtront sur vos factures.
+                {t('settings.companyInfoDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -56,44 +57,44 @@ const ParametresPage = () => {
                 <div className="w-40 h-40 bg-muted flex items-center justify-center rounded-md relative mb-4">
                   <Image className="w-10 h-10 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">
-                    Logo de l'entreprise
+                    {t('settings.logo')}
                   </span>
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/50 rounded-md">
                     <Button variant="secondary" size="sm">
                       <Upload className="h-4 w-4 mr-2" />
-                      Importer
+                      {t('settings.import')}
                     </Button>
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Format recommandé : 200x200 px (PNG, JPG)
+                  {t('settings.logoFormat')}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="companyName">Nom de l'entreprise</Label>
+                  <Label htmlFor="companyName">{t('settings.companyName')}</Label>
                   <Input
                     id="companyName"
-                    placeholder="Votre Entreprise"
+                    placeholder={t('settings.companyName')}
                     defaultValue="Votre Entreprise"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="siret">SIRET</Label>
+                  <Label htmlFor="siret">{t('settings.siret')}</Label>
                   <Input
                     id="siret"
-                    placeholder="SIRET"
+                    placeholder={t('settings.siret')}
                     defaultValue="123 456 789 00012"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="address">Adresse</Label>
+                <Label htmlFor="address">{t('settings.address')}</Label>
                 <Textarea
                   id="address"
-                  placeholder="Adresse complète"
+                  placeholder={t('settings.address')}
                   rows={3}
                   defaultValue="123 Rue de Paris, 75001 Paris, France"
                 />
@@ -101,19 +102,19 @@ const ParametresPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t('settings.email')}</Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="contact@votreentreprise.fr"
+                    placeholder={t('settings.email')}
                     defaultValue="contact@votreentreprise.fr"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Téléphone</Label>
+                  <Label htmlFor="phone">{t('settings.phone')}</Label>
                   <Input
                     id="phone"
-                    placeholder="01 23 45 67 89"
+                    placeholder={t('settings.phone')}
                     defaultValue="01 23 45 67 89"
                   />
                 </div>
@@ -121,15 +122,15 @@ const ParametresPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="website">Site web</Label>
+                  <Label htmlFor="website">{t('settings.website')}</Label>
                   <Input
                     id="website"
-                    placeholder="www.votreentreprise.fr"
+                    placeholder={t('settings.website')}
                     defaultValue="www.votreentreprise.fr"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="rib">Coordonnées bancaires (RIB)</Label>
+                  <Label htmlFor="rib">{t('settings.bankDetails')}</Label>
                   <Input
                     id="rib"
                     placeholder="IBAN"
@@ -141,7 +142,7 @@ const ParametresPage = () => {
               <div className="flex justify-end">
                 <Button>
                   <Save className="mr-2 h-4 w-4" />
-                  Enregistrer
+                  {t('settings.save')}
                 </Button>
               </div>
             </CardContent>
@@ -151,15 +152,15 @@ const ParametresPage = () => {
         <TabsContent value="facturation">
           <Card>
             <CardHeader>
-              <CardTitle>Paramètres de facturation</CardTitle>
+              <CardTitle>{t('settings.billingSettings')}</CardTitle>
               <CardDescription>
-                Personnalisez le format et les options de vos factures.
+                {t('settings.billingSettingsDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="invoicePrefix">Préfixe des factures</Label>
+                  <Label htmlFor="invoicePrefix">{t('settings.invoicePrefix')}</Label>
                   <Input
                     id="invoicePrefix"
                     placeholder="FAC"
@@ -168,7 +169,7 @@ const ParametresPage = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="nextInvoiceNumber">
-                    Prochain numéro de facture
+                    {t('settings.nextInvoiceNumber')}
                   </Label>
                   <Input id="nextInvoiceNumber" defaultValue="005" />
                 </div>
@@ -177,26 +178,26 @@ const ParametresPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="defaultPaymentTerms">
-                    Délai de paiement par défaut
+                    {t('settings.defaultPaymentTerms')}
                   </Label>
                   <Select defaultValue="30">
                     <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un délai" />
+                      <SelectValue placeholder={t('settings.defaultPaymentTerms')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="0">Paiement immédiat</SelectItem>
-                      <SelectItem value="15">15 jours</SelectItem>
-                      <SelectItem value="30">30 jours</SelectItem>
-                      <SelectItem value="45">45 jours</SelectItem>
-                      <SelectItem value="60">60 jours</SelectItem>
+                      <SelectItem value="0">{t('settings.defaultPaymentTermsImmediate')}</SelectItem>
+                      <SelectItem value="15">{t('settings.defaultPaymentTerms15')}</SelectItem>
+                      <SelectItem value="30">{t('settings.defaultPaymentTerms30')}</SelectItem>
+                      <SelectItem value="45">{t('settings.defaultPaymentTerms45')}</SelectItem>
+                      <SelectItem value="60">{t('settings.defaultPaymentTerms60')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="currency">Devise par défaut</Label>
+                  <Label htmlFor="currency">{t('settings.currency')}</Label>
                   <Select value={devise} onValueChange={setDevise}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner une devise" />
+                      <SelectValue placeholder={t('settings.selectCurrency')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="TND">Dinar Tunisien (TND)</SelectItem>
@@ -211,14 +212,14 @@ const ParametresPage = () => {
               </div>
 
               <div className="border p-4 rounded-md space-y-4">
-                <h3 className="font-medium">Options de numérotation</h3>
+                <h3 className="font-medium">{t('settings.numberingOptions')}</h3>
                 <div className="flex items-center justify-between">
                   <div>
                     <Label htmlFor="resetNumberingAnnually" className="text-sm">
-                      Réinitialiser la numérotation chaque année
+                      {t('settings.resetNumberingAnnually')}
                     </Label>
                     <p className="text-xs text-muted-foreground">
-                      La numérotation recommencera à 001 au début de chaque année
+                      {t('settings.resetNumberingAnnuallyDesc')}
                     </p>
                   </div>
                   <Switch id="resetNumberingAnnually" defaultChecked />
@@ -227,7 +228,7 @@ const ParametresPage = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="invoiceFooter">
-                  Pied de page des factures
+                  {t('settings.invoiceFooter')}
                 </Label>
                 <Textarea
                   id="invoiceFooter"
@@ -239,7 +240,7 @@ const ParametresPage = () => {
               <div className="flex justify-end">
                 <Button>
                   <Save className="mr-2 h-4 w-4" />
-                  Enregistrer
+                  {t('settings.save')}
                 </Button>
               </div>
             </CardContent>
@@ -249,20 +250,19 @@ const ParametresPage = () => {
         <TabsContent value="taxes">
           <Card>
             <CardHeader>
-              <CardTitle>Paramètres de taxes</CardTitle>
+              <CardTitle>{t('settings.taxSettings')}</CardTitle>
               <CardDescription>
-                Configurez les taux de TVA et autres taxes applicables.
+                {t('settings.taxSettingsDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="applyVAT" className="text-base font-medium">
-                    Appliquer la TVA par défaut
+                    {t('settings.applyVAT')}
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Activez cette option pour appliquer automatiquement la TVA aux
-                    nouvelles factures
+                    {t('settings.applyVATDesc')}
                   </p>
                 </div>
                 <Switch id="applyVAT" defaultChecked />
@@ -271,10 +271,10 @@ const ParametresPage = () => {
               <div className="flex items-center justify-between border-t pt-4">
                 <div>
                   <Label htmlFor="taxeEnValeur" className="text-base font-medium">
-                    Taxe en valeur par défaut
+                    {t('settings.taxInValue')}
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Activez cette option pour saisir les taxes en montant plutôt qu'en pourcentage
+                    {t('settings.taxInValueDesc')}
                   </p>
                 </div>
                 <Switch 
@@ -287,7 +287,7 @@ const ParametresPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="defaultVATRate">
-                    {taxeEnValeur ? "Montant de taxe par défaut" : "Taux de TVA par défaut"}
+                    {taxeEnValeur ? t('settings.defaultVATAmount') : t('settings.defaultVATRate')}
                   </Label>
                   <div className="flex">
                     <Input
@@ -310,10 +310,10 @@ const ParametresPage = () => {
               </div>
 
               <div className="border p-4 rounded-md space-y-4">
-                <h3 className="font-medium">Taux de TVA disponibles</h3>
+                <h3 className="font-medium">{t('settings.availableVATRates')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="vatRate1">Taux normal</Label>
+                    <Label htmlFor="vatRate1">{t('settings.standardRate')}</Label>
                     <div className="flex">
                       <Input
                         id="vatRate1"
@@ -329,7 +329,7 @@ const ParametresPage = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="vatRate2">Taux intermédiaire</Label>
+                    <Label htmlFor="vatRate2">{t('settings.intermediateRate')}</Label>
                     <div className="flex">
                       <Input
                         id="vatRate2"
@@ -345,7 +345,7 @@ const ParametresPage = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="vatRate3">Taux réduit</Label>
+                    <Label htmlFor="vatRate3">{t('settings.reducedRate')}</Label>
                     <div className="flex">
                       <Input
                         id="vatRate3"
@@ -371,7 +371,7 @@ const ParametresPage = () => {
               <div className="flex justify-end">
                 <Button>
                   <Save className="mr-2 h-4 w-4" />
-                  Enregistrer
+                  {t('settings.save')}
                 </Button>
               </div>
             </CardContent>
@@ -381,9 +381,9 @@ const ParametresPage = () => {
         <TabsContent value="general">
           <Card>
             <CardHeader>
-              <CardTitle>Paramètres généraux</CardTitle>
+              <CardTitle>{t('settings.generalSettings')}</CardTitle>
               <CardDescription>
-                Configurez les paramètres généraux de l'application.
+                {t('settings.generalSettingsDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -411,7 +411,7 @@ const ParametresPage = () => {
               <div className="flex justify-end">
                 <Button>
                   <Save className="mr-2 h-4 w-4" />
-                  Enregistrer
+                  {t('settings.save')}
                 </Button>
               </div>
             </CardContent>
@@ -421,18 +421,18 @@ const ParametresPage = () => {
         <TabsContent value="utilisateurs">
           <Card>
             <CardHeader>
-              <CardTitle>Gestion des utilisateurs</CardTitle>
+              <CardTitle>{t('settings.userManagement')}</CardTitle>
               <CardDescription>
-                Gérez les accès et les permissions des utilisateurs.
+                {t('settings.userManagementDesc')}
               </CardDescription>
             </CardHeader>
             <CardContent className="flex items-center justify-center p-12">
               <div className="text-center">
                 <p className="text-muted-foreground mb-4">
-                  La gestion des utilisateurs sera disponible dans une prochaine mise à jour.
+                  {t('settings.userManagementUnavailable')}
                 </p>
                 <Button variant="outline" disabled>
-                  Ajouter un utilisateur
+                  {t('settings.addUser')}
                 </Button>
               </div>
             </CardContent>
