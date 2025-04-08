@@ -81,9 +81,12 @@ export function TaxePersonnaliseeManager({ taxes, onTaxesChange }: TaxePersonnal
         )
       );
     } else {
+      // Ensure all required properties are explicitly provided
       const newTaxe: TaxePersonnalisee = {
         id: crypto.randomUUID(),
-        ...data
+        nom: data.nom,           // Explicitly provide the required property
+        montant: data.montant,   // Explicitly provide the required property
+        estMontantFixe: data.estMontantFixe  // Explicitly provide the required property
       };
       onTaxesChange([...taxes, newTaxe]);
     }
