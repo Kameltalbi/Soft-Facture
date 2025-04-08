@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import React, { createContext, useContext, ReactNode } from 'react';
 import { useAuthPermissions, AuthStatus } from '@/hooks/use-auth-permissions';
 import { Session } from '@supabase/supabase-js';
 import { SubscriptionInfo, SubscriptionPlan, useSubscription } from '@/hooks/use-subscription';
@@ -24,7 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const auth = useAuthPermissions();
   
-  // Utiliser directement session et authStatus de auth
+  // Utiliser useSubscription avec les données d'auth
   const { 
     subscription, 
     isLoading: isSubscriptionLoading, 

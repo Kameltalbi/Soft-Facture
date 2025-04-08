@@ -133,19 +133,17 @@ serve(async (req) => {
     });
 
     try {
-      // Stocker la référence pour vérification future
-      await supabaseAdmin
-        .from('transactions')
-        .insert({
-          reference: paymentRef,
-          order_id: payload.orderId,
-          montant: payload.amount,
-          statut: "en_attente",
-          type: payload.plan || "facture",
-          metadata: payload,
-        });
+      // Essayer de stocker la référence pour vérification future
+      // Utiliser une RPC pour éviter les problèmes de typage
+      await supabaseAdmin.rpc('store_transaction', {
+        p_reference: paymentRef,
+        p_order_id: payload.orderId,
+        p_amount: payload.amount,
+        p_type: payload.plan || "facture",
+        p_metadata: payload
+      });
     } catch (error) {
-      // Si la table transactions n'existe pas encore, on continue quand même
+      // Si l'opération échoue, on continue quand même car ce n'est pas critique
       console.error("Erreur lors de l'enregistrement de la transaction:", error);
     }
 
