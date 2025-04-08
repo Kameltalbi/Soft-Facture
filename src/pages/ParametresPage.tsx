@@ -16,6 +16,8 @@ import { useToast } from "@/hooks/use-toast";
 import { DeviseManager } from "@/components/devise/DeviseManager";
 import { Devise } from "@/types";
 import { TaxePersonnaliseeManager } from "@/components/taxes/TaxePersonnaliseeManager";
+import { User } from "@/components/users/UserFormModal";
+import { UserManager } from "@/components/users/UserManager";
 
 const ParametresPage = () => {
   const [taxeEnValeur, setTaxeEnValeur] = useState(false);
@@ -32,6 +34,10 @@ const ParametresPage = () => {
   ]);
   const { t } = useTranslation();
   const { toast } = useToast();
+
+  const [users, setUsers] = useState<User[]>([
+    { id: "1", nom: "Admin Système", email: "admin@example.com", telephone: "+216 XX XXX XXX", motDePasse: "" }
+  ]);
 
   const handleSaveSettings = () => {
     // Here you would typically save all settings to your backend or local storage
@@ -479,13 +485,16 @@ const ParametresPage = () => {
                 {t('settings.userManagementDesc')}
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex items-center justify-center p-12">
-              <div className="text-center">
-                <p className="text-muted-foreground mb-4">
-                  {t('settings.userManagementUnavailable')}
-                </p>
-                <Button variant="outline" disabled>
-                  {t('settings.addUser')}
+            <CardContent>
+              <UserManager 
+                initialUsers={users}
+                onUsersChange={setUsers}
+              />
+              
+              <div className="flex justify-end mt-6">
+                <Button onClick={handleSaveSettings}>
+                  <Save className="mr-2 h-4 w-4" />
+                  {t('settings.save')}
                 </Button>
               </div>
             </CardContent>
