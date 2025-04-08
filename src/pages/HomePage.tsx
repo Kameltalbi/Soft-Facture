@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -126,11 +127,11 @@ const HomePage = () => {
             </div>
           </div>
           <div className="w-full md:w-1/2 flex justify-center">
-            <div className="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden">
+            <div className="w-full max-w-md rounded-lg overflow-hidden shadow-xl">
               <img 
-                src="/placeholder.svg" 
-                alt="Dashboard preview" 
-                className="w-full h-auto" 
+                src="/lovable-uploads/9167ea68-92ed-4bca-8531-57be63af98a2.png" 
+                alt="Femme gérant une facture sur son ordinateur" 
+                className="w-full h-auto"
               />
             </div>
           </div>
