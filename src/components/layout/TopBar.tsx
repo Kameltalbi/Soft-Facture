@@ -1,7 +1,6 @@
 
-import { Bell, Search, ToggleLeft, ToggleRight } from "lucide-react";
+import { Bell, ToggleLeft, ToggleRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 
@@ -12,10 +11,34 @@ interface TopBarProps {
 const TopBar = ({ title }: TopBarProps) => {
   const { t, i18n } = useTranslation();
   const [isFrench, setIsFrench] = useState(i18n.language === 'fr');
+  const [currentDateTime, setCurrentDateTime] = useState<string>("");
   
   useEffect(() => {
     setIsFrench(i18n.language === 'fr');
   }, [i18n.language]);
+  
+  useEffect(() => {
+    // Initialize with current date/time
+    updateDateTime();
+    
+    // Update the date/time every second
+    const intervalId = setInterval(updateDateTime, 1000);
+    
+    // Clear interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
+  
+  const updateDateTime = () => {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    
+    setCurrentDateTime(`${day}/${month}/${year} ${hours}:${minutes}:${seconds}`);
+  };
   
   const toggleLanguage = () => {
     const newLang = isFrench ? 'en' : 'fr';
@@ -28,13 +51,8 @@ const TopBar = ({ title }: TopBarProps) => {
       <h1 className="text-2xl font-semibold">{title}</h1>
       
       <div className="flex items-center space-x-4">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder={t('common.search')}
-            className="w-64 pl-9 rounded-full bg-secondary"
-          />
+        <div className="font-bold text-[#228B22] text-[14px]">
+          {currentDateTime}
         </div>
         
         <Button 
