@@ -51,7 +51,7 @@ const TopBar = ({ title }: TopBarProps) => {
       <h1 className="text-2xl font-semibold">{title}</h1>
       
       <div className="flex items-center space-x-4">
-        <div className="font-bold text-[#228B22] text-[14px]">
+        <div className="font-bold text-[#228B22] text-[14px] mr-auto">
           {currentDateTime}
         </div>
         
