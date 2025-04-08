@@ -47,7 +47,7 @@ export function useSubscription(session: Session | null, authStatus: string) {
       try {
         // Call the RPC function to get subscription data
         const { data, error } = await supabase
-          .rpc<SubscriptionData>('get_user_subscription', { 
+          .rpc<SubscriptionData[]>('get_user_subscription', { 
             p_user_id: session.user.id 
           });
 
@@ -121,7 +121,7 @@ export function useSubscription(session: Session | null, authStatus: string) {
       
       // Récupérer les détails du nouvel abonnement
       const { data, error: fetchError } = await supabase
-        .rpc<SubscriptionData>('get_user_subscription', { 
+        .rpc<SubscriptionData[]>('get_user_subscription', { 
           p_user_id: session.user.id 
         });
       
