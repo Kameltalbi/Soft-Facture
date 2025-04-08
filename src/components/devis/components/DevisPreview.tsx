@@ -1,6 +1,7 @@
 
 import { getCurrencySymbol } from "../utils/devisUtils";
 import { ProductLine } from "./ProductLineTable";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
 
 interface DevisPreviewProps {
   productLines: ProductLine[];
@@ -183,19 +184,15 @@ export function DevisPreview({
         </p>
       </div>
 
-      <div className="text-xs text-muted-foreground border-t pt-4">
-        <p className="font-medium mb-2">Conditions du devis</p>
-        <p>Ce devis est valable pour une durée de 30 jours.</p>
-        <p>
-          Pour accepter ce devis, veuillez le retourner signé avec la mention "Bon pour accord".
-        </p>
-        <p className="mt-2">
-          Coordonnées bancaires : IBAN {companyInfo.iban}, SWIFT {companyInfo.swift}
-        </p>
-        <p className="mt-2">
-          Merci pour votre confiance. Pour toute question concernant
-          ce devis, veuillez nous contacter.
-        </p>
+      {/* Footer with pagination - height of 1cm (approximately 38px) */}
+      <div className="h-[1cm] border-t pt-2 flex items-center justify-center">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationLink>1</PaginationLink>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
     </div>
   );
