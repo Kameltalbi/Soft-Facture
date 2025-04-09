@@ -20,7 +20,7 @@ const PricingSection = ({ isStandalonePage = false }: PricingSectionProps) => {
       return "/register?plan=trial&redirect=dashboard";
     }
     // Comportement par défaut (page d'accueil)
-    return authStatus === 'authenticated' ? "/paiement?plan=trial" : "/register?plan=trial";
+    return "/register?plan=trial";
   };
   
   const getAnnualLink = () => {
@@ -33,7 +33,7 @@ const PricingSection = ({ isStandalonePage = false }: PricingSectionProps) => {
       return "/register?plan=annual&redirect=paiement";
     }
     // Comportement par défaut (page d'accueil)
-    return authStatus === 'authenticated' ? "/paiement?plan=annual&montant=390" : "/register?plan=annual";
+    return "/register?plan=annual";
   };
   
   const plans = [

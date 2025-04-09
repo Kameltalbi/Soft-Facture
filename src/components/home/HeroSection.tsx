@@ -21,8 +21,8 @@ const HeroSection = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <Button size="lg" asChild>
-              <Link to="/register">
-                Essayer gratuitement
+              <Link to="/register?plan=trial">
+                Commencer l'essai gratuit
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>

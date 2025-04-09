@@ -22,7 +22,7 @@ const HomeHeader = () => {
           size="sm" 
           className="whitespace-nowrap px-3 py-1.5 h-auto"
         >
-          <Link to="/register">S'inscrire</Link>
+          <Link to="/register?plan=trial">Essai gratuit 14 jours</Link>
         </Button>
       </div>
     </header>
