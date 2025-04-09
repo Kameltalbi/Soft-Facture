@@ -12,6 +12,7 @@ import { StatutFacture } from "@/types";
 import { FactureForm } from "./components/FactureForm";
 import { FacturePreview } from "./components/FacturePreview";
 import { getCurrencySymbol, getMontantEnLettresText } from "./utils/factureUtils";
+import { toast } from "sonner";
 
 export function FactureModal({
   open,
@@ -24,6 +25,10 @@ export function FactureModal({
   const [showAdvancePayment, setShowAdvancePayment] = useState(false);
   const [advancePaymentAmount, setAdvancePaymentAmount] = useState(0);
   const [currency, setCurrency] = useState("TND");
+  const [activeTab, setActiveTab] = useState("edition");
+  const [isCreated, setIsCreated] = useState(false);
+  const [currentData, setCurrentData] = useState<any>(null);
+  
   const currencySymbol = getCurrencySymbol(currency);
 
   const isEditing = factureId !== null;
@@ -132,30 +137,116 @@ export function FactureModal({
     currency
   );
 
+  // Generate a facture number
+  const generateFactureNumber = () => {
+    const year = new Date().getFullYear();
+    const randomId = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    return `FAC-${year}-${randomId}`;
+  };
+
+  // Handler for creating the invoice
+  const handleCreate = () => {
+    // Create the new invoice
+    const newFacture = {
+      id: isEditing ? factureId : Date.now().toString(),
+      numero: isEditing ? "FAC2025-001" : generateFactureNumber(),
+      client: "Entreprise ABC",
+      date: new Date().toISOString(),
+      montant: totalTTC,
+      statut: "draft",
+      products: productLines,
+      currency: currency,
+      subtotal: subtotal,
+      totalTVA: totalTVA,
+      totalTTC: totalTTC,
+      montantEnLettresText: montantEnLettresText
+    };
+
+    setCurrentData(newFacture);
+    setIsCreated(true);
+    
+    // Switch to preview tab
+    setActiveTab("apercu");
+    
+    toast.success(isEditing ? "Facture modifiée avec succès" : "Facture créée avec succès");
+  };
+
+  // Handler for cancelling
+  const handleCancel = () => {
+    toast.info("La facture a été annulée");
+    setIsCreated(false);
+    onOpenChange(false);
+  };
+
+  // Handler for saving (without closing the modal)
+  const handleSave = () => {
+    toast.success("Facture enregistrée");
+  };
+
   // Handler for downloading the invoice as PDF
   const handleDownloadPDF = () => {
-    // Construct invoice data for PDF generation
-    const invoiceData = {
-      id: factureId || "new",
-      numero: isEditing ? "FAC2025-001" : "FAC2025-005",
-      client: {
-        id: "1",
-        nom: "Entreprise ABC",
-        email: "contact@abc.fr",
-        adresse: "456 Avenue des Clients, 69002 Lyon, France"
-      },
-      dateCreation: new Date().toISOString(),
-      dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
-      totalTTC: totalTTC,
-      statut: "brouillon" as StatutFacture,
-      produits: productLines,
-      applyTVA,
-      showDiscount,
-      currency
-    };
-    
-    // Download the PDF
-    downloadInvoiceAsPDF(invoiceData);
+    try {
+      if (!currentData) {
+        // If we're not in created state yet, construct the data
+        const invoiceData = {
+          id: factureId || "new",
+          numero: isEditing ? "FAC2025-001" : "FAC2025-005",
+          client: {
+            id: "1",
+            nom: "Entreprise ABC",
+            email: "contact@abc.fr",
+            adresse: "456 Avenue des Clients, 69002 Lyon, France"
+          },
+          dateCreation: new Date().toISOString(),
+          dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
+          totalTTC: totalTTC,
+          statut: "brouillon" as StatutFacture,
+          produits: productLines,
+          applyTVA,
+          showDiscount,
+          currency
+        };
+        
+        // Download the PDF
+        downloadInvoiceAsPDF(invoiceData);
+        return true;
+      }
+      
+      // If created, use the current data
+      const invoiceData = {
+        id: currentData.id,
+        numero: currentData.numero,
+        client: {
+          id: "client-id",
+          nom: currentData.client,
+          email: "client@example.com",
+          adresse: "456 Avenue des Clients, 69002 Lyon, France"
+        },
+        dateCreation: currentData.date,
+        dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
+        totalTTC: currentData.totalTTC,
+        statut: "brouillon" as StatutFacture,
+        produits: currentData.products,
+        applyTVA: applyTVA,
+        showDiscount: showDiscount,
+        currency: currentData.currency
+      };
+
+      downloadInvoiceAsPDF(invoiceData);
+      return true;
+    } catch (error) {
+      console.error("Erreur lors de la génération du PDF :", error);
+      toast.error("Erreur lors de la génération du PDF");
+      return false;
+    }
+  };
+
+  // Handler for downloading the PDF and closing the modal
+  const handleDownloadAndClose = () => {
+    const success = handleDownloadPDF();
+    if (success) {
+      onOpenChange(false);
+    }
   };
 
   return (
@@ -198,7 +289,7 @@ export function FactureModal({
 
         <div className="flex gap-6">
           <div className="flex-1">
-            <Tabs defaultValue="edition" className="mb-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
               <TabsList>
                 <TabsTrigger value="edition">Édition</TabsTrigger>
                 <TabsTrigger value="apercu">Aperçu</TabsTrigger>
@@ -223,6 +314,17 @@ export function FactureModal({
                   onTaxChange={handleTaxChange}
                   onTaxModeChange={handleTaxModeChange}
                 />
+                
+                {!isCreated && (
+                  <div className="flex justify-end gap-2 mt-6">
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>
+                      Annuler
+                    </Button>
+                    <Button onClick={handleCreate}>
+                      Créer
+                    </Button>
+                  </div>
+                )}
               </TabsContent>
               <TabsContent value="apercu" className="mt-4">
                 <FacturePreview 
@@ -237,6 +339,10 @@ export function FactureModal({
                   totalTTC={totalTTC}
                   finalAmount={finalAmount}
                   montantEnLettresText={montantEnLettresText}
+                  isCreated={isCreated}
+                  onCancel={handleCancel}
+                  onSave={handleSave}
+                  onDownload={handleDownloadAndClose}
                 />
               </TabsContent>
             </Tabs>
@@ -254,24 +360,6 @@ export function FactureModal({
               setCurrency={setCurrency}
             />
           )}
-        </div>
-
-        <div className="flex justify-end gap-2 mt-6">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Annuler
-          </Button>
-          <Button variant="outline" onClick={handleDownloadPDF}>
-            <FilePdf className="mr-2 h-4 w-4" />
-            Télécharger PDF
-          </Button>
-          <Button variant="outline">
-            <ArrowUpRight className="mr-2 h-4 w-4" />
-            Envoyer
-          </Button>
-          <Button>
-            <Save className="mr-2 h-4 w-4" />
-            Enregistrer
-          </Button>
         </div>
       </DialogContent>
     </Dialog>

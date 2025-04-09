@@ -1,5 +1,7 @@
 
 import { getCurrencySymbol } from "@/components/factures/utils/factureUtils";
+import { Button } from "@/components/ui/button";
+import { formatNumber } from "@/utils/formatters";
 
 interface FacturePreviewProps {
   productLines: any[];
@@ -13,6 +15,10 @@ interface FacturePreviewProps {
   totalTTC: number;
   finalAmount: number;
   montantEnLettresText: string;
+  isCreated?: boolean;
+  onDownload?: () => void;
+  onCancel?: () => void;
+  onSave?: () => void;
 }
 
 export function FacturePreview({
@@ -27,11 +33,29 @@ export function FacturePreview({
   totalTTC,
   finalAmount,
   montantEnLettresText,
+  isCreated = false,
+  onDownload,
+  onCancel,
+  onSave,
 }: FacturePreviewProps) {
   const currencySymbol = getCurrencySymbol(currency);
 
   return (
-    <div className="invoice-paper animate-fade-in py-8 px-10">
+    <div className="relative invoice-paper animate-fade-in py-8 px-10">
+      {!isCreated && onDownload && (
+        <div className="absolute top-4 right-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onDownload}
+            className="bg-white/80 hover:bg-white"
+          >
+            <FilePdf className="mr-2 h-4 w-4" />
+            Télécharger PDF
+          </Button>
+        </div>
+      )}
+      
       <div className="flex justify-between items-start mb-8">
         <div>
           <div className="w-52 h-14 bg-invoice-blue-100 flex items-center justify-center rounded">
@@ -119,13 +143,13 @@ export function FacturePreview({
                   {line.quantity}
                 </td>
                 <td className="py-3 text-right">
-                  {line.unitPrice.toLocaleString("fr-FR")} {currencySymbol}
+                  {formatNumber(line.unitPrice)} {currencySymbol}
                 </td>
                 {applyTVA && (
                   <td className="py-3 text-right">
                     {line.estTauxTVA 
                       ? `${line.tva}%` 
-                      : `${line.montantTVA.toLocaleString("fr-FR")} ${currencySymbol}`
+                      : `${formatNumber(line.montantTVA)} ${currencySymbol}`
                     }
                   </td>
                 )}
@@ -135,7 +159,7 @@ export function FacturePreview({
                   </td>
                 )}
                 <td className="py-3 text-right">
-                  {line.total.toLocaleString("fr-FR")} {currencySymbol}
+                  {formatNumber(line.total)} {currencySymbol}
                 </td>
               </tr>
             ))}
@@ -147,12 +171,12 @@ export function FacturePreview({
         <div className="w-80">
           <div className="flex justify-between py-1">
             <span className="w-28 text-left">Sous-total</span>
-            <span>{subtotal.toLocaleString("fr-FR")} {currencySymbol}</span>
+            <span>{formatNumber(subtotal)} {currencySymbol}</span>
           </div>
           {applyTVA && (
             <div className="flex justify-between py-1">
               <span className="w-28 text-left">TVA</span>
-              <span>{totalTVA.toLocaleString("fr-FR")} {currencySymbol}</span>
+              <span>{formatNumber(totalTVA)} {currencySymbol}</span>
             </div>
           )}
           {showDiscount && (
@@ -164,23 +188,45 @@ export function FacturePreview({
           {showAdvancePayment && (
             <div className="flex justify-between py-1">
               <span className="w-28 text-left">Avance perçue</span>
-              <span>{advancePaymentAmount.toLocaleString("fr-FR")} {currencySymbol}</span>
+              <span>{formatNumber(advancePaymentAmount)} {currencySymbol}</span>
             </div>
           )}
           <div className="flex justify-between py-2 border-t border-t-gray-300 font-bold">
             <span className="w-28 text-left">Total TTC</span>
-            <span>{showAdvancePayment ? finalAmount.toLocaleString("fr-FR") : totalTTC.toLocaleString("fr-FR")} {currencySymbol}</span>
+            <span>{showAdvancePayment ? formatNumber(finalAmount) : formatNumber(totalTTC)} {currencySymbol}</span>
           </div>
         </div>
       </div>
 
-      <div className="bg-invoice-blue-50 p-4 rounded-md">
+      <div className="bg-invoice-blue-50 p-4 rounded-md mb-8">
         <p className="text-sm">
           <span className="font-semibold">
             {montantEnLettresText}
           </span>
         </p>
       </div>
+
+      {isCreated && (
+        <div className="flex gap-2 justify-end mt-8 border-t pt-6">
+          <Button 
+            variant="destructive" 
+            onClick={onCancel}
+          >
+            Annuler
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={onSave}
+          >
+            Enregistrer
+          </Button>
+          <Button 
+            onClick={onDownload}
+          >
+            Télécharger (PDF)
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
