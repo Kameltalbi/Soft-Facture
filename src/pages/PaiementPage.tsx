@@ -41,12 +41,28 @@ const PaiementPage = () => {
     }
   }, [authStatus, navigate]);
 
+  // Ajout de logs pour débugger
+  useEffect(() => {
+    console.log("PaiementPage - État initial:", {
+      plan,
+      montant,
+      montantEnMillimes,
+      authStatus,
+      hasActiveSubscription,
+      factureId
+    });
+  }, [plan, montant, montantEnMillimes, authStatus, hasActiveSubscription, factureId]);
+
   // Valider les paramètres d'entrée
   useEffect(() => {
     setIsValidating(true);
     
+    console.log("Validation des paramètres commencée");
+    
     // Si c'est un paiement d'abonnement, vérifier seulement le plan et le montant
     if (plan) {
+      console.log("Validation pour plan:", plan);
+      
       if (plan !== 'annual' && plan !== 'trial') {
         setValidationError("Plan d'abonnement invalide");
         setIsValidating(false);
@@ -60,6 +76,7 @@ const PaiementPage = () => {
       }
       
       if (plan === 'trial') {
+        console.log("Plan d'essai détecté, redirection vers dashboard");
         // Pour le plan d'essai, rediriger directement vers le tableau de bord
         updateSubscription('trial').then(() => {
           navigate('/dashboard');
@@ -106,6 +123,7 @@ const PaiementPage = () => {
       return;
     }
     
+    console.log("Validation réussie");
     setValidationError(null);
     setIsValidating(false);
   }, [factureId, montantEnMillimes, email, plan, hasActiveSubscription, navigate, updateSubscription]);
@@ -122,10 +140,19 @@ const PaiementPage = () => {
     }
 
     setIsLoading(true);
+    console.log("Début du processus de paiement");
 
     try {
       // Utiliser l'e-mail de l'utilisateur connecté si disponible
       const userEmail = session?.user.email || email;
+      
+      console.log("Paramètres envoyés à init-payment:", {
+        amount: montantEnMillimes,
+        description,
+        email: userEmail,
+        orderId: factureId || `SUB-${plan}-${Date.now()}`,
+        plan
+      });
       
       // Appeler la fonction Edge pour initialiser le paiement
       const { data, error } = await supabase.functions.invoke("init-payment", {
@@ -139,6 +166,8 @@ const PaiementPage = () => {
           plan: plan // Passer le plan pour traitement dans la fonction webhook
         }
       });
+
+      console.log("Réponse de init-payment:", { data, error });
 
       if (error) {
         console.error("Erreur lors de l'initialisation du paiement:", error);
@@ -161,6 +190,7 @@ const PaiementPage = () => {
 
       // Rediriger vers l'URL de paiement Konnect
       if (data && data.payUrl) {
+        console.log("Redirection vers l'URL de paiement:", data.payUrl);
         window.location.href = data.payUrl;
       } else {
         toast.error("URL de paiement non disponible");

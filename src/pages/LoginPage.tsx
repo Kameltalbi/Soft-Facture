@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,11 +15,12 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { login, authStatus } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
-  // Redirect if already logged in
+  // Redirection si déjà connecté
   if (authStatus === 'authenticated') {
-    navigate('/');
+    navigate('/dashboard');
     return null;
   }
 
@@ -34,7 +36,8 @@ const LoginPage = () => {
           title: "Connexion réussie",
           description: "Vous êtes maintenant connecté.",
         });
-        navigate('/');
+        // Rediriger vers le tableau de bord après connexion
+        navigate('/dashboard');
       } else {
         toast({
           title: "Erreur de connexion",

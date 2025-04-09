@@ -31,12 +31,25 @@ const RegisterPage = () => {
     }
   }, [authStatus]);
 
+  // Afficher un log pour débugger
+  useEffect(() => {
+    console.log("RegisterPage - Params:", { plan, redirect, authStatus });
+  }, [plan, redirect, authStatus]);
+
   if (authStatus === 'authenticated') {
     return null;
   }
 
   // Fonction pour gérer la redirection après connexion
   const handleRedirection = () => {
+    console.log("Redirection après inscription:", { plan, redirect });
+    
+    // Si l'utilisateur vient de s'inscrire sans choisir de plan, on le redirige vers la page des tarifs
+    if (!plan || plan === '') {
+      navigate('/tarifs');
+      return;
+    }
+    
     // Si un paramètre de redirection est spécifié
     if (redirect === 'tarifs') {
       navigate('/tarifs');
@@ -47,8 +60,11 @@ const RegisterPage = () => {
     } else if (plan === 'annual') {
       // Comportement par défaut pour le plan annuel
       navigate(`/paiement?plan=${plan}&montant=390`);
+    } else if (plan === 'trial') {
+      // Redirection vers le dashboard pour le plan d'essai
+      navigate('/dashboard');
     } else {
-      // Si aucune redirection spécifiée et plan gratuit ou non spécifié
+      // Si aucune redirection spécifiée, aller aux tarifs par défaut
       navigate('/tarifs');
     }
   };
@@ -71,6 +87,8 @@ const RegisterPage = () => {
       const result = await signup(email, password, nom, telephone);
       
       if (result.success) {
+        console.log("Inscription réussie, plan choisi:", plan);
+        
         // Essayer de créer l'abonnement d'essai immédiatement si plan=trial
         if (plan === 'trial') {
           await updateSubscription('trial');
