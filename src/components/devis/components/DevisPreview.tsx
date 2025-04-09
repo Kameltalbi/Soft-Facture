@@ -48,6 +48,15 @@ export function DevisPreview({
     swift: "BFRPFRPP"
   };
 
+  // Helper function to format numbers with proper thousand separator
+  const formatNumber = (number: number): string => {
+    return number.toLocaleString("fr-FR", {
+      useGrouping: true,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
   return (
     <div className="relative invoice-paper animate-fade-in py-8 px-10">
       <div className="flex justify-between items-start mb-8">
@@ -137,13 +146,13 @@ export function DevisPreview({
                   {line.quantity}
                 </td>
                 <td className="py-3 text-right">
-                  {line.unitPrice.toLocaleString("fr-FR")} {currencySymbol}
+                  {formatNumber(line.unitPrice)} {currencySymbol}
                 </td>
                 {applyTVA && (
                   <td className="py-3 text-right">
                     {line.estTauxTVA 
                       ? `${line.tva}%` 
-                      : `${line.montantTVA.toLocaleString("fr-FR")} ${currencySymbol}`
+                      : `${formatNumber(line.montantTVA)} ${currencySymbol}`
                     }
                   </td>
                 )}
@@ -153,7 +162,7 @@ export function DevisPreview({
                   </td>
                 )}
                 <td className="py-3 text-right">
-                  {line.total.toLocaleString("fr-FR")} {currencySymbol}
+                  {formatNumber(line.total)} {currencySymbol}
                 </td>
               </tr>
             ))}
@@ -165,12 +174,12 @@ export function DevisPreview({
         <div className="w-80">
           <div className="flex justify-between py-1">
             <span className="w-28 text-left">Sous-total</span>
-            <span>{subtotal.toLocaleString("fr-FR")} {currencySymbol}</span>
+            <span>{formatNumber(subtotal)} {currencySymbol}</span>
           </div>
           {applyTVA && (
             <div className="flex justify-between py-1">
               <span className="w-28 text-left">TVA</span>
-              <span>{totalTVA.toLocaleString("fr-FR")} {currencySymbol}</span>
+              <span>{formatNumber(totalTVA)} {currencySymbol}</span>
             </div>
           )}
           {showDiscount && (
@@ -181,7 +190,7 @@ export function DevisPreview({
           )}
           <div className="flex justify-between py-2 border-t border-t-gray-300 font-bold">
             <span className="w-28 text-left">Total TTC</span>
-            <span>{totalTTC.toLocaleString("fr-FR")} {currencySymbol}</span>
+            <span>{formatNumber(totalTTC)} {currencySymbol}</span>
           </div>
         </div>
       </div>
