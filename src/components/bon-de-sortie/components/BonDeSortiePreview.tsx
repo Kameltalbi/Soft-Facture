@@ -2,7 +2,8 @@
 import { Download } from "lucide-react"; 
 import { FilePdf } from "@/components/ui/custom-icons";
 import { Button } from "@/components/ui/button";
-import { getCurrencySymbol, montantEnLettres } from "../utils/bonDeSortieUtils";
+import { getCurrencySymbol } from "../utils/bonDeSortieUtils";
+import { formatNumber } from "@/utils/formatters";
 
 interface ProductLine {
   id: string;
@@ -25,7 +26,10 @@ interface BonDeSortiePreviewProps {
   totalTVA: number;
   totalTTC: number;
   montantTTCEnLettres: string;
+  isCreated?: boolean;
   onDownload?: () => void;
+  onCancel?: () => void;
+  onSave?: () => void;
 }
 
 export function BonDeSortiePreview({
@@ -37,13 +41,16 @@ export function BonDeSortiePreview({
   totalTVA,
   totalTTC,
   montantTTCEnLettres,
-  onDownload
+  isCreated = false,
+  onDownload,
+  onCancel,
+  onSave
 }: BonDeSortiePreviewProps) {
   const currencySymbol = getCurrencySymbol(currency);
   
   return (
     <div className="relative invoice-paper animate-fade-in py-8 px-10">
-      {onDownload && (
+      {!isCreated && onDownload && (
         <div className="absolute top-4 right-4">
           <Button 
             variant="outline" 
@@ -144,13 +151,13 @@ export function BonDeSortiePreview({
                   {line.quantity}
                 </td>
                 <td className="py-3 text-right">
-                  {line.unitPrice.toLocaleString("fr-FR")} {currencySymbol}
+                  {formatNumber(line.unitPrice)} {currencySymbol}
                 </td>
                 {applyTVA && (
                   <td className="py-3 text-right">
                     {line.estTauxTVA 
                       ? `${line.tva}%` 
-                      : `${line.montantTVA.toLocaleString("fr-FR")} ${currencySymbol}`
+                      : `${formatNumber(line.montantTVA)} ${currencySymbol}`
                     }
                   </td>
                 )}
@@ -160,7 +167,7 @@ export function BonDeSortiePreview({
                   </td>
                 )}
                 <td className="py-3 text-right">
-                  {line.total.toLocaleString("fr-FR")} {currencySymbol}
+                  {formatNumber(line.total)} {currencySymbol}
                 </td>
               </tr>
             ))}
@@ -172,12 +179,12 @@ export function BonDeSortiePreview({
         <div className="w-80">
           <div className="flex justify-between py-1">
             <span className="w-28 text-left">Sous-total</span>
-            <span>{subtotal.toLocaleString("fr-FR")} {currencySymbol}</span>
+            <span>{formatNumber(subtotal)} {currencySymbol}</span>
           </div>
           {applyTVA && (
             <div className="flex justify-between py-1">
               <span className="w-28 text-left">TVA</span>
-              <span>{totalTVA.toLocaleString("fr-FR")} {currencySymbol}</span>
+              <span>{formatNumber(totalTVA)} {currencySymbol}</span>
             </div>
           )}
           {showDiscount && (
@@ -188,18 +195,40 @@ export function BonDeSortiePreview({
           )}
           <div className="flex justify-between py-2 border-t border-t-gray-300 font-bold">
             <span className="w-28 text-left">Total TTC</span>
-            <span>{totalTTC.toLocaleString("fr-FR")} {currencySymbol}</span>
+            <span>{formatNumber(totalTTC)} {currencySymbol}</span>
           </div>
         </div>
       </div>
 
-      <div className="bg-invoice-blue-50 p-4 rounded-md">
+      <div className="bg-invoice-blue-50 p-4 rounded-md mb-8">
         <p className="text-sm">
           <span className="font-semibold">
             Montant à payer en toutes lettres: {montantTTCEnLettres}
           </span>
         </p>
       </div>
+
+      {isCreated && (
+        <div className="flex gap-2 justify-end mt-8 border-t pt-6">
+          <Button 
+            variant="destructive" 
+            onClick={onCancel}
+          >
+            Annuler
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={onSave}
+          >
+            Enregistrer
+          </Button>
+          <Button 
+            onClick={onDownload}
+          >
+            Télécharger (PDF)
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

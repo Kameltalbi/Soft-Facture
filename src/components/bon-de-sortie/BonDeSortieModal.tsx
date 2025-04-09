@@ -12,6 +12,7 @@ import { ProductLineEditor, ProductLine } from "./components/ProductLineEditor";
 import { BonDeSortieForm } from "./components/BonDeSortieForm";
 import { NotesSection } from "./components/NotesSection";
 import { montantEnLettres } from "./utils/bonDeSortieUtils";
+import { downloadInvoiceAsPDF } from "@/utils/pdfGenerator";
 
 export function BonDeSortieModal({
   open,
@@ -22,6 +23,9 @@ export function BonDeSortieModal({
   const [applyTVA, setApplyTVA] = useState(true);
   const [showDiscount, setShowDiscount] = useState(false);
   const [currency, setCurrency] = useState("TND");
+  const [isCreated, setIsCreated] = useState(false);
+  const [currentData, setCurrentData] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState("edition");
 
   const isEditing = bonDeSortieId !== null;
 
@@ -76,16 +80,92 @@ export function BonDeSortieModal({
   // Préparer le texte des montants en lettres
   const montantTTCEnLettres = montantEnLettres(totalTTC, currency);
 
-  const handleSave = () => {
-    // Here you would typically save the bon de sortie data
-    toast.success("Bon de sortie enregistré avec succès");
+  // Générer un numéro de bon de sortie au format BDS-YYYY-XXX
+  const generateBonDeSortieNumber = () => {
+    const year = new Date().getFullYear();
+    const randomId = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    return `BDS-${year}-${randomId}`;
+  };
+
+  // Handler pour créer un bon de sortie
+  const handleCreate = () => {
+    // Créer le nouveau bon de sortie
+    const newBonDeSortie = {
+      id: isEditing ? bonDeSortieId : Date.now().toString(),
+      numero: isEditing ? "BDS-2023-XXX" : generateBonDeSortieNumber(),
+      client: "Client Exemple",
+      date: new Date().toISOString(),
+      montant: totalTTC,
+      statut: "draft",
+      products: productLines,
+      currency: currency,
+      subtotal: subtotal,
+      totalTVA: totalTVA,
+      totalTTC: totalTTC,
+      montantTTCEnLettres: montantTTCEnLettres
+    };
+
+    setCurrentData(newBonDeSortie);
+    setIsCreated(true);
+    
+    // Switcher sur l'onglet aperçu
+    setActiveTab("apercu");
+    
+    toast.success(isEditing ? "Bon de sortie modifié avec succès" : "Bon de sortie créé avec succès");
+  };
+
+  // Handler pour annuler
+  const handleCancel = () => {
+    toast.info("Le bon de sortie a été annulé");
+    setIsCreated(false);
     onOpenChange(false);
   };
 
-  const handleSend = () => {
-    // Here you would typically send the bon de sortie to the client
-    toast.success("Bon de sortie envoyé avec succès");
-    onOpenChange(false);
+  // Handler pour télécharger le PDF
+  const handleDownloadPDF = () => {
+    try {
+      if (!currentData) return false;
+      
+      // On adapte les données au format attendu par le générateur de PDF
+      const invoiceData = {
+        id: currentData.id,
+        numero: currentData.numero,
+        client: {
+          id: "client-id",
+          nom: currentData.client,
+          email: "client@example.com",
+          adresse: "Adresse du client"
+        },
+        dateCreation: currentData.date,
+        dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
+        totalTTC: currentData.totalTTC,
+        statut: "brouillon" as const,
+        produits: currentData.products,
+        applyTVA: applyTVA,
+        showDiscount: showDiscount,
+        currency: currentData.currency
+      };
+
+      downloadInvoiceAsPDF(invoiceData, "fr");
+      return true;
+    } catch (error) {
+      console.error("Erreur lors de la génération du PDF :", error);
+      toast.error("Erreur lors de la génération du PDF");
+      return false;
+    }
+  };
+
+  // Handler pour enregistrer (sans fermer le modal)
+  const handleSave = () => {
+    toast.success("Bon de sortie enregistré");
+  };
+
+  // Handler pour télécharger le PDF et revenir à la liste
+  const handleDownloadAndClose = () => {
+    const success = handleDownloadPDF();
+    if (success) {
+      onOpenChange(false);
+    }
   };
 
   return (
@@ -129,7 +209,7 @@ export function BonDeSortieModal({
 
         <div className="flex gap-6">
           <div className="flex-1">
-            <Tabs defaultValue="edition" className="mb-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
               <TabsList>
                 <TabsTrigger value="edition">Édition</TabsTrigger>
                 <TabsTrigger value="apercu">Aperçu</TabsTrigger>
@@ -149,6 +229,17 @@ export function BonDeSortieModal({
                 />
 
                 <NotesSection />
+
+                {!isCreated && (
+                  <div className="flex justify-end gap-2 mt-6">
+                    <Button variant="outline" onClick={handleCancel}>
+                      Annuler
+                    </Button>
+                    <Button onClick={handleCreate}>
+                      Créer
+                    </Button>
+                  </div>
+                )}
               </TabsContent>
               <TabsContent value="apercu" className="mt-4">
                 <BonDeSortiePreview
@@ -160,6 +251,10 @@ export function BonDeSortieModal({
                   totalTVA={totalTVA}
                   totalTTC={totalTTC}
                   montantTTCEnLettres={montantTTCEnLettres}
+                  isCreated={isCreated}
+                  onCancel={handleCancel}
+                  onSave={handleSave}
+                  onDownload={handleDownloadAndClose}
                 />
               </TabsContent>
             </Tabs>
@@ -175,20 +270,6 @@ export function BonDeSortieModal({
               setCurrency={setCurrency}
             />
           )}
-        </div>
-
-        <div className="flex justify-end gap-2 mt-6">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Annuler
-          </Button>
-          <Button variant="outline" onClick={handleSend}>
-            <ArrowUpRight className="mr-2 h-4 w-4" />
-            Envoyer
-          </Button>
-          <Button onClick={handleSave}>
-            <Save className="mr-2 h-4 w-4" />
-            Enregistrer
-          </Button>
         </div>
       </DialogContent>
     </Dialog>
