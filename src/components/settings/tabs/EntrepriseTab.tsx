@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Image, Loader2, Save, Upload, Pencil } from "lucide-react";
+import { Image, Loader2, Save, Upload, Pencil, X } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -180,6 +180,11 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
     setIsDialogOpen(true);
   };
 
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setIsDialogOpen(false);
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -190,7 +195,7 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
     );
   }
 
-  const CompanyInfoDisplay = () => (
+  return (
     <Card>
       <CardHeader>
         <div>
@@ -201,83 +206,7 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex justify-center mb-6">
-          <div className="w-40 h-40 bg-muted flex items-center justify-center rounded-md overflow-hidden">
-            {logoPreview ? (
-              <img 
-                src={logoPreview} 
-                alt="Company Logo" 
-                className="w-full h-full object-contain rounded-md"
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center">
-                <Image className="w-10 h-10 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground mt-2">
-                  {t('settings.logo')}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4">
-          <div>
-            <Label>{t('settings.companyName')}</Label>
-            <div className="p-2 border rounded-md bg-muted/10 mt-1">
-              {form.getValues().nom_entreprise || '-'}
-            </div>
-          </div>
-          
-          <div>
-            <Label>{t('settings.address')}</Label>
-            <div className="p-2 border rounded-md bg-muted/10 mt-1 whitespace-pre-line">
-              {form.getValues().adresse || '-'}
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label>{t('settings.email')}</Label>
-              <div className="p-2 border rounded-md bg-muted/10 mt-1">
-                {form.getValues().email || '-'}
-              </div>
-            </div>
-            <div>
-              <Label>{t('settings.phone')}</Label>
-              <div className="p-2 border rounded-md bg-muted/10 mt-1">
-                {form.getValues().telephone || '-'}
-              </div>
-            </div>
-          </div>
-          
-          <div>
-            <Label>{t('settings.rib')}</Label>
-            <div className="p-2 border rounded-md bg-muted/10 mt-1">
-              {form.getValues().rib || '-'}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-center mt-6">
-          <Button onClick={startEditing} variant="outline">
-            <Pencil className="h-4 w-4 mr-2" />
-            Modifier
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
-  return (
-    <>
-      <CompanyInfoDisplay />
-      
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Modifier les informations de l'entreprise</DialogTitle>
-          </DialogHeader>
-          
+        {isEditing ? (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSaveAll)} className="space-y-6">
               <div className="border rounded-md p-6 flex items-center justify-center flex-col">
@@ -402,13 +331,13 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
                 />
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-2">
                 <Button 
                   type="button" 
                   variant="outline" 
-                  onClick={() => setIsDialogOpen(false)} 
-                  className="mr-2"
+                  onClick={cancelEditing}
                 >
+                  <X className="mr-2 h-4 w-4" />
                   Annuler
                 </Button>
                 <Button type="submit" disabled={isSaving}>
@@ -422,8 +351,74 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
               </div>
             </form>
           </Form>
-        </DialogContent>
-      </Dialog>
-    </>
+        ) : (
+          <>
+            <div className="flex justify-center mb-6">
+              <div className="w-40 h-40 bg-muted flex items-center justify-center rounded-md overflow-hidden">
+                {logoPreview ? (
+                  <img 
+                    src={logoPreview} 
+                    alt="Company Logo" 
+                    className="w-full h-full object-contain rounded-md"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center">
+                    <Image className="w-10 h-10 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground mt-2">
+                      {t('settings.logo')}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <Label>{t('settings.companyName')}</Label>
+                <div className="p-2 border rounded-md bg-muted/10 mt-1">
+                  {form.getValues().nom_entreprise || '-'}
+                </div>
+              </div>
+              
+              <div>
+                <Label>{t('settings.address')}</Label>
+                <div className="p-2 border rounded-md bg-muted/10 mt-1 whitespace-pre-line">
+                  {form.getValues().adresse || '-'}
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>{t('settings.email')}</Label>
+                  <div className="p-2 border rounded-md bg-muted/10 mt-1">
+                    {form.getValues().email || '-'}
+                  </div>
+                </div>
+                <div>
+                  <Label>{t('settings.phone')}</Label>
+                  <div className="p-2 border rounded-md bg-muted/10 mt-1">
+                    {form.getValues().telephone || '-'}
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <Label>{t('settings.rib')}</Label>
+                <div className="p-2 border rounded-md bg-muted/10 mt-1">
+                  {form.getValues().rib || '-'}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <Button onClick={startEditing} variant="outline">
+                <Pencil className="h-4 w-4 mr-2" />
+                Modifier
+              </Button>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
