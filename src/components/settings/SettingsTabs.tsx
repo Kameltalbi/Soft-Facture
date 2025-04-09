@@ -1,3 +1,4 @@
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from "react";
@@ -6,6 +7,7 @@ import { TaxesTab } from "./tabs/TaxesTab";
 import { DeviseTab } from "./tabs/DeviseTab";
 import { GeneralTab } from "./tabs/GeneralTab";
 import { UtilisateursTab } from "./tabs/UtilisateursTab";
+import { SocieteTab } from "./tabs/SocieteTab";
 import { TaxePersonnalisee, Devise } from "@/types";
 import { User } from "@/components/users/UserFormModal";
 import { useToast } from "@/hooks/use-toast";
@@ -113,14 +115,22 @@ export function SettingsTabs() {
   };
 
   return (
-    <Tabs defaultValue="general">
+    <Tabs defaultValue="societe">
       <TabsList className="mb-4">
+        <TabsTrigger value="societe">Société</TabsTrigger>
         <TabsTrigger value="facturation">{t('settings.billingTab')}</TabsTrigger>
         <TabsTrigger value="taxes">{t('settings.taxesTab')}</TabsTrigger>
         <TabsTrigger value="devise">Devise</TabsTrigger>
         <TabsTrigger value="general">{t('settings.generalTab')}</TabsTrigger>
         <TabsTrigger value="utilisateurs">{t('settings.usersTab')}</TabsTrigger>
       </TabsList>
+
+      <TabsContent value="societe">
+        <SocieteTab 
+          onSave={handleSaveSettings}
+          onCancel={handleCancel}
+        />
+      </TabsContent>
 
       <TabsContent value="facturation">
         <FacturationTab

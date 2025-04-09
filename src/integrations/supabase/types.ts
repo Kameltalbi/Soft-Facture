@@ -198,6 +198,39 @@ export type Database = {
         }
         Relationships: []
       }
+      company_info: {
+        Row: {
+          adresse: string
+          code_tva: string
+          created_at: string
+          email_contact: string | null
+          id: string
+          nom: string
+          telephone: string | null
+          updated_at: string
+        }
+        Insert: {
+          adresse: string
+          code_tva: string
+          created_at?: string
+          email_contact?: string | null
+          id?: string
+          nom: string
+          telephone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          adresse?: string
+          code_tva?: string
+          created_at?: string
+          email_contact?: string | null
+          id?: string
+          nom?: string
+          telephone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       currency_settings: {
         Row: {
           created_at: string

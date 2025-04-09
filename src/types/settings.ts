@@ -26,3 +26,14 @@ export interface CurrencySettings {
   created_at: string;
   updated_at: string;
 }
+
+export interface CompanyInfo {
+  id: string;
+  nom: string;
+  adresse: string;
+  code_tva: string;
+  telephone: string | null;
+  email_contact: string | null;
+  created_at: string;
+  updated_at: string;
+}

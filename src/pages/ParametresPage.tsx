@@ -102,6 +102,29 @@ const ParametresPage = () => {
             console.error("Erreur lors de l'initialisation des paramètres de devise:", currencyInsertError);
           }
         }
+
+        // Check for company information
+        const { data: companyData, error: companyError } = await (supabase as any)
+          .from('company_info')
+          .select('*')
+          .limit(1);
+
+        if (companyError) {
+          console.error("Erreur lors de la récupération des informations de l'entreprise:", companyError);
+        } else if (!companyData || companyData.length === 0) {
+          // Initialize company info if it doesn't exist (although we already inserted a default row in SQL)
+          const { error: companyInsertError } = await (supabase as any)
+            .from('company_info')
+            .insert({
+              nom: 'Mon Entreprise',
+              adresse: 'Adresse de l\'entreprise',
+              code_tva: 'TVA-00000000'
+            });
+              
+          if (companyInsertError) {
+            console.error("Erreur lors de l'initialisation des informations de l'entreprise:", companyInsertError);
+          }
+        }
       } catch (error) {
         console.error("Erreur lors de l'initialisation des paramètres:", error);
       } finally {
