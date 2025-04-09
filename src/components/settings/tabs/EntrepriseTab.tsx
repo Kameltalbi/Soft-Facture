@@ -1,28 +1,17 @@
-import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Image, Loader2, Save, Upload, Pencil, X } from "lucide-react";
+import { Loader2, Save, X } from "lucide-react";
 import { useTranslation } from 'react-i18next';
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { CompanyInfoForm, CompanyFormValues } from "../components/CompanyInfoForm";
+import { CompanyInfoDisplay } from "../components/CompanyInfoDisplay";
+import { fetchCompanyData, saveCompanyData } from "../components/EntrepriseService";
+import { Button } from "@/components/ui/button";
 
 interface EntrepriseTabProps {
   onSave: () => void;
   onCancel?: () => void;
-}
-
-interface CompanyFormValues {
-  nom_entreprise: string;
-  adresse: string;
-  email: string;
-  telephone: string;
-  rib: string;
 }
 
 export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
@@ -31,41 +20,27 @@ export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
-  
-  const form = useForm<CompanyFormValues>({
-    defaultValues: {
-      nom_entreprise: "",
-      adresse: "",
-      email: "",
-      telephone: "",
-      rib: ""
-    }
+  const [companyData, setCompanyData] = useState<CompanyFormValues>({
+    nom_entreprise: "",
+    adresse: "",
+    email: "",
+    telephone: "",
+    rib: ""
   });
+  const { toast } = useToast();
 
   // Load company data from Supabase
   useEffect(() => {
-    const fetchCompanyData = async () => {
+    const loadCompanyData = async () => {
       try {
         setIsLoading(true);
         
         // Fetch company info
-        const { data, error } = await supabase
-          .from('parametres')
-          .select('*')
-          .limit(1)
-          .single();
-          
-        if (error) {
-          console.error("Erreur lors de la récupération des données:", error);
-          return;
-        }
+        const data = await fetchCompanyData();
         
         if (data) {
           // Set form values
-          form.reset({
+          setCompanyData({
             nom_entreprise: data.nom_entreprise || "",
             adresse: data.adresse || "",
             email: data.email || "",
@@ -91,39 +66,8 @@ export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
       }
     };
 
-    fetchCompanyData();
-  }, [form]);
-
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.match('image/jpeg|image/png|image/svg+xml')) {
-        toast({
-          title: "Erreur",
-          description: t('settings.logoFormatError'),
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Create a preview URL
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setLogoPreview(result);
-        // Store in localStorage as a backup
-        localStorage.setItem('companyLogo', result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleLogoClick = () => {
-    if (isEditing) {
-      fileInputRef.current?.click();
-    }
-  };
+    loadCompanyData();
+  }, []);
 
   const handleSaveAll = async (values: CompanyFormValues) => {
     try {
@@ -136,21 +80,10 @@ export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
       };
       
       // Update in Supabase
-      const { data, error } = await supabase
-        .from('parametres')
-        .update(updateData)
-        .eq('id', 'a55a560b-44e7-4be4-822f-42e919b1a1b2') // Use the actual UUID string
-        .select();
+      await saveCompanyData(updateData);
       
-      if (error) {
-        console.error("Erreur lors de la sauvegarde:", error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de sauvegarder les informations de l'entreprise.",
-          variant: "destructive"
-        });
-        return;
-      }
+      // Update local state
+      setCompanyData(values);
       
       toast({
         title: "Succès",
@@ -162,7 +95,6 @@ export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
       
       // Exit edit mode
       setIsEditing(false);
-      setIsDialogOpen(false);
     } catch (error) {
       console.error("Erreur:", error);
       toast({
@@ -177,12 +109,10 @@ export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
 
   const startEditing = () => {
     setIsEditing(true);
-    setIsDialogOpen(true);
   };
 
   const cancelEditing = () => {
     setIsEditing(false);
-    setIsDialogOpen(false);
     if (onCancel) {
       onCancel();
     }
@@ -210,225 +140,21 @@ export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         {isEditing ? (
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSaveAll)} className="space-y-6">
-              <div className="border rounded-md p-6 flex items-center justify-center flex-col">
-                <div 
-                  className="w-40 h-40 bg-muted flex items-center justify-center rounded-md relative mb-4 cursor-pointer"
-                  onClick={handleLogoClick}
-                >
-                  {logoPreview ? (
-                    <img 
-                      src={logoPreview} 
-                      alt="Company Logo" 
-                      className="w-full h-full object-contain rounded-md"
-                    />
-                  ) : (
-                    <>
-                      <Image className="w-10 h-10 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">
-                        {t('settings.logo')}
-                      </span>
-                    </>
-                  )}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/50 rounded-md">
-                    <Button variant="secondary" size="sm" type="button">
-                      <Upload className="h-4 w-4 mr-2" />
-                      {t('settings.import')}
-                    </Button>
-                  </div>
-                </div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  accept="image/png,image/jpeg,image/svg+xml"
-                  onChange={handleLogoUpload}
-                />
-                <p className="text-sm text-muted-foreground">
-                  {t('settings.logoFormat')}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="nom_entreprise"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('settings.companyName')}</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder={t('settings.companyName')}
-                          {...field}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="rib"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('settings.rib')}</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder={t('settings.rib')}
-                          {...field}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="adresse"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('settings.address')}</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder={t('settings.address')}
-                        rows={3}
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('settings.email')}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder={t('settings.email')}
-                          {...field}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="telephone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('settings.phone')}</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder={t('settings.phone')}
-                          {...field}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={cancelEditing}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-100"
-                >
-                  <X className="mr-2 h-4 w-4" />
-                  {t('common.cancel')}
-                </Button>
-                <Button 
-                  type="submit" 
-                  disabled={isSaving}
-                  className="bg-primary text-primary-foreground"
-                >
-                  {isSaving ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Save className="mr-2 h-4 w-4" />
-                  )}
-                  {t('settings.save')}
-                </Button>
-              </div>
-            </form>
-          </Form>
+          <CompanyInfoForm
+            initialValues={companyData}
+            logoPreview={logoPreview}
+            setLogoPreview={setLogoPreview}
+            onSave={handleSaveAll}
+            onCancel={cancelEditing}
+            isSaving={isSaving}
+          />
         ) : (
-          <>
-            <div className="flex justify-center mb-6">
-              <div className="w-40 h-40 bg-muted flex items-center justify-center rounded-md overflow-hidden">
-                {logoPreview ? (
-                  <img 
-                    src={logoPreview} 
-                    alt="Company Logo" 
-                    className="w-full h-full object-contain rounded-md"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center justify-center">
-                    <Image className="w-10 h-10 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground mt-2">
-                      {t('settings.logo')}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <Label>{t('settings.companyName')}</Label>
-                <div className="p-2 border rounded-md bg-muted/10 mt-1">
-                  {form.getValues().nom_entreprise || '-'}
-                </div>
-              </div>
-              
-              <div>
-                <Label>{t('settings.address')}</Label>
-                <div className="p-2 border rounded-md bg-muted/10 mt-1 whitespace-pre-line">
-                  {form.getValues().adresse || '-'}
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>{t('settings.email')}</Label>
-                  <div className="p-2 border rounded-md bg-muted/10 mt-1">
-                    {form.getValues().email || '-'}
-                  </div>
-                </div>
-                <div>
-                  <Label>{t('settings.phone')}</Label>
-                  <div className="p-2 border rounded-md bg-muted/10 mt-1">
-                    {form.getValues().telephone || '-'}
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <Label>{t('settings.rib')}</Label>
-                <div className="p-2 border rounded-md bg-muted/10 mt-1">
-                  {form.getValues().rib || '-'}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end mt-6">
-              <Button 
-                onClick={startEditing} 
-                variant="outline"
-                className="border-gray-300 text-gray-700 hover:bg-gray-100"
-              >
-                <Pencil className="h-4 w-4 mr-2" />
-                {t('settings.edit')}
-              </Button>
-            </div>
-          </>
+          <CompanyInfoDisplay
+            companyData={companyData}
+            logoPreview={logoPreview}
+            setLogoPreview={setLogoPreview}
+            onEdit={startEditing}
+          />
         )}
       </CardContent>
       <CardFooter className="flex justify-end gap-2">
