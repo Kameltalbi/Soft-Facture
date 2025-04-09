@@ -131,8 +131,8 @@ const RecoveryRateChart = ({ data, t }) => {
             position: 'insideStart',
             fill: '#fff',
             fontWeight: 'bold',
-            // Remove the % sign completely from the formatter
-            formatter: (value) => `${value}`,
+            // Return empty string to completely remove values from the chart
+            formatter: () => '',
           }}
         />
       </RadialBarChart>
@@ -324,8 +324,8 @@ const DashboardContent = () => {
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
-                    // Remove the % from the pie chart labels too
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}`}
+                    // Display only the sector name without any percentage or value
+                    label={({ name }) => `${name}`}
                   >
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
