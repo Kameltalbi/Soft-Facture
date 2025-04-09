@@ -30,22 +30,11 @@ const RegisterPage = () => {
     
   const redirect = searchParams.get("redirect") || "";
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (authStatus === 'authenticated') {
-      handleRedirection();
-    }
-  }, [authStatus]);
-
   // Afficher un log pour débugger
   useEffect(() => {
     console.log("RegisterPage - Params:", { plan, redirect, authStatus });
   }, [plan, redirect, authStatus]);
-
-  if (authStatus === 'authenticated') {
-    return null;
-  }
-
+  
   // Fonction pour gérer la redirection après connexion
   const handleRedirection = () => {
     console.log("Redirection après inscription:", { plan, redirect });
@@ -74,6 +63,17 @@ const RegisterPage = () => {
       navigate('/tarifs');
     }
   };
+
+  // Redirect if already logged in - IMPORTANT: handleRedirection must be defined before this useEffect
+  useEffect(() => {
+    if (authStatus === 'authenticated') {
+      handleRedirection();
+    }
+  }, [authStatus]);
+
+  if (authStatus === 'authenticated') {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
