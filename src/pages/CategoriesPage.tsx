@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -9,19 +9,38 @@ import { CategoriesManager } from "@/components/produits/CategoriesManager";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-
-// Using the same demo categories from the Products page
-const categoriesDemo = [
-  { id: "1", nom: "Services Web" },
-  { id: "2", nom: "Design" },
-  { id: "3", nom: "Hébergement" },
-  { id: "4", nom: "Marketing" },
-];
+import { supabase } from "@/integrations/supabase/client";
+import { Categorie } from "@/types";
+import { Loader2 } from "lucide-react";
 
 const CategoriesPage = () => {
   const { t } = useTranslation();
   const [openCategoriesModal, setOpenCategoriesModal] = useState<boolean>(true);
   const [importDialogOpen, setImportDialogOpen] = useState<boolean>(false);
+  const [categories, setCategories] = useState<Categorie[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('nom');
+      
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      toast.error(t('category.loadError', 'Error loading categories'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -90,11 +109,18 @@ const CategoriesPage = () => {
         </div>
       </div>
 
-      <CategoriesManager
-        open={openCategoriesModal}
-        onOpenChange={setOpenCategoriesModal}
-        categories={categoriesDemo}
-      />
+      {isLoading ? (
+        <div className="flex justify-center items-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <CategoriesManager
+          open={openCategoriesModal}
+          onOpenChange={setOpenCategoriesModal}
+          categories={categories}
+          onCategoriesChange={fetchCategories}
+        />
+      )}
     </MainLayout>
   );
 };

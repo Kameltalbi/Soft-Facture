@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,18 @@ import { Plus } from "lucide-react";
 import { ProduitFormModal } from "@/components/produits/ProduitFormModal";
 import { ProduitList } from "@/components/produits/ProduitList";
 import { ProduitImportDialog } from "@/components/produits/ProduitImportDialog";
-import { produitsDemo, categoriesDemo } from "@/components/produits/ProduitsData";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
+import { Categorie } from "@/types";
+
+interface Produit {
+  id: string;
+  nom: string;
+  categorie: { id: string; nom: string };
+  prix: number;
+  tauxTVA: number;
+  description?: string;
+}
 
 const ProduitsPage = () => {
   const { t } = useTranslation();
@@ -17,6 +28,66 @@ const ProduitsPage = () => {
   const [selectedProduit, setSelectedProduit] = useState<string | null>(null);
   const [importDialogOpen, setImportDialogOpen] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [produits, setProduits] = useState<Produit[]>([]);
+  const [categories, setCategories] = useState<Categorie[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCategories();
+    fetchProducts();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('nom');
+      
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('produits')
+        .select(`
+          id,
+          nom,
+          prix,
+          taux_tva,
+          description,
+          categorie_id,
+          categories(id, nom)
+        `)
+        .order('nom');
+      
+      if (error) throw error;
+
+      // Transform data structure to match the expected format
+      const formattedProducts: Produit[] = (data || []).map(item => ({
+        id: item.id,
+        nom: item.nom,
+        prix: item.prix,
+        tauxTVA: item.taux_tva,
+        description: item.description,
+        categorie: item.categories 
+          ? { id: item.categories.id, nom: item.categories.nom } 
+          : { id: '', nom: t('product.noCategory') }
+      }));
+      
+      setProduits(formattedProducts);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleCreateProduit = () => {
     setSelectedProduit(null);
@@ -28,13 +99,18 @@ const ProduitsPage = () => {
     setOpenProduitModal(true);
   };
 
+  const handleRefresh = () => {
+    fetchProducts();
+    fetchCategories();
+  };
+
   const filteredProducts = searchTerm 
-    ? produitsDemo.filter(p => 
+    ? produits.filter(p => 
         p.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.categorie.nom.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : produitsDemo;
+    : produits;
 
   return (
     <MainLayout title={t('common.products')}>
@@ -74,10 +150,17 @@ const ProduitsPage = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <ProduitList 
-            produits={filteredProducts} 
-            onEdit={handleEditProduit} 
-          />
+          {isLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <ProduitList 
+              produits={filteredProducts} 
+              onEdit={handleEditProduit}
+              onRefresh={handleRefresh}
+            />
+          )}
         </CardContent>
       </Card>
 
@@ -85,7 +168,8 @@ const ProduitsPage = () => {
         open={openProduitModal}
         onOpenChange={setOpenProduitModal}
         produitId={selectedProduit}
-        categories={categoriesDemo}
+        categories={categories}
+        onSuccess={handleRefresh}
       />
     </MainLayout>
   );
