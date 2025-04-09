@@ -34,6 +34,15 @@ interface InvoiceData {
   currency?: string;
 }
 
+// Format number with proper formatting (spaces as thousand separator)
+const formatNumber = (number: number, locale: string = "fr-FR"): string => {
+  return number.toLocaleString(locale, {
+    useGrouping: true,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+};
+
 // Format date according to locale
 const formatDate = (dateString: string, locale: string = "fr-FR"): string => {
   const date = new Date(dateString);
@@ -122,14 +131,14 @@ const prepareProductData = (invoiceData: InvoiceData, locale: string, currencySy
     const row = [
       product.name,
       product.quantity.toString(),
-      `${product.unitPrice.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")} ${currencySymbol}`,
+      `${formatNumber(product.unitPrice)} ${currencySymbol}`,
     ];
     
     if (invoiceData.applyTVA) {
       if (product.estTauxTVA) {
         row.push(`${product.tva}%`);
       } else {
-        row.push(`${product.montantTVA?.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")} ${currencySymbol}`);
+        row.push(`${formatNumber(product.montantTVA || 0)} ${currencySymbol}`);
       }
     }
     
@@ -137,7 +146,7 @@ const prepareProductData = (invoiceData: InvoiceData, locale: string, currencySy
       row.push(`${product.discount}%`);
     }
     
-    row.push(`${product.total.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")} ${currencySymbol}`);
+    row.push(`${formatNumber(product.total)} ${currencySymbol}`);
     
     return row;
   });
@@ -188,21 +197,21 @@ const addTotalsSection = (doc: jsPDF, invoiceData: InvoiceData, finalY: number, 
   // Create a formatted totals section with better spacing
   // Sous-total
   doc.text(locale === "fr" ? "Sous-total:" : "Subtotal:", 120, finalY);
-  doc.text(`${invoiceData.totalTTC.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")} ${currencySymbol}`, 170, finalY, { align: "right" });
+  doc.text(`${formatNumber(invoiceData.totalTTC)} ${currencySymbol}`, 170, finalY, { align: "right" });
   
   // Tax total if applicable
   if (invoiceData.applyTVA) {
     doc.text(locale === "fr" ? "TVA:" : "Tax:", 120, finalY + 7);
     // Demo tax calculation (20%)
     const tax = invoiceData.totalTTC * 0.2;
-    doc.text(`${tax.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")} ${currencySymbol}`, 170, finalY + 7, { align: "right" });
+    doc.text(`${formatNumber(tax)} ${currencySymbol}`, 170, finalY + 7, { align: "right" });
   }
   
   // Total with tax
   doc.setFontSize(12);
   doc.setFont(undefined, "bold");
   doc.text(locale === "fr" ? "Total TTC:" : "Total Amount:", 120, finalY + 15);
-  doc.text(`${invoiceData.totalTTC.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")} ${currencySymbol}`, 170, finalY + 15, { align: "right" });
+  doc.text(`${formatNumber(invoiceData.totalTTC)} ${currencySymbol}`, 170, finalY + 15, { align: "right" });
 };
 
 // Add footer with payment terms and thank you note
@@ -264,4 +273,3 @@ export const downloadInvoiceAsPDF = (
   const doc = generateInvoicePDF(invoiceData, locale);
   doc.save(`${invoiceData.numero}.pdf`);
 };
-

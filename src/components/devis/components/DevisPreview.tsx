@@ -50,6 +50,8 @@ export function DevisPreview({
 
   // Helper function to format numbers with proper thousand separator
   const formatNumber = (number: number): string => {
+    // Use French locale which uses spaces as thousand separators
+    // and make sure not to use the '/' character
     return number.toLocaleString("fr-FR", {
       useGrouping: true,
       minimumFractionDigits: 2,

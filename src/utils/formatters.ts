@@ -21,7 +21,11 @@ export const formatMontant = (
   devise?: Devise
 ): string => {
   if (!devise) {
-    return montant.toLocaleString('fr-FR');
+    return montant.toLocaleString('fr-FR', {
+      useGrouping: true,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
   }
   
   const { nbDecimales, separateurMillier, symbole } = devise;
@@ -42,10 +46,23 @@ export const formatMontantAvecSymbole = (
   devise?: Devise
 ): string => {
   if (!devise) {
-    return `${montant.toLocaleString('fr-FR')}`;
+    return `${montant.toLocaleString('fr-FR', {
+      useGrouping: true,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`;
   }
   
   return formatMontant(montant, devise);
+};
+
+// General number formatter with French locale (spaces as thousand separators)
+export const formatNumber = (number: number): string => {
+  return number.toLocaleString("fr-FR", {
+    useGrouping: true,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 };
 
 // Get currency symbol by code
