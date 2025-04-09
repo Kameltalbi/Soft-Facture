@@ -50,39 +50,37 @@ const ParametresPage = () => {
         const { data: parametresData, error } = await supabase
           .from('parametres')
           .select('*')
-          .limit(1)
-          .single();
+          .limit(1);
 
         if (error) {
-          if (error.code === 'PGRST116') {
-            // No data found, initialize with default values in Supabase
-            const defaultCompanyInfo = {
-              nom_entreprise: "Votre Entreprise",
-              adresse: "123 Rue de Paris, 75001 Paris, France",
-              email: "contact@votreentreprise.fr",
-              telephone: "01 23 45 67 89",
-              iban: "FR76 1234 5678 9101 1121 3141 5161",
-              swift: "BFRPFRPP",
-              rib: ""
-            };
+          console.error("Erreur lors de la récupération des paramètres:", error);
+          toast({
+            title: "Erreur",
+            description: "Impossible de récupérer les paramètres de l'entreprise.",
+            variant: "destructive"
+          });
+          return;
+        }
+          
+        // If no data found, initialize with default values in Supabase
+        if (!parametresData || parametresData.length === 0) {
+          const defaultCompanyInfo = {
+            nom_entreprise: "Votre Entreprise",
+            adresse: "123 Rue de Paris, 75001 Paris, France",
+            email: "contact@votreentreprise.fr",
+            telephone: "01 23 45 67 89",
+            rib: ""
+          };
             
-            const { error: insertError } = await supabase
-              .from('parametres')
-              .insert(defaultCompanyInfo);
+          const { error: insertError } = await supabase
+            .from('parametres')
+            .insert(defaultCompanyInfo);
               
-            if (insertError) {
-              console.error("Erreur lors de l'initialisation des paramètres:", insertError);
-              toast({
-                title: "Erreur",
-                description: "Impossible d'initialiser les paramètres de l'entreprise.",
-                variant: "destructive"
-              });
-            }
-          } else {
-            console.error("Erreur lors de la récupération des paramètres:", error);
+          if (insertError) {
+            console.error("Erreur lors de l'initialisation des paramètres:", insertError);
             toast({
               title: "Erreur",
-              description: "Impossible de récupérer les paramètres de l'entreprise.",
+              description: "Impossible d'initialiser les paramètres de l'entreprise.",
               variant: "destructive"
             });
           }

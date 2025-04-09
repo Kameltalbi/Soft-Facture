@@ -5,12 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Image, Loader2, Save, Upload } from "lucide-react";
+import { Image, Loader2, Save, Upload, Pencil } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface EntrepriseTabProps {
   onSave: () => void;
@@ -21,8 +22,6 @@ interface CompanyFormValues {
   adresse: string;
   email: string;
   telephone: string;
-  iban: string;
-  swift: string;
   rib: string;
 }
 
@@ -31,6 +30,8 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   
@@ -40,8 +41,6 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
       adresse: "",
       email: "",
       telephone: "",
-      iban: "",
-      swift: "",
       rib: ""
     }
   });
@@ -71,8 +70,6 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
             adresse: data.adresse || "",
             email: data.email || "",
             telephone: data.telephone || "",
-            iban: data.iban || "",
-            swift: data.swift || "",
             rib: data.rib || ""
           });
           
@@ -123,7 +120,9 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
   };
 
   const handleLogoClick = () => {
-    fileInputRef.current?.click();
+    if (isEditing) {
+      fileInputRef.current?.click();
+    }
   };
 
   const handleSaveAll = async (values: CompanyFormValues) => {
@@ -159,6 +158,10 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
       
       // Call the parent onSave callback
       onSave();
+      
+      // Exit edit mode
+      setIsEditing(false);
+      setIsDialogOpen(false);
     } catch (error) {
       console.error("Erreur:", error);
       toast({
@@ -171,6 +174,11 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
     }
   };
 
+  const startEditing = () => {
+    setIsEditing(true);
+    setIsDialogOpen(true);
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -181,185 +189,237 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
     );
   }
 
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSaveAll)}>
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('settings.companyInfo')}</CardTitle>
-            <CardDescription>
-              {t('settings.companyInfoDesc')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="border rounded-md p-6 flex items-center justify-center flex-col">
-              <div 
-                className="w-40 h-40 bg-muted flex items-center justify-center rounded-md relative mb-4 cursor-pointer"
-                onClick={handleLogoClick}
-              >
-                {logoPreview ? (
-                  <img 
-                    src={logoPreview} 
-                    alt="Company Logo" 
-                    className="w-full h-full object-contain rounded-md"
-                  />
-                ) : (
-                  <>
-                    <Image className="w-10 h-10 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">
-                      {t('settings.logo')}
-                    </span>
-                  </>
-                )}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/50 rounded-md">
-                  <Button variant="secondary" size="sm" type="button">
-                    <Upload className="h-4 w-4 mr-2" />
-                    {t('settings.import')}
-                  </Button>
-                </div>
+  const CompanyInfoDisplay = () => (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>{t('settings.companyInfo')}</CardTitle>
+          <CardDescription>
+            {t('settings.companyInfoDesc')}
+          </CardDescription>
+        </div>
+        <Button onClick={startEditing} variant="outline">
+          <Pencil className="h-4 w-4 mr-2" />
+          Modifier
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="flex justify-center mb-6">
+          <div className="w-40 h-40 bg-muted flex items-center justify-center rounded-md overflow-hidden">
+            {logoPreview ? (
+              <img 
+                src={logoPreview} 
+                alt="Company Logo" 
+                className="w-full h-full object-contain rounded-md"
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <Image className="w-10 h-10 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground mt-2">
+                  {t('settings.logo')}
+                </span>
               </div>
-              <input
-                type="file"
-                ref={fileInputRef}
-                className="hidden"
-                accept="image/png,image/jpeg,image/svg+xml"
-                onChange={handleLogoUpload}
-              />
-              <p className="text-sm text-muted-foreground">
-                {t('settings.logoFormat')}
-              </p>
-            </div>
+            )}
+          </div>
+        </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="nom_entreprise"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('settings.companyName')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder={t('settings.companyName')}
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="rib"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('settings.rib')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder={t('settings.rib')}
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <Label>{t('settings.companyName')}</Label>
+            <div className="p-2 border rounded-md bg-muted/10 mt-1">
+              {form.getValues().nom_entreprise || '-'}
             </div>
+          </div>
+          
+          <div>
+            <Label>{t('settings.address')}</Label>
+            <div className="p-2 border rounded-md bg-muted/10 mt-1 whitespace-pre-line">
+              {form.getValues().adresse || '-'}
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label>{t('settings.email')}</Label>
+              <div className="p-2 border rounded-md bg-muted/10 mt-1">
+                {form.getValues().email || '-'}
+              </div>
+            </div>
+            <div>
+              <Label>{t('settings.phone')}</Label>
+              <div className="p-2 border rounded-md bg-muted/10 mt-1">
+                {form.getValues().telephone || '-'}
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <Label>{t('settings.rib')}</Label>
+            <div className="p-2 border rounded-md bg-muted/10 mt-1">
+              {form.getValues().rib || '-'}
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
-            <FormField
-              control={form.control}
-              name="adresse"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('settings.address')}</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder={t('settings.address')}
-                      rows={3}
-                      {...field}
+  return (
+    <>
+      <CompanyInfoDisplay />
+      
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Modifier les informations de l'entreprise</DialogTitle>
+          </DialogHeader>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSaveAll)} className="space-y-6">
+              <div className="border rounded-md p-6 flex items-center justify-center flex-col">
+                <div 
+                  className="w-40 h-40 bg-muted flex items-center justify-center rounded-md relative mb-4 cursor-pointer"
+                  onClick={handleLogoClick}
+                >
+                  {logoPreview ? (
+                    <img 
+                      src={logoPreview} 
+                      alt="Company Logo" 
+                      className="w-full h-full object-contain rounded-md"
                     />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+                  ) : (
+                    <>
+                      <Image className="w-10 h-10 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {t('settings.logo')}
+                      </span>
+                    </>
+                  )}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/50 rounded-md">
+                    <Button variant="secondary" size="sm" type="button">
+                      <Upload className="h-4 w-4 mr-2" />
+                      {t('settings.import')}
+                    </Button>
+                  </div>
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/png,image/jpeg,image/svg+xml"
+                  onChange={handleLogoUpload}
+                />
+                <p className="text-sm text-muted-foreground">
+                  {t('settings.logoFormat')}
+                </p>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('settings.email')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder={t('settings.email')}
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="telephone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('settings.phone')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder={t('settings.phone')}
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="nom_entreprise"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('settings.companyName')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={t('settings.companyName')}
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="rib"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('settings.rib')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={t('settings.rib')}
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="iban"
+                name="adresse"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('settings.iban')}</FormLabel>
+                    <FormLabel>{t('settings.address')}</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="IBAN"
+                      <Textarea
+                        placeholder={t('settings.address')}
+                        rows={3}
                         {...field}
                       />
                     </FormControl>
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="swift"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('settings.swift')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="SWIFT"
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
 
-            <div className="flex justify-end">
-              <Button type="submit" disabled={isSaving}>
-                {isSaving ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="mr-2 h-4 w-4" />
-                )}
-                {t('settings.save')}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </form>
-    </Form>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('settings.email')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder={t('settings.email')}
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="telephone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('settings.phone')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={t('settings.phone')}
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setIsDialogOpen(false)} 
+                  className="mr-2"
+                >
+                  Annuler
+                </Button>
+                <Button type="submit" disabled={isSaving}>
+                  {isSaving ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="mr-2 h-4 w-4" />
+                  )}
+                  {t('settings.save')}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
