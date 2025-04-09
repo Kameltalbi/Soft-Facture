@@ -87,7 +87,38 @@ export const getDeviseSymbol = (code: string): string => {
 
 // Get default currency code from localStorage
 export const getDefaultDeviseCode = (): string => {
-  return localStorage.getItem('defaultCurrency') || "TND";
+  const savedCurrency = localStorage.getItem('defaultCurrency');
+  return savedCurrency || "TND";
+};
+
+// Format price with currency symbol
+export const formatPrix = (prix: number, currency: string): string => {
+  const formattedPrice = prix.toLocaleString('fr-FR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+  const symbol = getCurrencySymbol(currency);
+  return `${formattedPrice} ${symbol}`;
+};
+
+// Get currency symbol for display
+export const getCurrencySymbol = (currency: string): string => {
+  switch (currency) {
+    case "TND":
+      return "TND";
+    case "EUR":
+      return "€";
+    case "USD":
+      return "$";
+    case "GBP":
+      return "£";
+    case "CHF":
+      return "CHF";
+    case "CAD":
+      return "C$";
+    default:
+      return currency;
+  }
 };
 
 // Load actual currency options dynamically from Supabase

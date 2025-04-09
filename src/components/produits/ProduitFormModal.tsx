@@ -16,6 +16,7 @@ import { Save } from "lucide-react";
 import { Categorie } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { getCurrencySymbol, getDefaultDeviseCode } from "@/utils/formatters";
 
 interface ProduitFormModalProps {
   open: boolean;
@@ -35,17 +36,25 @@ export function ProduitFormModal({
   const { t } = useTranslation();
   const { toast } = useToast();
   const isEditing = produitId !== null;
-
+  const [currency, setCurrency] = useState<string>(getDefaultDeviseCode());
+  
   const [formData, setFormData] = useState({
     nom: "",
     categorie_id: "",
     prix: "",
     taux_tva: "20",
     description: "",
+    unite: "unite",
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // Load the default currency from localStorage
+    const storedCurrency = localStorage.getItem('defaultCurrency');
+    if (storedCurrency) {
+      setCurrency(storedCurrency);
+    }
+    
     if (produitId && open) {
       fetchProductDetails();
     } else if (!produitId) {
@@ -70,6 +79,7 @@ export function ProduitFormModal({
           prix: data.prix.toString() || "",
           taux_tva: data.taux_tva.toString() || "20",
           description: data.description || "",
+          unite: data.unite || "unite"
         });
       }
     } catch (error) {
@@ -89,6 +99,7 @@ export function ProduitFormModal({
       prix: "",
       taux_tva: "20",
       description: "",
+      unite: "unite"
     });
   };
 
@@ -112,6 +123,7 @@ export function ProduitFormModal({
         prix: parseFloat(formData.prix),
         taux_tva: parseFloat(formData.taux_tva),
         description: formData.description || null,
+        unite: formData.unite,
       };
 
       let result;
@@ -148,6 +160,9 @@ export function ProduitFormModal({
       setLoading(false);
     }
   };
+
+  // Get the currency symbol for display
+  const currencySymbol = getCurrencySymbol(currency);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -190,7 +205,9 @@ export function ProduitFormModal({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="prix">{t('product.form.unitPrice')}</Label>
+              <Label htmlFor="prix">
+                {t('product.form.unitPrice')} ({currencySymbol})
+              </Label>
               <Input
                 id="prix"
                 type="number"
@@ -220,7 +237,10 @@ export function ProduitFormModal({
             </div>
             <div className="space-y-2">
               <Label htmlFor="unite">{t('product.form.unit')}</Label>
-              <Select defaultValue="unite">
+              <Select 
+                value={formData.unite}
+                onValueChange={(value) => handleSelectChange('unite', value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder={t('product.form.unit')} />
                 </SelectTrigger>

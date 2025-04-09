@@ -31,8 +31,15 @@ export function DevisSettingsPanel({
   // Load default currency when component mounts
   useEffect(() => {
     const defaultCurrency = getDefaultDeviseCode();
-    setCurrency(defaultCurrency);
-  }, [setCurrency]);
+    if (!currency) {
+      setCurrency(defaultCurrency);
+    }
+    
+    // Save selected currency to localStorage when it changes
+    if (currency) {
+      localStorage.setItem('defaultCurrency', currency);
+    }
+  }, [currency, setCurrency]);
   
   return (
     <Card className="w-80 h-fit">

@@ -12,6 +12,7 @@ import { ProduitImportDialog } from "@/components/produits/ProduitImportDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { Categorie } from "@/types";
+import { getDefaultDeviseCode } from "@/utils/formatters";
 
 interface Produit {
   id: string;
@@ -31,8 +32,15 @@ const ProduitsPage = () => {
   const [produits, setProduits] = useState<Produit[]>([]);
   const [categories, setCategories] = useState<Categorie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currency, setCurrency] = useState(getDefaultDeviseCode());
 
   useEffect(() => {
+    // Load the currency from localStorage
+    const storedCurrency = localStorage.getItem('defaultCurrency');
+    if (storedCurrency) {
+      setCurrency(storedCurrency);
+    }
+    
     fetchCategories();
     fetchProducts();
   }, []);
@@ -159,6 +167,7 @@ const ProduitsPage = () => {
               produits={filteredProducts} 
               onEdit={handleEditProduit}
               onRefresh={handleRefresh}
+              currency={currency}
             />
           )}
         </CardContent>
