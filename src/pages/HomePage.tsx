@@ -10,7 +10,7 @@ const HomePage = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen animate-fade-in">
       <HomeHeader />
       <HeroSection />
       <FeaturesSection />
