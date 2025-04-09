@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -139,7 +138,7 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
       const { data, error } = await supabase
         .from('parametres')
         .update(updateData)
-        .eq('id', 1) // Corrected: converted number to string '1'
+        .eq('id', '1') // Fixed: Changed from number 1 to string '1'
         .select();
       
       if (error) {
