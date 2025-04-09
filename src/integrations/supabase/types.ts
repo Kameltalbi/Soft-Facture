@@ -205,6 +205,7 @@ export type Database = {
           created_at: string
           email_contact: string | null
           id: string
+          logo_url: string | null
           nom: string
           telephone: string | null
           updated_at: string
@@ -215,6 +216,7 @@ export type Database = {
           created_at?: string
           email_contact?: string | null
           id?: string
+          logo_url?: string | null
           nom: string
           telephone?: string | null
           updated_at?: string
@@ -225,6 +227,7 @@ export type Database = {
           created_at?: string
           email_contact?: string | null
           id?: string
+          logo_url?: string | null
           nom?: string
           telephone?: string | null
           updated_at?: string

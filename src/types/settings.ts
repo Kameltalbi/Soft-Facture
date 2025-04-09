@@ -34,6 +34,7 @@ export interface CompanyInfo {
   code_tva: string;
   telephone: string | null;
   email_contact: string | null;
+  logo_url: string | null;
   created_at: string;
   updated_at: string;
 }

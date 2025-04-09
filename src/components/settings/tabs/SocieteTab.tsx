@@ -1,17 +1,21 @@
+
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { CompanyInfo } from "@/types/settings";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Building, Upload } from "lucide-react";
 
 export function SocieteTab({ onSave, onCancel }: { onSave: () => void; onCancel: () => void }) {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
   
   // Form definition using react-hook-form
@@ -21,7 +25,8 @@ export function SocieteTab({ onSave, onCancel }: { onSave: () => void; onCancel:
       adresse: "",
       code_tva: "",
       telephone: "",
-      email_contact: ""
+      email_contact: "",
+      logo_url: null
     }
   });
 
@@ -47,6 +52,7 @@ export function SocieteTab({ onSave, onCancel }: { onSave: () => void; onCancel:
             code_tva: data.code_tva,
             telephone: data.telephone || "",
             email_contact: data.email_contact || "",
+            logo_url: data.logo_url,
             created_at: data.created_at,
             updated_at: data.updated_at
           });
@@ -60,6 +66,80 @@ export function SocieteTab({ onSave, onCancel }: { onSave: () => void; onCancel:
 
     loadCompanyInfo();
   }, [form]);
+
+  // Handle logo upload
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    // Check file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: t('common.error'),
+        description: "Le logo doit être inférieur à 2 Mo",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: t('common.error'),
+        description: "Veuillez sélectionner une image",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      setIsUploading(true);
+      
+      // Create a storage bucket if it doesn't exist
+      const { data: bucketData, error: bucketError } = await supabase.storage.getBucket('company-logos');
+      
+      if (bucketError && bucketError.message.includes('not found')) {
+        await supabase.storage.createBucket('company-logos', {
+          public: true,
+          fileSizeLimit: 2 * 1024 * 1024 // 2MB
+        });
+      }
+      
+      // Upload the file
+      const fileExt = file.name.split('.').pop();
+      const fileName = `logo-${Date.now()}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('company-logos')
+        .upload(fileName, file, {
+          upsert: true
+        });
+      
+      if (error) throw error;
+      
+      // Get the public URL
+      const { data: publicUrlData } = supabase.storage
+        .from('company-logos')
+        .getPublicUrl(fileName);
+      
+      // Update the form
+      form.setValue('logo_url', publicUrlData.publicUrl);
+      
+      toast({
+        title: "Succès",
+        description: "Logo téléchargé avec succès",
+      });
+    } catch (error) {
+      console.error("Erreur lors du téléchargement du logo:", error);
+      toast({
+        title: t('common.error'),
+        description: "Erreur lors du téléchargement du logo",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   // Submit handler
   const onSubmit = async (values: CompanyInfo) => {
@@ -76,6 +156,7 @@ export function SocieteTab({ onSave, onCancel }: { onSave: () => void; onCancel:
             code_tva: values.code_tva,
             telephone: values.telephone,
             email_contact: values.email_contact,
+            logo_url: values.logo_url,
             updated_at: new Date().toISOString()
           })
           .eq('id', id);
@@ -90,7 +171,8 @@ export function SocieteTab({ onSave, onCancel }: { onSave: () => void; onCancel:
             adresse: values.adresse,
             code_tva: values.code_tva,
             telephone: values.telephone,
-            email_contact: values.email_contact
+            email_contact: values.email_contact,
+            logo_url: values.logo_url
           });
           
         if (error) throw error;
@@ -121,6 +203,43 @@ export function SocieteTab({ onSave, onCancel }: { onSave: () => void; onCancel:
       <CardContent className="pt-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Company Logo */}
+            <div className="flex flex-col items-center mb-6">
+              <FormLabel className="mb-2">Logo de l'entreprise</FormLabel>
+              <div className="relative mb-4">
+                <Avatar className="w-32 h-32 border-2 border-border">
+                  {form.watch('logo_url') ? (
+                    <AvatarImage src={form.watch('logo_url')} alt="Logo de l'entreprise" />
+                  ) : (
+                    <AvatarFallback className="bg-muted">
+                      <Building className="w-10 h-10 text-muted-foreground" />
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+                <Button 
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="absolute bottom-0 right-0 rounded-full"
+                  disabled={isUploading}
+                  onClick={() => document.getElementById('logo-upload')?.click()}
+                >
+                  <Upload className="w-4 h-4" />
+                </Button>
+              </div>
+              <FormDescription className="text-center text-xs max-w-xs">
+                Téléchargez un logo de taille 500x500px pour une meilleure qualité (maximum 2 Mo)
+              </FormDescription>
+              <input
+                id="logo-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleLogoUpload}
+                disabled={isUploading}
+              />
+            </div>
+            
             <FormField
               control={form.control}
               name="nom"
