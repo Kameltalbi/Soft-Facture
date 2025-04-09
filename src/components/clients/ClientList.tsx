@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { 
@@ -21,11 +20,12 @@ import { ClientDeleteDialog } from "./ClientDeleteDialog";
 import { toast } from "sonner";
 
 interface ClientListProps {
+  clients?: Client[];
   onEditClient: (id: string, e: React.MouseEvent) => void;
   onViewClient: (client: Client) => void;
 }
 
-export const ClientList = ({ onEditClient, onViewClient }: ClientListProps) => {
+export const ClientList = ({ clients: propClients, onEditClient, onViewClient }: ClientListProps) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [clientToDelete, setClientToDelete] = useState<{id: string, name: string} | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
@@ -34,8 +34,15 @@ export const ClientList = ({ onEditClient, onViewClient }: ClientListProps) => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    loadClients();
-  }, []);
+    // If clients are provided as props, use them
+    if (propClients) {
+      setClients(propClients);
+      setIsLoading(false);
+    } else {
+      // Otherwise fetch them
+      loadClients();
+    }
+  }, [propClients]);
 
   const loadClients = async () => {
     setIsLoading(true);
@@ -67,7 +74,12 @@ export const ClientList = ({ onEditClient, onViewClient }: ClientListProps) => {
     try {
       await deleteClient(id);
       // Refresh client list
-      loadClients();
+      if (propClients) {
+        // If clients are provided via props, let the parent component handle refresh
+        onViewClient({ id: "", nom: "", email: "" }); // Trigger a refresh in the parent
+      } else {
+        loadClients();
+      }
       return true;
     } catch (error) {
       console.error('Error deleting client:', error);

@@ -20,6 +20,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { getCurrencySymbol } from "@/utils/formatters";
 
 // Product and category types for the demo data
 interface Produit {
@@ -35,13 +36,15 @@ interface ProduitListProps {
   produits: Produit[];
   onEdit: (id: string) => void;
   onRefresh: () => void;
+  currency?: string; // Add currency prop
 }
 
-export const ProduitList = ({ produits, onEdit, onRefresh }: ProduitListProps) => {
+export const ProduitList = ({ produits, onEdit, onRefresh, currency = "EUR" }: ProduitListProps) => {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const currencySymbol = getCurrencySymbol(currency);
 
   const handleDelete = async (id: string) => {
     setProductToDelete(id);
@@ -106,7 +109,7 @@ export const ProduitList = ({ produits, onEdit, onRefresh }: ProduitListProps) =
                 </TableCell>
                 <TableCell>{produit.categorie.nom}</TableCell>
                 <TableCell className="text-right">
-                  {produit.prix.toLocaleString("fr-FR")} €
+                  {produit.prix.toLocaleString("fr-FR")} {currencySymbol}
                 </TableCell>
                 <TableCell className="text-right">
                   {produit.tauxTVA}%
