@@ -47,7 +47,7 @@ const ParametresPage = () => {
         }
 
         // Check for billing settings
-        const { data: billingData, error: billingError } = await (supabase as any)
+        const { data: billingData, error: billingError } = await supabase
           .from('billing_settings')
           .select('*')
           .limit(1);
@@ -56,7 +56,7 @@ const ParametresPage = () => {
           console.error("Erreur lors de la récupération des paramètres de facturation:", billingError);
         } else if (!billingData || billingData.length === 0) {
           // Initialize billing settings if they don't exist
-          const { error: billingInsertError } = await (supabase as any)
+          const { error: billingInsertError } = await supabase
             .from('billing_settings')
             .insert({});
               
@@ -66,7 +66,7 @@ const ParametresPage = () => {
         }
 
         // Check for tax settings
-        const { data: taxData, error: taxError } = await (supabase as any)
+        const { data: taxData, error: taxError } = await supabase
           .from('tax_settings')
           .select('*')
           .limit(1);
@@ -75,7 +75,7 @@ const ParametresPage = () => {
           console.error("Erreur lors de la récupération des paramètres de taxes:", taxError);
         } else if (!taxData || taxData.length === 0) {
           // Initialize tax settings if they don't exist
-          const { error: taxInsertError } = await (supabase as any)
+          const { error: taxInsertError } = await supabase
             .from('tax_settings')
             .insert({});
               
@@ -85,7 +85,7 @@ const ParametresPage = () => {
         }
 
         // Check for currency settings
-        const { data: currencyData, error: currencyError } = await (supabase as any)
+        const { data: currencyData, error: currencyError } = await supabase
           .from('currency_settings')
           .select('*')
           .limit(1);
@@ -94,7 +94,7 @@ const ParametresPage = () => {
           console.error("Erreur lors de la récupération des paramètres de devise:", currencyError);
         } else if (!currencyData || currencyData.length === 0) {
           // Initialize currency settings if they don't exist
-          const { error: currencyInsertError } = await (supabase as any)
+          const { error: currencyInsertError } = await supabase
             .from('currency_settings')
             .insert({});
               
@@ -104,7 +104,7 @@ const ParametresPage = () => {
         }
 
         // Check for company information
-        const { data: companyData, error: companyError } = await (supabase as any)
+        const { data: companyData, error: companyError } = await supabase
           .from('company_info')
           .select('*')
           .limit(1);
@@ -112,8 +112,8 @@ const ParametresPage = () => {
         if (companyError) {
           console.error("Erreur lors de la récupération des informations de l'entreprise:", companyError);
         } else if (!companyData || companyData.length === 0) {
-          // Initialize company info if it doesn't exist (although we already inserted a default row in SQL)
-          const { error: companyInsertError } = await (supabase as any)
+          // Initialize company info if it doesn't exist
+          const { error: companyInsertError } = await supabase
             .from('company_info')
             .insert({
               nom: 'Mon Entreprise',
