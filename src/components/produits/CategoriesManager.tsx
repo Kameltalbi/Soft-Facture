@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table";
 import { Edit, Plus, Save, Trash2, X } from "lucide-react";
 import { Categorie } from "@/types";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 interface CategoriesManagerProps {
@@ -37,7 +37,6 @@ export function CategoriesManager({
   onCategoriesChange,
 }: CategoriesManagerProps) {
   const { t } = useTranslation();
-  const { toast } = useToast();
   const [newCategoryName, setNewCategoryName] = useState("");
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -49,12 +48,14 @@ export function CategoriesManager({
     setIsSubmitting(true);
     
     try {
+      console.log('Adding new category:', newCategoryName);
       const { error } = await supabase
         .from('categories')
         .insert({ nom: newCategoryName.trim() });
       
       if (error) throw error;
       
+      console.log('Category added successfully');
       toast({
         title: t('category.created'),
         description: t('category.createSuccess'),

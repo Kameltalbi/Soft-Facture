@@ -27,10 +27,13 @@ const CategoriesPage = () => {
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
+      console.log('Fetching categories...');
       const { data, error } = await supabase
         .from('categories')
         .select('*')
         .order('nom');
+      
+      console.log('Categories fetched:', data);
       
       if (error) throw error;
       setCategories(data || []);
@@ -114,13 +117,38 @@ const CategoriesPage = () => {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <CategoriesManager
-          open={openCategoriesModal}
-          onOpenChange={setOpenCategoriesModal}
-          categories={categories}
-          onCategoriesChange={fetchCategories}
-        />
+        <>
+          {categories.length > 0 ? (
+            <div className="border rounded-md">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="py-3 px-4 text-left">{t('product.categories.categoryName')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categories.map((category) => (
+                    <tr key={category.id} className="border-b">
+                      <td className="py-3 px-4">{category.nom}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-10 text-muted-foreground">
+              {t('product.categories.noCategories', 'No categories found. Create your first category.')}
+            </div>
+          )}
+        </>
       )}
+
+      <CategoriesManager
+        open={openCategoriesModal}
+        onOpenChange={setOpenCategoriesModal}
+        categories={categories}
+        onCategoriesChange={fetchCategories}
+      />
     </MainLayout>
   );
 };
