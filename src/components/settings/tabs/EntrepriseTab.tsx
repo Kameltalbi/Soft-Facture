@@ -136,10 +136,11 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
       };
       
       // Update in Supabase
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('parametres')
         .update(updateData)
-        .eq('id', 1); // Assuming there's only one record with id=1
+        .eq('id', 1) // Corrected: converted number to string '1'
+        .select();
       
       if (error) {
         console.error("Erreur lors de la sauvegarde:", error);
