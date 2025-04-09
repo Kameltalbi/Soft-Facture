@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,9 @@ import { Plus } from "lucide-react";
 import { ProduitFormModal } from "@/components/produits/ProduitFormModal";
 import { ProduitList } from "@/components/produits/ProduitList";
 import { ProduitImportDialog } from "@/components/produits/ProduitImportDialog";
-import { produitsDemo, categoriesDemo } from "@/components/produits/ProduitsData";
+import { fetchCategories } from "@/services/categorieService";
+import { fetchProduits, ProduitWithCategorie } from "@/services/produitService";
+import { Categorie } from "@/types";
 
 const ProduitsPage = () => {
   const { t } = useTranslation();
@@ -17,6 +19,24 @@ const ProduitsPage = () => {
   const [selectedProduit, setSelectedProduit] = useState<string | null>(null);
   const [importDialogOpen, setImportDialogOpen] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [produits, setProduits] = useState<ProduitWithCategorie[]>([]);
+  const [categories, setCategories] = useState<Categorie[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      const [produitsData, categoriesData] = await Promise.all([
+        fetchProduits(),
+        fetchCategories()
+      ]);
+      setProduits(produitsData);
+      setCategories(categoriesData);
+      setLoading(false);
+    };
+    
+    loadData();
+  }, [openProduitModal]); // Reload when modal is closed
 
   const handleCreateProduit = () => {
     setSelectedProduit(null);
@@ -29,12 +49,12 @@ const ProduitsPage = () => {
   };
 
   const filteredProducts = searchTerm 
-    ? produitsDemo.filter(p => 
+    ? produits.filter(p => 
         p.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.categorie.nom.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : produitsDemo;
+    : produits;
 
   return (
     <MainLayout title={t('common.products')}>
@@ -48,10 +68,12 @@ const ProduitsPage = () => {
           </p>
         </div>
         <div className="flex space-x-2">
-          <ProduitImportDialog 
-            open={importDialogOpen} 
-            onOpenChange={setImportDialogOpen} 
-          />
+          <Button 
+            variant="outline" 
+            onClick={() => setImportDialogOpen(true)}
+          >
+            {t('common.import')}
+          </Button>
           <Button onClick={handleCreateProduit}>
             <Plus className="mr-2 h-4 w-4" />
             {t('product.new')}
@@ -74,18 +96,27 @@ const ProduitsPage = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <ProduitList 
-            produits={filteredProducts} 
-            onEdit={handleEditProduit} 
-          />
+          {loading ? (
+            <div className="py-8 text-center">{t('common.loading')}</div>
+          ) : (
+            <ProduitList 
+              produits={filteredProducts} 
+              onEdit={handleEditProduit} 
+            />
+          )}
         </CardContent>
       </Card>
+
+      <ProduitImportDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+      />
 
       <ProduitFormModal
         open={openProduitModal}
         onOpenChange={setOpenProduitModal}
         produitId={selectedProduit}
-        categories={categoriesDemo}
+        categories={categories}
       />
     </MainLayout>
   );
