@@ -11,13 +11,15 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 interface ClientDeleteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   clientId: string | null;
   clientName: string;
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => Promise<boolean>;
 }
 
 export const ClientDeleteDialog = ({
@@ -28,16 +30,25 @@ export const ClientDeleteDialog = ({
   onDelete,
 }: ClientDeleteDialogProps) => {
   const { t } = useTranslation();
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!clientId) return;
     
+    setIsDeleting(true);
     try {
-      onDelete(clientId);
-      toast.success(t('client.delete.success', 'Client deleted successfully'));
+      const success = await onDelete(clientId);
+      if (success) {
+        toast.success(t('client.delete.success', 'Client deleted successfully'));
+      } else {
+        toast.error(t('client.delete.error', 'Failed to delete client'));
+      }
       onOpenChange(false);
     } catch (error) {
+      console.error('Error deleting client:', error);
       toast.error(t('client.delete.error', 'Failed to delete client'));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -53,11 +64,18 @@ export const ClientDeleteDialog = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>{t('common.cancel')}</AlertDialogCancel>
           <AlertDialogAction
-            onClick={handleDelete}
+            onClick={(e) => {
+              e.preventDefault();
+              handleDelete();
+            }}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            disabled={isDeleting}
           >
+            {isDeleting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : null}
             {t('common.delete')}
           </AlertDialogAction>
         </AlertDialogFooter>

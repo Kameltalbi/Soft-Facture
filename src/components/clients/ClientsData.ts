@@ -1,5 +1,92 @@
 
-// Demo data for clients
+import { Client } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+// Fetching clients from Supabase
+export const fetchClients = async (): Promise<Client[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .order('nom');
+    
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching clients:', error);
+    throw error;
+  }
+};
+
+// Creating a new client
+export const createClient = async (client: Omit<Client, 'id'>): Promise<Client> => {
+  try {
+    const { data, error } = await supabase
+      .from('clients')
+      .insert([client])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error creating client:', error);
+    throw error;
+  }
+};
+
+// Updating an existing client
+export const updateClient = async (id: string, client: Partial<Client>): Promise<Client> => {
+  try {
+    const { data, error } = await supabase
+      .from('clients')
+      .update(client)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error updating client:', error);
+    throw error;
+  }
+};
+
+// Fetching a single client by ID
+export const getClientById = async (id: string): Promise<Client | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error fetching client:', error);
+    throw error;
+  }
+};
+
+// Deleting a client
+export const deleteClient = async (id: string): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('clients')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+  } catch (error) {
+    console.error('Error deleting client:', error);
+    throw error;
+  }
+};
+
+// Demo data for clients - will be removed once Supabase integration is complete
 export const clientsDemo = [
   {
     id: "1",
@@ -38,13 +125,3 @@ export const clientsDemo = [
     tva: "FR 23 456 789 012",
   },
 ];
-
-// In a real app, this would be an API call
-export const deleteClient = (id: string) => {
-  const index = clientsDemo.findIndex(client => client.id === id);
-  if (index !== -1) {
-    clientsDemo.splice(index, 1);
-    return true;
-  }
-  return false;
-};
