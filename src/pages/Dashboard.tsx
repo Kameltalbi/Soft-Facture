@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -132,6 +131,7 @@ const RecoveryRateChart = ({ data, t }) => {
             position: 'insideStart',
             fill: '#fff',
             fontWeight: 'bold',
+            // Remove the % sign completely from the formatter
             formatter: (value) => `${value}`,
           }}
         />
@@ -324,6 +324,7 @@ const DashboardContent = () => {
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
+                    // Remove the % from the pie chart labels too
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}`}
                   >
                     {pieData.map((entry, index) => (
