@@ -1,7 +1,6 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -432,6 +431,23 @@ export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
           </>
         )}
       </CardContent>
+      <CardFooter className="flex justify-end gap-2">
+        <Button 
+          variant="outline" 
+          onClick={onCancel}
+          className="border-gray-300 text-gray-700 hover:bg-gray-100"
+        >
+          <X className="mr-2 h-4 w-4" />
+          {t('common.cancel')}
+        </Button>
+        <Button 
+          onClick={onSave}
+          className="bg-primary text-primary-foreground"
+        >
+          <Save className="mr-2 h-4 w-4" />
+          {t('settings.save')}
+        </Button>
+      </CardFooter>
     </Card>
   );
 }
