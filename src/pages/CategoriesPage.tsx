@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -9,26 +9,19 @@ import { CategoriesManager } from "@/components/produits/CategoriesManager";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { fetchCategories } from "@/services/categorieService";
-import { Categorie } from "@/types";
+
+// Using the same demo categories from the Products page
+const categoriesDemo = [
+  { id: "1", nom: "Services Web" },
+  { id: "2", nom: "Design" },
+  { id: "3", nom: "Hébergement" },
+  { id: "4", nom: "Marketing" },
+];
 
 const CategoriesPage = () => {
   const { t } = useTranslation();
   const [openCategoriesModal, setOpenCategoriesModal] = useState<boolean>(true);
   const [importDialogOpen, setImportDialogOpen] = useState<boolean>(false);
-  const [categories, setCategories] = useState<Categorie[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadCategories = async () => {
-      setLoading(true);
-      const data = await fetchCategories();
-      setCategories(data);
-      setLoading(false);
-    };
-    
-    loadCategories();
-  }, [openCategoriesModal]); // Reload when modal is closed
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -97,15 +90,11 @@ const CategoriesPage = () => {
         </div>
       </div>
 
-      {loading ? (
-        <div className="text-center py-8">{t('common.loading')}</div>
-      ) : (
-        <CategoriesManager
-          open={openCategoriesModal}
-          onOpenChange={setOpenCategoriesModal}
-          categories={categories}
-        />
-      )}
+      <CategoriesManager
+        open={openCategoriesModal}
+        onOpenChange={setOpenCategoriesModal}
+        categories={categoriesDemo}
+      />
     </MainLayout>
   );
 };

@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { 
   Table, TableHeader, TableRow, TableHead, 
@@ -16,8 +16,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
 import { Client } from "@/types";
+import { clientsDemo, deleteClient } from "./ClientsData";
 import { ClientDeleteDialog } from "./ClientDeleteDialog";
-import { fetchClients, deleteClient as deleteClientService } from "@/services/clientService";
 
 interface ClientListProps {
   onEditClient: (id: string, e: React.MouseEvent) => void;
@@ -28,25 +28,12 @@ export const ClientList = ({ onEditClient, onViewClient }: ClientListProps) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [clientToDelete, setClientToDelete] = useState<{id: string, name: string} | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
-  const [clients, setClients] = useState<Client[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const loadClients = async () => {
-      setLoading(true);
-      const data = await fetchClients();
-      setClients(data);
-      setLoading(false);
-    };
-    
-    loadClients();
-  }, []);
-
-  const filteredClients = clients.filter(client => 
+  const filteredClients = clientsDemo.filter(client => 
     client.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.societe?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.telephone?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -56,12 +43,8 @@ export const ClientList = ({ onEditClient, onViewClient }: ClientListProps) => {
     setDeleteDialogOpen(true);
   };
 
-  const handleDeleteClient = async (id: string) => {
-    const success = await deleteClientService(id);
-    
-    if (success) {
-      setClients(clients.filter(client => client.id !== id));
-    }
+  const handleDeleteClient = (id: string) => {
+    deleteClient(id);
   };
 
   return (
@@ -90,54 +73,47 @@ export const ClientList = ({ onEditClient, onViewClient }: ClientListProps) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-6">
-                    {t('common.loading')}
+              {filteredClients.map((client) => (
+                <TableRow 
+                  key={client.id} 
+                  className="cursor-pointer hover:bg-muted"
+                  onClick={() => onViewClient(client)}
+                >
+                  <TableCell className="font-medium">{client.nom}</TableCell>
+                  <TableCell>{client.societe}</TableCell>
+                  <TableCell>{client.email}</TableCell>
+                  <TableCell>{client.telephone}</TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={(e) => e.stopPropagation()} // Prevent row click
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => onEditClient(client.id, e)}
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          {t('invoice.edit')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-destructive" 
+                          onClick={(e) => handleDeleteClick(client.id, client.nom, e)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          {t('invoice.delete')}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              ) : filteredClients.length > 0 ? (
-                filteredClients.map((client) => (
-                  <TableRow 
-                    key={client.id} 
-                    className="cursor-pointer hover:bg-muted"
-                    onClick={() => onViewClient(client)}
-                  >
-                    <TableCell className="font-medium">{client.nom}</TableCell>
-                    <TableCell>{client.societe}</TableCell>
-                    <TableCell>{client.email}</TableCell>
-                    <TableCell>{client.telephone}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={(e) => e.stopPropagation()} // Prevent row click
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => onEditClient(client.id, e)}
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            {t('invoice.edit')}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="text-destructive" 
-                            onClick={(e) => handleDeleteClick(client.id, client.nom, e)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            {t('invoice.delete')}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
+              ))}
+              {filteredClients.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-6">
                     {t('client.no_results')}

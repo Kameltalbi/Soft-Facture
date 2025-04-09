@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { UserPlus, Upload } from "lucide-react";
@@ -33,25 +33,6 @@ const ClientsPage = () => {
     setSelectedDetailClient(client);
     setOpenDetailView(true);
   };
-
-  const handleEditFromDetail = () => {
-    if (selectedDetailClient) {
-      setSelectedClient(selectedDetailClient.id);
-      setOpenModal(true);
-    }
-  };
-
-  // Close the modal when the form modal is closed to refresh data
-  useEffect(() => {
-    if (!openModal) {
-      // Force a reload of the client list
-      const timer = setTimeout(() => {
-        // This will trigger the useEffect in ClientList to reload data
-        setSelectedClient(null);
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [openModal]);
 
   return (
     <MainLayout title={t('common.clients')}>
@@ -95,7 +76,6 @@ const ClientsPage = () => {
         open={openDetailView}
         onOpenChange={setOpenDetailView}
         client={selectedDetailClient}
-        onEdit={handleEditFromDetail}
       />
       
       <ClientImportDialog 

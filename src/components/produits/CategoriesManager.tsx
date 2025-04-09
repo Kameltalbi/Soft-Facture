@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/table";
 import { Edit, Plus, Save, Trash2, X } from "lucide-react";
 import { Categorie } from "@/types";
-import { createCategory, updateCategory, deleteCategory } from "@/services/categorieService";
 
 interface CategoriesManagerProps {
   open: boolean;
@@ -38,23 +37,15 @@ export function CategoriesManager({
   const [newCategoryName, setNewCategoryName] = useState("");
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  // Update local categories when prop changes
-  useEffect(() => {
-    setCategories(initialCategories);
-  }, [initialCategories]);
-
-  const handleAddCategory = async () => {
+  const handleAddCategory = () => {
     if (newCategoryName.trim()) {
-      setLoading(true);
-      const newCategory = await createCategory({ nom: newCategoryName.trim() });
-      
-      if (newCategory) {
-        setCategories([...categories, newCategory]);
-        setNewCategoryName("");
-      }
-      setLoading(false);
+      const newCategory: Categorie = {
+        id: Date.now().toString(),
+        nom: newCategoryName.trim(),
+      };
+      setCategories([...categories, newCategory]);
+      setNewCategoryName("");
     }
   };
 
@@ -68,34 +59,20 @@ export function CategoriesManager({
     setEditValue("");
   };
 
-  const handleSaveEdit = async (categoryId: string) => {
+  const handleSaveEdit = (categoryId: string) => {
     if (editValue.trim()) {
-      setLoading(true);
-      const updatedCategory = await updateCategory(categoryId, editValue.trim());
-      
-      if (updatedCategory) {
-        setCategories(
-          categories.map((cat) =>
-            cat.id === categoryId ? updatedCategory : cat
-          )
-        );
-        setEditingCategory(null);
-        setEditValue("");
-      }
-      setLoading(false);
+      setCategories(
+        categories.map((cat) =>
+          cat.id === categoryId ? { ...cat, nom: editValue.trim() } : cat
+        )
+      );
+      setEditingCategory(null);
+      setEditValue("");
     }
   };
 
-  const handleDeleteCategory = async (categoryId: string) => {
-    if (window.confirm(t('product.categories.deleteConfirm'))) {
-      setLoading(true);
-      const success = await deleteCategory(categoryId);
-      
-      if (success) {
-        setCategories(categories.filter((cat) => cat.id !== categoryId));
-      }
-      setLoading(false);
-    }
+  const handleDeleteCategory = (categoryId: string) => {
+    setCategories(categories.filter((cat) => cat.id !== categoryId));
   };
 
   return (
@@ -114,13 +91,8 @@ export function CategoriesManager({
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 placeholder={t('product.categories.categoryNamePlaceholder')}
-                disabled={loading}
               />
-              <Button 
-                type="button" 
-                onClick={handleAddCategory}
-                disabled={loading || !newCategoryName.trim()}
-              >
+              <Button type="button" onClick={handleAddCategory}>
                 <Plus className="h-4 w-4 mr-2" />
                 {t('product.categories.add')}
               </Button>
@@ -136,80 +108,74 @@ export function CategoriesManager({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {categories.length === 0 ? (
+                {categories.map((category) => (
+                  <TableRow key={category.id}>
+                    <TableCell>
+                      {editingCategory === category.id ? (
+                        <Input
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          autoFocus
+                        />
+                      ) : (
+                        category.nom
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-1">
+                        {editingCategory === category.id ? (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleSaveEdit(category.id)}
+                            >
+                              <Save className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={handleCancelEdit}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleStartEdit(category)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive"
+                              onClick={() => handleDeleteCategory(category.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {categories.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={2} className="text-center py-4">
                       {t('product.categories.noCategories')}
                     </TableCell>
                   </TableRow>
-                ) : (
-                  categories.map((category) => (
-                    <TableRow key={category.id}>
-                      <TableCell>
-                        {editingCategory === category.id ? (
-                          <Input
-                            value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
-                            autoFocus
-                            disabled={loading}
-                          />
-                        ) : (
-                          category.nom
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-1">
-                          {editingCategory === category.id ? (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleSaveEdit(category.id)}
-                                disabled={loading}
-                              >
-                                <Save className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={handleCancelEdit}
-                                disabled={loading}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </>
-                          ) : (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleStartEdit(category)}
-                                disabled={loading}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-destructive"
-                                onClick={() => handleDeleteCategory(category.id)}
-                                disabled={loading}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
                 )}
               </TableBody>
             </Table>
           </div>
 
           <div className="flex justify-end">
-            <Button onClick={() => onOpenChange(false)} disabled={loading}>
+            <Button onClick={() => onOpenChange(false)}>
               {t('product.categories.close')}
             </Button>
           </div>
