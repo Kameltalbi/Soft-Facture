@@ -5,19 +5,19 @@ import { CompanyFormValues } from "./CompanyInfoForm";
 export async function fetchCompanyData() {
   try {
     const { data, error } = await supabase
-      .from('parametres')
+      .from('company_info')
       .select('*')
       .limit(1)
       .single();
       
     if (error) {
-      console.error("Erreur lors de la récupération des données:", error);
+      console.error("Erreur lors de la récupération des données de l'entreprise:", error);
       throw error;
     }
     
     return data;
   } catch (error) {
-    console.error("Erreur lors de la récupération des données:", error);
+    console.error("Erreur lors de la récupération des données de l'entreprise:", error);
     // Return default values if no data exists
     return {
       nom_entreprise: "",
@@ -34,20 +34,23 @@ export async function saveCompanyData(updateData: CompanyFormValues & { logo_url
   try {
     // Check if we have a record already
     const { data: existingData } = await supabase
-      .from('parametres')
+      .from('company_info')
       .select('id')
       .limit(1);
     
     if (existingData && existingData.length > 0) {
       // Update existing record
       const { data, error } = await supabase
-        .from('parametres')
-        .update(updateData)
+        .from('company_info')
+        .update({
+          ...updateData,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', existingData[0].id)
         .select();
       
       if (error) {
-        console.error("Erreur lors de la sauvegarde:", error);
+        console.error("Erreur lors de la mise à jour des données de l'entreprise:", error);
         throw error;
       }
       
@@ -55,19 +58,23 @@ export async function saveCompanyData(updateData: CompanyFormValues & { logo_url
     } else {
       // Insert new record if none exists
       const { data, error } = await supabase
-        .from('parametres')
-        .insert(updateData)
+        .from('company_info')
+        .insert({
+          ...updateData,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
         .select();
       
       if (error) {
-        console.error("Erreur lors de la création:", error);
+        console.error("Erreur lors de la création des données de l'entreprise:", error);
         throw error;
       }
       
       return data;
     }
   } catch (error) {
-    console.error("Erreur lors de la sauvegarde:", error);
+    console.error("Erreur lors de la sauvegarde des données de l'entreprise:", error);
     throw error;
   }
 }

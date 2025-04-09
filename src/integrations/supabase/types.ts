@@ -45,6 +45,39 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_settings: {
+        Row: {
+          created_at: string
+          id: string
+          prefixe_bon_sortie: string
+          prefixe_devis: string
+          prefixe_facture: string
+          siret: string | null
+          site_web: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          prefixe_bon_sortie?: string
+          prefixe_devis?: string
+          prefixe_facture?: string
+          siret?: string | null
+          site_web?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          prefixe_bon_sortie?: string
+          prefixe_devis?: string
+          prefixe_facture?: string
+          siret?: string | null
+          site_web?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       bons_de_sortie: {
         Row: {
           client_id: string
@@ -161,6 +194,63 @@ export type Database = {
           societe?: string | null
           telephone?: string | null
           tva?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      company_info: {
+        Row: {
+          adresse: string
+          created_at: string
+          email: string
+          id: string
+          logo_url: string | null
+          nom_entreprise: string
+          rib: string | null
+          telephone: string | null
+          updated_at: string
+        }
+        Insert: {
+          adresse: string
+          created_at?: string
+          email: string
+          id?: string
+          logo_url?: string | null
+          nom_entreprise: string
+          rib?: string | null
+          telephone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          adresse?: string
+          created_at?: string
+          email?: string
+          id?: string
+          logo_url?: string | null
+          nom_entreprise?: string
+          rib?: string | null
+          telephone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      currency_settings: {
+        Row: {
+          created_at: string
+          devise: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          devise?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          devise?: string
+          id?: string
           updated_at?: string
         }
         Relationships: []
@@ -498,63 +588,6 @@ export type Database = {
           },
         ]
       }
-      parametres: {
-        Row: {
-          adresse: string
-          appliquer_tva_par_defaut: boolean
-          devise: string
-          email: string
-          id: string
-          logo_url: string | null
-          nom_entreprise: string
-          prefixe_bon_sortie: string
-          prefixe_devis: string
-          prefixe_facture: string
-          rib: string | null
-          siret: string | null
-          site_web: string | null
-          taux_tva_par_defaut: number
-          taxe_en_valeur: boolean
-          telephone: string | null
-        }
-        Insert: {
-          adresse: string
-          appliquer_tva_par_defaut?: boolean
-          devise?: string
-          email: string
-          id?: string
-          logo_url?: string | null
-          nom_entreprise: string
-          prefixe_bon_sortie?: string
-          prefixe_devis?: string
-          prefixe_facture?: string
-          rib?: string | null
-          siret?: string | null
-          site_web?: string | null
-          taux_tva_par_defaut?: number
-          taxe_en_valeur?: boolean
-          telephone?: string | null
-        }
-        Update: {
-          adresse?: string
-          appliquer_tva_par_defaut?: boolean
-          devise?: string
-          email?: string
-          id?: string
-          logo_url?: string | null
-          nom_entreprise?: string
-          prefixe_bon_sortie?: string
-          prefixe_devis?: string
-          prefixe_facture?: string
-          rib?: string | null
-          siret?: string | null
-          site_web?: string | null
-          taux_tva_par_defaut?: number
-          taxe_en_valeur?: boolean
-          telephone?: string | null
-        }
-        Relationships: []
-      }
       permissions: {
         Row: {
           action: string
@@ -643,6 +676,33 @@ export type Database = {
           id?: string
           nom?: string
           telephone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tax_settings: {
+        Row: {
+          appliquer_tva_par_defaut: boolean
+          created_at: string
+          id: string
+          taux_tva_par_defaut: number
+          taxe_en_valeur: boolean
+          updated_at: string
+        }
+        Insert: {
+          appliquer_tva_par_defaut?: boolean
+          created_at?: string
+          id?: string
+          taux_tva_par_defaut?: number
+          taxe_en_valeur?: boolean
+          updated_at?: string
+        }
+        Update: {
+          appliquer_tva_par_defaut?: boolean
+          created_at?: string
+          id?: string
+          taux_tva_par_defaut?: number
+          taxe_en_valeur?: boolean
           updated_at?: string
         }
         Relationships: []

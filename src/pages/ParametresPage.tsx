@@ -47,23 +47,23 @@ const ParametresPage = () => {
         }
 
         // Fetch company info from Supabase
-        const { data: parametresData, error } = await supabase
-          .from('parametres')
+        const { data: companyData, error: companyError } = await supabase
+          .from('company_info')
           .select('*')
           .limit(1);
 
-        if (error) {
-          console.error("Erreur lors de la récupération des paramètres:", error);
+        if (companyError) {
+          console.error("Erreur lors de la récupération des données de l'entreprise:", companyError);
           toast({
             title: "Erreur",
-            description: "Impossible de récupérer les paramètres de l'entreprise.",
+            description: "Impossible de récupérer les données de l'entreprise.",
             variant: "destructive"
           });
           return;
         }
           
-        // If no data found, initialize with default values in Supabase
-        if (!parametresData || parametresData.length === 0) {
+        // If no company data found, initialize with default values
+        if (!companyData || companyData.length === 0) {
           const defaultCompanyInfo = {
             nom_entreprise: "Votre Entreprise",
             adresse: "123 Rue de Paris, 75001 Paris, France",
@@ -73,16 +73,73 @@ const ParametresPage = () => {
           };
             
           const { error: insertError } = await supabase
-            .from('parametres')
+            .from('company_info')
             .insert(defaultCompanyInfo);
               
           if (insertError) {
-            console.error("Erreur lors de l'initialisation des paramètres:", insertError);
+            console.error("Erreur lors de l'initialisation des données de l'entreprise:", insertError);
             toast({
               title: "Erreur",
-              description: "Impossible d'initialiser les paramètres de l'entreprise.",
+              description: "Impossible d'initialiser les données de l'entreprise.",
               variant: "destructive"
             });
+          }
+        }
+
+        // Check for billing settings
+        const { data: billingData, error: billingError } = await supabase
+          .from('billing_settings')
+          .select('*')
+          .limit(1);
+
+        if (billingError) {
+          console.error("Erreur lors de la récupération des paramètres de facturation:", billingError);
+        } else if (!billingData || billingData.length === 0) {
+          // Initialize billing settings if they don't exist
+          const { error: billingInsertError } = await supabase
+            .from('billing_settings')
+            .insert({});
+              
+          if (billingInsertError) {
+            console.error("Erreur lors de l'initialisation des paramètres de facturation:", billingInsertError);
+          }
+        }
+
+        // Check for tax settings
+        const { data: taxData, error: taxError } = await supabase
+          .from('tax_settings')
+          .select('*')
+          .limit(1);
+
+        if (taxError) {
+          console.error("Erreur lors de la récupération des paramètres de taxes:", taxError);
+        } else if (!taxData || taxData.length === 0) {
+          // Initialize tax settings if they don't exist
+          const { error: taxInsertError } = await supabase
+            .from('tax_settings')
+            .insert({});
+              
+          if (taxInsertError) {
+            console.error("Erreur lors de l'initialisation des paramètres de taxes:", taxInsertError);
+          }
+        }
+
+        // Check for currency settings
+        const { data: currencyData, error: currencyError } = await supabase
+          .from('currency_settings')
+          .select('*')
+          .limit(1);
+
+        if (currencyError) {
+          console.error("Erreur lors de la récupération des paramètres de devise:", currencyError);
+        } else if (!currencyData || currencyData.length === 0) {
+          // Initialize currency settings if they don't exist
+          const { error: currencyInsertError } = await supabase
+            .from('currency_settings')
+            .insert({});
+              
+          if (currencyInsertError) {
+            console.error("Erreur lors de l'initialisation des paramètres de devise:", currencyInsertError);
           }
         }
       } catch (error) {
