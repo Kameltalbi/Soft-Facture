@@ -29,6 +29,7 @@ export function DevisModal({
   const [currency, setCurrency] = useState("TND");
   const [isCreated, setIsCreated] = useState(false);
   const [currentDevisData, setCurrentDevisData] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState("edition");
 
   const isEditing = devisId !== null;
 
@@ -130,8 +131,7 @@ export function DevisModal({
 
   // Handler pour créer un devis
   const handleCreateDevis = () => {
-    // Ici, vous implémenteriez la logique pour sauvegarder le devis dans la base de données
-    // Pour cet exemple, nous simulons la création d'un devis
+    // Créer le nouveau devis
     const newDevis = {
       id: isEditing ? devisId : Date.now().toString(),
       numero: isEditing ? "DEV-2023-XXX" : generateDevisNumber(),
@@ -150,46 +150,43 @@ export function DevisModal({
     setCurrentDevisData(newDevis);
     setIsCreated(true);
     
+    // Switcher sur l'onglet aperçu
+    setActiveTab("apercu");
+    
     toast.success(isEditing ? "Devis modifié avec succès" : "Devis créé avec succès");
-
-    // Générer automatiquement le PDF après la création
-    handleDownloadPDF(newDevis);
   };
 
   // Handler pour annuler le devis
   const handleCancelDevis = () => {
-    if (isCreated) {
-      // Logique pour annuler un devis créé
-      toast.info("Le devis a été annulé");
-      setIsCreated(false);
-      onOpenChange(false);
-    } else {
-      // Simplement fermer le modal
-      onOpenChange(false);
-    }
+    // Logique pour annuler un devis
+    toast.info("Le devis a été annulé");
+    setIsCreated(false);
+    onOpenChange(false);
   };
 
   // Handler pour télécharger le PDF
-  const handleDownloadPDF = (devisData: any) => {
+  const handleDownloadPDF = () => {
     try {
+      if (!currentDevisData) return false;
+      
       // On adapte les données du devis au format attendu par le générateur de PDF
       const invoiceData = {
-        id: devisData.id,
-        numero: devisData.numero,
+        id: currentDevisData.id,
+        numero: currentDevisData.numero,
         client: {
           id: "client-id",
-          nom: devisData.client,
+          nom: currentDevisData.client,
           email: "client@example.com",
           adresse: "Adresse du client"
         },
-        dateCreation: devisData.date,
+        dateCreation: currentDevisData.date,
         dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
-        totalTTC: devisData.totalTTC,
-        statut: "brouillon",
-        produits: devisData.products,
+        totalTTC: currentDevisData.totalTTC,
+        statut: "brouillon" as const, // Fix the type by using 'as const'
+        produits: currentDevisData.products,
         applyTVA: applyTVA,
         showDiscount: showDiscount,
-        currency: devisData.currency
+        currency: currentDevisData.currency
       };
 
       downloadInvoiceAsPDF(invoiceData, "fr");
@@ -209,11 +206,9 @@ export function DevisModal({
 
   // Handler pour télécharger le PDF et revenir à la liste
   const handleDownloadAndClose = () => {
-    if (currentDevisData) {
-      const success = handleDownloadPDF(currentDevisData);
-      if (success) {
-        onOpenChange(false);
-      }
+    const success = handleDownloadPDF();
+    if (success) {
+      onOpenChange(false);
     }
   };
 
@@ -257,7 +252,7 @@ export function DevisModal({
 
         <div className="flex gap-6">
           <div className="flex-1">
-            <Tabs defaultValue="edition" className="mb-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
               <TabsList>
                 <TabsTrigger value="edition">Édition</TabsTrigger>
                 <TabsTrigger value="apercu">Aperçu</TabsTrigger>
@@ -277,6 +272,17 @@ export function DevisModal({
                   onTaxChange={handleTaxChange}
                   onTaxModeChange={handleTaxModeChange}
                 />
+                
+                {!isCreated && (
+                  <div className="flex justify-end gap-2 mt-6">
+                    <Button variant="outline" onClick={handleCancelDevis}>
+                      Annuler
+                    </Button>
+                    <Button onClick={handleCreateDevis}>
+                      Créer
+                    </Button>
+                  </div>
+                )}
               </TabsContent>
               <TabsContent value="apercu" className="mt-4">
                 <DevisPreview 
@@ -288,6 +294,10 @@ export function DevisModal({
                   totalTVA={totalTVA}
                   totalTTC={totalTTC}
                   montantTTCEnLettres={montantTTCEnLettres}
+                  isCreated={isCreated}
+                  onCancel={handleCancelDevis}
+                  onSave={handleSaveDevis}
+                  onDownload={handleDownloadAndClose}
                 />
               </TabsContent>
             </Tabs>
@@ -304,38 +314,7 @@ export function DevisModal({
             />
           )}
         </div>
-
-        <div className="flex justify-end gap-2 mt-6">
-          {!isCreated ? (
-            // Afficher uniquement les boutons Annuler et Créer lors de la création initiale
-            <>
-              <Button variant="outline" onClick={handleCancelDevis}>
-                Annuler
-              </Button>
-              <Button onClick={handleCreateDevis}>
-                Créer
-              </Button>
-            </>
-          ) : (
-            // Afficher les boutons pour un devis créé
-            <>
-              <Button variant="destructive" onClick={handleCancelDevis}>
-                <FileX className="mr-2 h-4 w-4" />
-                Annuler
-              </Button>
-              <Button variant="outline" onClick={handleSaveDevis}>
-                <Save className="mr-2 h-4 w-4" />
-                Enregistrer
-              </Button>
-              <Button onClick={handleDownloadAndClose}>
-                <FileDown className="mr-2 h-4 w-4" />
-                Télécharger (PDF)
-              </Button>
-            </>
-          )}
-        </div>
       </DialogContent>
     </Dialog>
   );
 }
-

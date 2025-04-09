@@ -14,7 +14,10 @@ interface DevisPreviewProps {
   totalTVA: number;
   totalTTC: number;
   montantTTCEnLettres: string;
+  isCreated?: boolean;
   onDownload?: () => void;
+  onCancel?: () => void;
+  onSave?: () => void;
 }
 
 export function DevisPreview({
@@ -26,7 +29,10 @@ export function DevisPreview({
   totalTVA,
   totalTTC,
   montantTTCEnLettres,
-  onDownload
+  isCreated = false,
+  onDownload,
+  onCancel,
+  onSave
 }: DevisPreviewProps) {
   const currencySymbol = getCurrencySymbol(currency);
   
@@ -44,16 +50,24 @@ export function DevisPreview({
 
   return (
     <div className="relative invoice-paper animate-fade-in py-8 px-10">
-      {onDownload && (
-        <div className="absolute top-4 right-4">
+      {isCreated && (
+        <div className="flex gap-2 justify-end mb-4">
+          <Button 
+            variant="destructive" 
+            onClick={onCancel}
+          >
+            Annuler
+          </Button>
           <Button 
             variant="outline" 
-            size="sm" 
-            onClick={onDownload}
-            className="bg-white/80 hover:bg-white"
+            onClick={onSave}
           >
-            <FilePdf className="mr-2 h-4 w-4" />
-            Télécharger PDF
+            Enregistrer
+          </Button>
+          <Button 
+            onClick={onDownload}
+          >
+            Télécharger (PDF)
           </Button>
         </div>
       )}
