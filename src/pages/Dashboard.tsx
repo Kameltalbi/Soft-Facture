@@ -8,6 +8,111 @@ import { ChevronUp, CircleDollarSign, Users, ReceiptText, TrendingUp, AlertTrian
 import { useTranslation } from "react-i18next";
 import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
 import { RequireAuth } from "@/contexts/auth-context";
+import { ChartContainer } from "@/components/ui/chart";
+import { 
+  AreaChart, 
+  Area, 
+  BarChart, 
+  Bar, 
+  LineChart, 
+  Line, 
+  PieChart, 
+  Pie, 
+  Cell, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer 
+} from "recharts";
+
+// Données pour les graphiques
+const revenueData = [
+  { name: "Jan", montant: 4000 },
+  { name: "Fév", montant: 3000 },
+  { name: "Mar", montant: 5000 },
+  { name: "Avr", montant: 4500 },
+  { name: "Mai", montant: 6000 },
+  { name: "Juin", montant: 5500 },
+  { name: "Juil", montant: 7000 },
+  { name: "Août", montant: 6500 },
+  { name: "Sep", montant: 8000 },
+  { name: "Oct", montant: 7500 },
+  { name: "Nov", montant: 9000 },
+  { name: "Déc", montant: 8500 },
+];
+
+const clientsData = [
+  { name: "Jan", clients: 10 },
+  { name: "Fév", clients: 15 },
+  { name: "Mar", clients: 20 },
+  { name: "Avr", clients: 25 },
+  { name: "Mai", clients: 22 },
+  { name: "Juin", clients: 28 },
+  { name: "Juil", clients: 32 },
+  { name: "Août", clients: 38 },
+  { name: "Sep", clients: 42 },
+  { name: "Oct", clients: 48 },
+  { name: "Nov", clients: 52 },
+  { name: "Déc", clients: 60 },
+];
+
+const pieData = [
+  { name: "Commercial", value: 35 },
+  { name: "E-commerce", value: 25 },
+  { name: "Services", value: 20 },
+  { name: "Industrie", value: 20 },
+];
+
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+
+const invoiceStatusData = [
+  { name: "Jan", payées: 40, impayées: 24 },
+  { name: "Fév", payées: 35, impayées: 15 },
+  { name: "Mar", payées: 50, impayées: 20 },
+  { name: "Avr", payées: 65, impayées: 15 },
+  { name: "Mai", payées: 70, impayées: 10 },
+  { name: "Juin", payées: 80, impayées: 5 },
+  { name: "Juil", payées: 85, impayées: 18 },
+  { name: "Août", payées: 90, impayées: 12 },
+  { name: "Sep", payées: 100, impayées: 8 },
+  { name: "Oct", payées: 110, impayées: 10 },
+  { name: "Nov", payées: 120, impayées: 15 },
+  { name: "Déc", payées: 130, impayées: 12 },
+];
+
+// Configuration des couleurs pour les graphiques
+const chartConfig = {
+  revenue: {
+    label: "Revenus",
+    theme: {
+      light: "#3B82F6",
+      dark: "#60A5FA",
+    },
+  },
+  invoices: {
+    label: "Factures",
+    theme: {
+      light: "#10B981",
+      dark: "#34D399",
+    },
+  },
+  clients: {
+    label: "Clients",
+    theme: {
+      light: "#F59E0B",
+      dark: "#FBBF24",
+    },
+  },
+  unpaid: {
+    label: "Impayées",
+    theme: {
+      light: "#EF4444",
+      dark: "#F87171",
+    },
+  },
+};
 
 const DashboardContent = () => {
   const { t } = useTranslation();
@@ -16,11 +121,11 @@ const DashboardContent = () => {
     to: new Date()
   });
   
-  // This function would typically fetch data based on the selected period
+  // Cette fonction récupérerait normalement des données basées sur la période sélectionnée
   const handlePeriodChange = (dateRange: DateRange) => {
     setSelectedPeriod(dateRange);
-    // In a real app, you would fetch data for this period here
-    console.log("Fetching data for period:", dateRange);
+    // Dans une app réelle, vous récupéreriez des données pour cette période ici
+    console.log("Récupération des données pour la période:", dateRange);
   };
   
   return (
@@ -111,79 +216,73 @@ const DashboardContent = () => {
         </Card>
       </div>
       
-      <Tabs defaultValue="mois" className="mt-6">
-        <div className="flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="jour">{t('dashboard.day')}</TabsTrigger>
-            <TabsTrigger value="semaine">{t('dashboard.week')}</TabsTrigger>
-            <TabsTrigger value="mois">{t('dashboard.month')}</TabsTrigger>
-            <TabsTrigger value="annee">{t('dashboard.year')}</TabsTrigger>
-          </TabsList>
-        </div>
-        
-        <TabsContent value="mois" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('dashboard.monthlyPerformance')}</CardTitle>
-              <CardDescription>
-                {t('dashboard.monthlyPerformanceDesc')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-96 flex items-center justify-center">
-                <div className="text-muted-foreground flex flex-col items-center">
-                  <TrendingUp size={48} className="mb-2 text-invoice-blue-300" />
-                  <p>{t('dashboard.revenueChart')}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-      
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-6">
-        <Card className="col-span-2">
-          <CardHeader className="flex items-center justify-between">
-            <div>
-              <CardTitle>{t('dashboard.recentInvoices')}</CardTitle>
-              <CardDescription>
-                {t('dashboard.recentInvoicesDesc')}
-              </CardDescription>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {selectedPeriod.from.toLocaleDateString()} - {selectedPeriod.to.toLocaleDateString()}
-            </div>
+      {/* Remplacer les graphiques existants par les 4 graphiques de l'image */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+        {/* Graphique 1: Évolution des revenus */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('dashboard.revenueEvolution')}</CardTitle>
+            <CardDescription>
+              {t('dashboard.monthlyRevenueEvolution')}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex items-center justify-between border-b pb-3">
-                  <div className="flex items-center space-x-4">
-                    <div className="font-medium">FAC2025-00{i}</div>
-                    <div className="text-sm text-muted-foreground">Client {i}</div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="font-medium">{550 * i} €</div>
-                    <div className={`px-2 py-1 rounded-full text-xs ${
-                      i % 3 === 0 
-                        ? "bg-invoice-status-paid/10 text-invoice-status-paid" 
-                        : i % 2 === 0 
-                          ? "bg-invoice-status-pending/10 text-invoice-status-pending" 
-                          : "bg-invoice-status-draft/10 text-invoice-status-draft"
-                    }`}>
-                      {i % 3 === 0 
-                        ? t('dashboard.status.paid') 
-                        : i % 2 === 0 
-                          ? t('dashboard.status.pending') 
-                          : t('dashboard.status.draft')}
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="h-80">
+              <ChartContainer config={chartConfig}>
+                <AreaChart data={revenueData}>
+                  <defs>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Area 
+                    type="monotone" 
+                    dataKey="montant" 
+                    name="Revenus" 
+                    stroke="#3B82F6" 
+                    fillOpacity={1} 
+                    fill="url(#colorRevenue)" 
+                  />
+                </AreaChart>
+              </ChartContainer>
             </div>
           </CardContent>
         </Card>
-        
+
+        {/* Graphique 2: Évolution du nombre de clients */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('dashboard.clientEvolution')}</CardTitle>
+            <CardDescription>
+              {t('dashboard.newClientsPerMonth')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-80">
+              <ChartContainer config={chartConfig}>
+                <BarChart data={clientsData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar 
+                    dataKey="clients" 
+                    name="Clients" 
+                    fill="#F59E0B" 
+                    radius={[4, 4, 0, 0]} 
+                  />
+                </BarChart>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Graphique 3: Répartition des clients par secteur */}
         <Card>
           <CardHeader>
             <CardTitle>{t('dashboard.clientsBySector')}</CardTitle>
@@ -192,11 +291,66 @@ const DashboardContent = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-64 flex items-center justify-center">
-              <div className="text-muted-foreground flex flex-col items-center">
-                <Users size={36} className="mb-2 text-invoice-blue-300" />
-                <p>{t('dashboard.clientDistribution')}</p>
-              </div>
+            <div className="h-80 flex flex-col">
+              <ChartContainer config={chartConfig}>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Graphique 4: Factures payées vs. impayées */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('dashboard.invoiceStatus')}</CardTitle>
+            <CardDescription>
+              {t('dashboard.paidVsUnpaidInvoices')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-80">
+              <ChartContainer config={chartConfig}>
+                <LineChart data={invoiceStatusData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="payées" 
+                    name="Factures payées" 
+                    stroke="#10B981" 
+                    dot={{ r: 3 }} 
+                    activeDot={{ r: 5 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="impayées" 
+                    name="Factures impayées" 
+                    stroke="#EF4444" 
+                    dot={{ r: 3 }} 
+                    activeDot={{ r: 5 }}
+                  />
+                </LineChart>
+              </ChartContainer>
             </div>
           </CardContent>
         </Card>
