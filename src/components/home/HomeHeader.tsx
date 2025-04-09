@@ -17,7 +17,7 @@ const HomeHeader = () => {
       {/* Navigation avec espacement amélioré pour mobile */}
       <div className="flex items-center gap-3 md:gap-4">
         {isAuthenticated ? (
-          <UserProfileButton variant="header" />
+          <UserProfileButton variant="header" showName={true} />
         ) : (
           <>
             <Link 
