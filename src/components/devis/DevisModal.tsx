@@ -3,12 +3,14 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Settings, Save, ArrowUpRight, X } from "lucide-react";
+import { Settings, Save, ArrowUpRight, X, FileDown, FileX } from "lucide-react";
 import { DevisSettingsPanel } from "./DevisSettingsPanel";
 import { montantEnLettres } from "./utils/devisUtils";
 import { ProductLine } from "./components/ProductLineTable";
 import { DevisForm } from "./components/DevisForm";
 import { DevisPreview } from "./components/DevisPreview";
+import { downloadInvoiceAsPDF } from "@/utils/pdfGenerator";
+import { toast } from "sonner";
 
 interface DevisModalProps {
   open: boolean;
@@ -25,6 +27,8 @@ export function DevisModal({
   const [applyTVA, setApplyTVA] = useState(true);
   const [showDiscount, setShowDiscount] = useState(false);
   const [currency, setCurrency] = useState("TND");
+  const [isCreated, setIsCreated] = useState(false);
+  const [currentDevisData, setCurrentDevisData] = useState<any>(null);
 
   const isEditing = devisId !== null;
 
@@ -117,6 +121,102 @@ export function DevisModal({
   // Préparer le texte des montants en lettres
   const montantTTCEnLettres = montantEnLettres(totalTTC, currency);
 
+  // Générer un numéro de devis au format DEV-YYYY-XXX
+  const generateDevisNumber = () => {
+    const year = new Date().getFullYear();
+    const randomId = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    return `DEV-${year}-${randomId}`;
+  };
+
+  // Handler pour créer un devis
+  const handleCreateDevis = () => {
+    // Ici, vous implémenteriez la logique pour sauvegarder le devis dans la base de données
+    // Pour cet exemple, nous simulons la création d'un devis
+    const newDevis = {
+      id: isEditing ? devisId : Date.now().toString(),
+      numero: isEditing ? "DEV-2023-XXX" : generateDevisNumber(),
+      client: "Client Exemple",
+      date: new Date().toISOString(),
+      montant: totalTTC,
+      statut: "draft",
+      products: productLines,
+      currency: currency,
+      subtotal: subtotal,
+      totalTVA: totalTVA,
+      totalTTC: totalTTC,
+      montantTTCEnLettres: montantTTCEnLettres
+    };
+
+    setCurrentDevisData(newDevis);
+    setIsCreated(true);
+    
+    toast.success(isEditing ? "Devis modifié avec succès" : "Devis créé avec succès");
+
+    // Générer automatiquement le PDF après la création
+    handleDownloadPDF(newDevis);
+  };
+
+  // Handler pour annuler le devis
+  const handleCancelDevis = () => {
+    if (isCreated) {
+      // Logique pour annuler un devis créé
+      toast.info("Le devis a été annulé");
+      setIsCreated(false);
+      onOpenChange(false);
+    } else {
+      // Simplement fermer le modal
+      onOpenChange(false);
+    }
+  };
+
+  // Handler pour télécharger le PDF
+  const handleDownloadPDF = (devisData: any) => {
+    try {
+      // On adapte les données du devis au format attendu par le générateur de PDF
+      const invoiceData = {
+        id: devisData.id,
+        numero: devisData.numero,
+        client: {
+          id: "client-id",
+          nom: devisData.client,
+          email: "client@example.com",
+          adresse: "Adresse du client"
+        },
+        dateCreation: devisData.date,
+        dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
+        totalTTC: devisData.totalTTC,
+        statut: "brouillon",
+        produits: devisData.products,
+        applyTVA: applyTVA,
+        showDiscount: showDiscount,
+        currency: devisData.currency
+      };
+
+      downloadInvoiceAsPDF(invoiceData, "fr");
+      return true;
+    } catch (error) {
+      console.error("Erreur lors de la génération du PDF :", error);
+      toast.error("Erreur lors de la génération du PDF");
+      return false;
+    }
+  };
+
+  // Handler pour enregistrer le devis (sans fermer le modal)
+  const handleSaveDevis = () => {
+    // Ici, vous implémenteriez la logique pour sauvegarder le devis
+    toast.success("Devis enregistré");
+  };
+
+  // Handler pour télécharger le PDF et revenir à la liste
+  const handleDownloadAndClose = () => {
+    if (currentDevisData) {
+      const success = handleDownloadPDF(currentDevisData);
+      if (success) {
+        onOpenChange(false);
+      }
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[95vw] sm:max-h-[90vh] overflow-y-auto">
@@ -206,19 +306,36 @@ export function DevisModal({
         </div>
 
         <div className="flex justify-end gap-2 mt-6">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Annuler
-          </Button>
-          <Button variant="outline">
-            <ArrowUpRight className="mr-2 h-4 w-4" />
-            Envoyer
-          </Button>
-          <Button>
-            <Save className="mr-2 h-4 w-4" />
-            Enregistrer
-          </Button>
+          {!isCreated ? (
+            // Afficher uniquement les boutons Annuler et Créer lors de la création initiale
+            <>
+              <Button variant="outline" onClick={handleCancelDevis}>
+                Annuler
+              </Button>
+              <Button onClick={handleCreateDevis}>
+                Créer
+              </Button>
+            </>
+          ) : (
+            // Afficher les boutons pour un devis créé
+            <>
+              <Button variant="destructive" onClick={handleCancelDevis}>
+                <FileX className="mr-2 h-4 w-4" />
+                Annuler
+              </Button>
+              <Button variant="outline" onClick={handleSaveDevis}>
+                <Save className="mr-2 h-4 w-4" />
+                Enregistrer
+              </Button>
+              <Button onClick={handleDownloadAndClose}>
+                <FileDown className="mr-2 h-4 w-4" />
+                Télécharger (PDF)
+              </Button>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
   );
 }
+
