@@ -48,6 +48,9 @@ const HeroSection = () => {
               src="/lovable-uploads/f3335221-0d73-477f-a85d-920a39994cbc.png" 
               alt="Tableau de bord d'analyse de business avec graphiques" 
               className="w-full h-auto"
+              loading="eager"
+              width="600"
+              height="400"
             />
           </div>
         </div>

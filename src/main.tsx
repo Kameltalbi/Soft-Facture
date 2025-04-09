@@ -5,9 +5,11 @@ import './index.css'
 import { preloadImportantPages } from './utils/preload';
 
 // Rendu de l'application
-createRoot(document.getElementById("root")!).render(<App />);
+const root = createRoot(document.getElementById("root")!);
+root.render(<App />);
 
-// Préchargement des pages importantes après le rendu initial
+// Préchargement optimisé des pages importantes après le rendu initial
+// Utilisation d'un délai plus court pour commencer le préchargement plus tôt
 setTimeout(() => {
   preloadImportantPages();
-}, 2000);
+}, 1000); // Réduit de 2000ms à 1000ms

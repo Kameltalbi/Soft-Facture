@@ -8,11 +8,15 @@
     <meta name="description" content="Application professionnelle de gestion de factures" />
     <meta name="author" content="Soft-Facture" />
     
-    <!-- Preload des ressources critiques -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- DNS prefetch et preconnect pour accélérer les connexions -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    
+    <!-- Preload des polices critiques uniquement -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     
     <!-- Preconnect à Supabase en production -->
     <link rel="preconnect" href="https://[YOUR-SUPABASE-URL].supabase.co">
