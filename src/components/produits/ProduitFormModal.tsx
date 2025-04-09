@@ -26,6 +26,19 @@ interface ProduitFormModalProps {
   onSuccess: () => void;
 }
 
+// Define a type that matches exactly what comes from the database
+interface ProduitFromDB {
+  id: string;
+  nom: string;
+  categorie_id: string;
+  prix: number;
+  taux_tva: number;
+  description?: string;
+  unite?: string; // Add the unite field here to match the database schema
+  created_at: string;
+  updated_at: string;
+}
+
 export function ProduitFormModal({
   open,
   onOpenChange,
@@ -71,15 +84,17 @@ export function ProduitFormModal({
 
       if (error) throw error;
 
-      if (data) {
+      // Explicitly type the data as ProduitFromDB
+      const productData = data as ProduitFromDB;
+
+      if (productData) {
         setFormData({
-          nom: data.nom || "",
-          categorie_id: data.categorie_id || "",
-          prix: data.prix?.toString() || "",
-          taux_tva: data.taux_tva?.toString() || "20",
-          description: data.description || "",
-          // Check if the unite field exists in the data object
-          unite: data.unite || "unite" // Safely access unite with fallback
+          nom: productData.nom || "",
+          categorie_id: productData.categorie_id || "",
+          prix: productData.prix?.toString() || "",
+          taux_tva: productData.taux_tva?.toString() || "20",
+          description: productData.description || "",
+          unite: productData.unite || "unite" // Now TypeScript knows unite can exist on productData
         });
       }
     } catch (error) {
