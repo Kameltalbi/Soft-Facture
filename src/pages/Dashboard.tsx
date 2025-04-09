@@ -126,14 +126,13 @@ const RecoveryRateChart = ({ data, t }) => {
       >
         <RadialBar
           background
-          clockWise
           dataKey="value"
           cornerRadius={10}
           label={{
             position: 'insideStart',
             fill: '#fff',
             fontWeight: 'bold',
-            formatter: (value) => `${value}%`,
+            formatter: (value) => `${value}`,
           }}
         />
       </RadialBarChart>
@@ -144,7 +143,7 @@ const RecoveryRateChart = ({ data, t }) => {
             <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.fill }}></div>
             <span className="text-sm font-medium">
               {t(`dashboard.${entry.name === 'payees' ? 'paidInvoices' : entry.name === 'en_attente' ? 'pendingInvoices' : 'unpaidInvoices'}`)} 
-              {` ${entry.value}%`}
+              {` ${entry.value}`}
             </span>
           </div>
         ))}
@@ -325,7 +324,7 @@ const DashboardContent = () => {
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}`}
                   >
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
