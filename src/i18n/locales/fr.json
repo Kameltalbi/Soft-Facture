@@ -1,3 +1,4 @@
+
 {
   "common": {
     "dashboard": "Tableau de bord",
@@ -81,7 +82,13 @@
     "lastMonth": "Mois précédent",
     "currentQuarter": "Trimestre en cours",
     "currentYear": "Année en cours",
-    "customPeriod": "Période personnalisée"
+    "customPeriod": "Période personnalisée",
+    "revenueEvolution": "Évolution des revenus",
+    "monthlyRevenueEvolution": "Évolution mensuelle du chiffre d'affaires",
+    "clientEvolution": "Évolution des clients",
+    "newClientsPerMonth": "Nouveaux clients par mois",
+    "invoiceStatus": "Statut des factures",
+    "paidVsUnpaidInvoices": "Factures payées vs impayées"
   },
   "invoice": {
     "title": "Factures",

@@ -1,3 +1,4 @@
+
 {
   "common": {
     "dashboard": "Dashboard",
@@ -69,7 +70,13 @@
     "lastMonth": "Last Month",
     "currentQuarter": "Current Quarter",
     "currentYear": "Current Year",
-    "customPeriod": "Custom Period"
+    "customPeriod": "Custom Period",
+    "revenueEvolution": "Revenue Evolution",
+    "monthlyRevenueEvolution": "Monthly revenue evolution",
+    "clientEvolution": "Client Evolution",
+    "newClientsPerMonth": "New clients per month",
+    "invoiceStatus": "Invoice Status",
+    "paidVsUnpaidInvoices": "Paid vs unpaid invoices"
   },
   "invoice": {
     "title": "Invoices",
