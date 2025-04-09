@@ -35,7 +35,6 @@ export function ProduitFormModal({
 }: ProduitFormModalProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const isEditing = produitId !== null;
   const [currency, setCurrency] = useState<string>(getDefaultDeviseCode());
   
   const [formData, setFormData] = useState({
@@ -79,7 +78,7 @@ export function ProduitFormModal({
           prix: data.prix?.toString() || "",
           taux_tva: data.taux_tva?.toString() || "20",
           description: data.description || "",
-          // Check if the unite property exists in the data object, otherwise use default
+          // Handle the case where unite might not exist in the database yet
           unite: data.unite || "unite"
         });
       }
@@ -129,7 +128,7 @@ export function ProduitFormModal({
 
       let result;
 
-      if (isEditing) {
+      if (produitId) {
         result = await supabase
           .from('produits')
           .update(productData)
@@ -143,8 +142,8 @@ export function ProduitFormModal({
       if (result.error) throw result.error;
 
       toast({
-        title: isEditing ? t('product.updated') : t('product.created'),
-        description: isEditing ? t('product.updateSuccess') : t('product.createSuccess'),
+        title: produitId ? t('product.updated') : t('product.created'),
+        description: produitId ? t('product.updateSuccess') : t('product.createSuccess'),
       });
 
       onSuccess();
@@ -154,7 +153,7 @@ export function ProduitFormModal({
       console.error('Error saving product:', error);
       toast({
         title: t('common.error'),
-        description: isEditing ? t('product.updateError') : t('product.createError'),
+        description: produitId ? t('product.updateError') : t('product.createError'),
         variant: "destructive",
       });
     } finally {
@@ -170,7 +169,7 @@ export function ProduitFormModal({
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? t('product.edit') : t('product.new')}
+            {produitId ? t('product.edit') : t('product.new')}
           </DialogTitle>
         </DialogHeader>
 
