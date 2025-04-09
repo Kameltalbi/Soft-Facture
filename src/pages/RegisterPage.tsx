@@ -21,7 +21,13 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
-  const plan = searchParams.get("plan") as SubscriptionPlan || "trial";
+  
+  // Convertir le paramètre 'plan' en SubscriptionPlan ou utiliser 'trial' par défaut
+  const planParam = searchParams.get("plan");
+  const plan = (planParam && (planParam === 'annual' || planParam === 'trial')) 
+    ? planParam as SubscriptionPlan 
+    : 'trial';
+    
   const redirect = searchParams.get("redirect") || "";
 
   // Redirect if already logged in
@@ -45,7 +51,7 @@ const RegisterPage = () => {
     console.log("Redirection après inscription:", { plan, redirect });
     
     // Si l'utilisateur vient de s'inscrire sans choisir de plan, on le redirige vers la page des tarifs
-    if (!plan || plan === '') {
+    if (!planParam) {
       navigate('/tarifs');
       return;
     }
