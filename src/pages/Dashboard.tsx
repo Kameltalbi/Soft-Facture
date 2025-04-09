@@ -24,7 +24,9 @@ import {
   CartesianGrid, 
   Tooltip, 
   Legend, 
-  ResponsiveContainer 
+  ResponsiveContainer,
+  RadialBarChart,
+  RadialBar 
 } from "recharts";
 
 // Données pour les graphiques
@@ -43,19 +45,11 @@ const revenueData = [
   { name: "Déc", montant: 8500 },
 ];
 
-const clientsData = [
-  { name: "Jan", clients: 10 },
-  { name: "Fév", clients: 15 },
-  { name: "Mar", clients: 20 },
-  { name: "Avr", clients: 25 },
-  { name: "Mai", clients: 22 },
-  { name: "Juin", clients: 28 },
-  { name: "Juil", clients: 32 },
-  { name: "Août", clients: 38 },
-  { name: "Sep", clients: 42 },
-  { name: "Oct", clients: 48 },
-  { name: "Nov", clients: 52 },
-  { name: "Déc", clients: 60 },
+// Données pour le taux de recouvrement des factures
+const recoveryRateData = [
+  { name: "payees", value: 73, fill: "#10B981" },   // Vert pour les factures payées
+  { name: "en_attente", value: 19, fill: "#F59E0B" }, // Orange pour les factures en attente
+  { name: "impayees", value: 8, fill: "#EF4444" }   // Rouge pour les factures impayées
 ];
 
 const pieData = [
@@ -112,6 +106,51 @@ const chartConfig = {
       dark: "#F87171",
     },
   },
+};
+
+// Composant pour le taux de recouvrement des factures
+const RecoveryRateChart = ({ data, t }) => {
+  return (
+    <div className="h-80 w-full flex flex-col items-center">
+      <RadialBarChart 
+        width={320} 
+        height={250} 
+        innerRadius="60%" 
+        outerRadius="100%" 
+        data={data} 
+        startAngle={180} 
+        endAngle={0}
+        barSize={30}
+        cx="50%"
+        cy="100%"
+      >
+        <RadialBar
+          background
+          clockWise
+          dataKey="value"
+          cornerRadius={10}
+          label={{
+            position: 'insideStart',
+            fill: '#fff',
+            fontWeight: 'bold',
+            formatter: (value) => `${value}%`,
+          }}
+        />
+      </RadialBarChart>
+      
+      <div className="flex justify-center items-center gap-6 mt-6">
+        {recoveryRateData.map((entry, index) => (
+          <div key={`legend-${index}`} className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.fill }}></div>
+            <span className="text-sm font-medium">
+              {t(`dashboard.${entry.name === 'payees' ? 'paidInvoices' : entry.name === 'en_attente' ? 'pendingInvoices' : 'unpaidInvoices'}`)} 
+              {` ${entry.value}%`}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 const DashboardContent = () => {
@@ -216,7 +255,6 @@ const DashboardContent = () => {
         </Card>
       </div>
       
-      {/* Remplacer les graphiques existants par les 4 graphiques de l'image */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
         {/* Graphique 1: Évolution des revenus */}
         <Card>
@@ -254,31 +292,16 @@ const DashboardContent = () => {
           </CardContent>
         </Card>
 
-        {/* Graphique 2: Évolution du nombre de clients */}
+        {/* Graphique 2: Taux de recouvrement des factures */}
         <Card>
           <CardHeader>
-            <CardTitle>{t('dashboard.clientEvolution')}</CardTitle>
+            <CardTitle>{t('dashboard.recoveryRate')}</CardTitle>
             <CardDescription>
-              {t('dashboard.newClientsPerMonth')}
+              {t('dashboard.recoveryRateDesc')}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-80">
-              <ChartContainer config={chartConfig}>
-                <BarChart data={clientsData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar 
-                    dataKey="clients" 
-                    name="Clients" 
-                    fill="#F59E0B" 
-                    radius={[4, 4, 0, 0]} 
-                  />
-                </BarChart>
-              </ChartContainer>
-            </div>
+            <RecoveryRateChart data={recoveryRateData} t={t} />
           </CardContent>
         </Card>
 

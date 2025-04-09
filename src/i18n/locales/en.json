@@ -76,7 +76,12 @@
     "clientEvolution": "Client Evolution",
     "newClientsPerMonth": "New clients per month",
     "invoiceStatus": "Invoice Status",
-    "paidVsUnpaidInvoices": "Paid vs unpaid invoices"
+    "paidVsUnpaidInvoices": "Paid vs unpaid invoices",
+    "recoveryRate": "Invoice Recovery Rate",
+    "recoveryRateDesc": "Distribution of invoices by payment status",
+    "paidInvoices": "Paid",
+    "pendingInvoices": "Pending",
+    "unpaidInvoices": "Unpaid"
   },
   "invoice": {
     "title": "Invoices",
