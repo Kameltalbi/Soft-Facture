@@ -1,4 +1,5 @@
 
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,46 @@ interface EntrepriseTabProps {
 
 export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
   const { t } = useTranslation();
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load stored logo on component mount
+  useEffect(() => {
+    const storedLogo = localStorage.getItem('companyLogo');
+    if (storedLogo) {
+      setLogoPreview(storedLogo);
+    }
+  }, []);
+
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.match('image/jpeg|image/png|image/svg+xml')) {
+        alert(t('settings.logoFormatError'));
+        return;
+      }
+
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setLogoPreview(result);
+        // Store in localStorage
+        localStorage.setItem('companyLogo', result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleLogoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleSaveAll = () => {
+    // Additional saving logic could be added here
+    onSave();
+  };
 
   return (
     <Card>
@@ -24,18 +65,38 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="border rounded-md p-6 flex items-center justify-center flex-col">
-          <div className="w-40 h-40 bg-muted flex items-center justify-center rounded-md relative mb-4">
-            <Image className="w-10 h-10 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">
-              {t('settings.logo')}
-            </span>
+          <div 
+            className="w-40 h-40 bg-muted flex items-center justify-center rounded-md relative mb-4 cursor-pointer"
+            onClick={handleLogoClick}
+          >
+            {logoPreview ? (
+              <img 
+                src={logoPreview} 
+                alt="Company Logo" 
+                className="w-full h-full object-contain rounded-md"
+              />
+            ) : (
+              <>
+                <Image className="w-10 h-10 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">
+                  {t('settings.logo')}
+                </span>
+              </>
+            )}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/50 rounded-md">
-              <Button variant="secondary" size="sm">
+              <Button variant="secondary" size="sm" type="button">
                 <Upload className="h-4 w-4 mr-2" />
                 {t('settings.import')}
               </Button>
             </div>
           </div>
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/png,image/jpeg,image/svg+xml"
+            onChange={handleLogoUpload}
+          />
           <p className="text-sm text-muted-foreground">
             {t('settings.logoFormat')}
           </p>
@@ -110,7 +171,7 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
         </div>
 
         <div className="flex justify-end">
-          <Button onClick={onSave}>
+          <Button onClick={handleSaveAll}>
             <Save className="mr-2 h-4 w-4" />
             {t('settings.save')}
           </Button>

@@ -9,7 +9,7 @@ import { UserPermissions } from "@/types/permissions";
 const ParametresPage = () => {
   const { t } = useTranslation();
 
-  // Check for currency and user settings on page load
+  // Check for currency, user settings and company info on page load
   useEffect(() => {
     // In a real app, you might load settings from an API or more robust storage
     const storedCurrency = localStorage.getItem('defaultCurrency');
@@ -38,6 +38,22 @@ const ParametresPage = () => {
       };
       
       localStorage.setItem('users', JSON.stringify([adminUser]));
+    }
+
+    // Initialize company info if not already in localStorage
+    const storedCompanyInfo = localStorage.getItem('companyInfo');
+    if (!storedCompanyInfo) {
+      const defaultCompanyInfo = {
+        name: "Votre Entreprise",
+        address: "123 Rue de Paris, 75001 Paris, France",
+        email: "contact@votreentreprise.fr",
+        phone: "01 23 45 67 89",
+        iban: "FR76 1234 5678 9101 1121 3141 5161",
+        swift: "BFRPFRPP",
+        rib: ""
+      };
+      
+      localStorage.setItem('companyInfo', JSON.stringify(defaultCompanyInfo));
     }
   }, []);
 
