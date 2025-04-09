@@ -139,7 +139,7 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
       const { data, error } = await supabase
         .from('parametres')
         .update(updateData)
-        .eq('id', '1') // Fixed: Changed from number 1 to string '1'
+        .eq('id', 'a55a560b-44e7-4be4-822f-42e919b1a1b2') // Use the actual UUID string
         .select();
       
       if (error) {
