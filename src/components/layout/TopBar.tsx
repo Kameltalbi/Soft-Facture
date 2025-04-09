@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import UserProfileButton from "@/components/ui/user-profile-button";
 
 interface TopBarProps {
   title: string;
@@ -95,11 +96,7 @@ const TopBar = ({ title, onMenuClick }: TopBarProps) => {
           )}
         </Button>
         
-        <div className="flex items-center">
-          <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-invoice-blue-500 flex items-center justify-center text-white font-medium text-sm md:text-base">
-            JD
-          </div>
-        </div>
+        <UserProfileButton variant="topbar" showName={false} />
       </div>
     </div>
   );
