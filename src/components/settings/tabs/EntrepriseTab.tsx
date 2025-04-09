@@ -336,11 +336,16 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
                   type="button" 
                   variant="outline" 
                   onClick={cancelEditing}
+                  className="border-gray-300 text-gray-700 hover:bg-gray-100"
                 >
                   <X className="mr-2 h-4 w-4" />
                   Annuler
                 </Button>
-                <Button type="submit" disabled={isSaving}>
+                <Button 
+                  type="submit" 
+                  disabled={isSaving}
+                  className="bg-primary text-primary-foreground"
+                >
                   {isSaving ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
@@ -411,7 +416,11 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
             </div>
 
             <div className="flex justify-end mt-6">
-              <Button onClick={startEditing} variant="outline">
+              <Button 
+                onClick={startEditing} 
+                variant="outline"
+                className="border-gray-300 text-gray-700 hover:bg-gray-100"
+              >
                 <Pencil className="h-4 w-4 mr-2" />
                 Modifier
               </Button>
