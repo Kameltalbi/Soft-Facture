@@ -13,7 +13,7 @@ const ParametresPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Check for currency, user settings and company info on page load
+  // Check for currency, user settings on page load
   useEffect(() => {
     const initializeSettings = async () => {
       try {
@@ -44,46 +44,6 @@ const ParametresPage = () => {
           };
           
           localStorage.setItem('users', JSON.stringify([adminUser]));
-        }
-
-        // Fetch company info from Supabase
-        const { data: companyData, error: companyError } = await (supabase as any)
-          .from('company_info')
-          .select('*')
-          .limit(1);
-
-        if (companyError) {
-          console.error("Erreur lors de la récupération des données de l'entreprise:", companyError);
-          toast({
-            title: "Erreur",
-            description: "Impossible de récupérer les données de l'entreprise.",
-            variant: "destructive"
-          });
-          return;
-        }
-          
-        // If no company data found, initialize with default values
-        if (!companyData || companyData.length === 0) {
-          const defaultCompanyInfo = {
-            nom_entreprise: "Votre Entreprise",
-            adresse: "123 Rue de Paris, 75001 Paris, France",
-            email: "contact@votreentreprise.fr",
-            telephone: "01 23 45 67 89",
-            rib: ""
-          };
-            
-          const { error: insertError } = await (supabase as any)
-            .from('company_info')
-            .insert(defaultCompanyInfo);
-              
-          if (insertError) {
-            console.error("Erreur lors de l'initialisation des données de l'entreprise:", insertError);
-            toast({
-              title: "Erreur",
-              description: "Impossible d'initialiser les données de l'entreprise.",
-              variant: "destructive"
-            });
-          }
         }
 
         // Check for billing settings

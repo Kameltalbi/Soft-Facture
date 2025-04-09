@@ -198,42 +198,6 @@ export type Database = {
         }
         Relationships: []
       }
-      company_info: {
-        Row: {
-          adresse: string
-          created_at: string
-          email: string
-          id: string
-          logo_url: string | null
-          nom_entreprise: string
-          rib: string | null
-          telephone: string | null
-          updated_at: string
-        }
-        Insert: {
-          adresse: string
-          created_at?: string
-          email: string
-          id?: string
-          logo_url?: string | null
-          nom_entreprise: string
-          rib?: string | null
-          telephone?: string | null
-          updated_at?: string
-        }
-        Update: {
-          adresse?: string
-          created_at?: string
-          email?: string
-          id?: string
-          logo_url?: string | null
-          nom_entreprise?: string
-          rib?: string | null
-          telephone?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
       currency_settings: {
         Row: {
           created_at: string

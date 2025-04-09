@@ -1,7 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from "react";
-import { EntrepriseTab } from "./tabs/EntrepriseTab";
 import { FacturationTab } from "./tabs/FacturationTab";
 import { TaxesTab } from "./tabs/TaxesTab";
 import { DeviseTab } from "./tabs/DeviseTab";
@@ -116,17 +115,12 @@ export function SettingsTabs() {
   return (
     <Tabs defaultValue="general">
       <TabsList className="mb-4">
-        <TabsTrigger value="entreprise">{t('settings.companyTab')}</TabsTrigger>
         <TabsTrigger value="facturation">{t('settings.billingTab')}</TabsTrigger>
         <TabsTrigger value="taxes">{t('settings.taxesTab')}</TabsTrigger>
         <TabsTrigger value="devise">Devise</TabsTrigger>
         <TabsTrigger value="general">{t('settings.generalTab')}</TabsTrigger>
         <TabsTrigger value="utilisateurs">{t('settings.usersTab')}</TabsTrigger>
       </TabsList>
-
-      <TabsContent value="entreprise">
-        <EntrepriseTab onSave={handleSaveSettings} onCancel={handleCancel} />
-      </TabsContent>
 
       <TabsContent value="facturation">
         <FacturationTab

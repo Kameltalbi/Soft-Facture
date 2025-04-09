@@ -1,17 +1,5 @@
 
 // Type definitions for settings tables
-export interface CompanyInfo {
-  id: string;
-  nom_entreprise: string;
-  adresse: string;
-  email: string;
-  telephone: string | null;
-  logo_url: string | null;
-  rib: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface BillingSettings {
   id: string;
   prefixe_facture: string;
