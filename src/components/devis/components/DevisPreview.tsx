@@ -50,28 +50,6 @@ export function DevisPreview({
 
   return (
     <div className="relative invoice-paper animate-fade-in py-8 px-10">
-      {isCreated && (
-        <div className="flex gap-2 justify-end mb-4">
-          <Button 
-            variant="destructive" 
-            onClick={onCancel}
-          >
-            Annuler
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={onSave}
-          >
-            Enregistrer
-          </Button>
-          <Button 
-            onClick={onDownload}
-          >
-            Télécharger (PDF)
-          </Button>
-        </div>
-      )}
-      
       <div className="flex justify-between items-start mb-8">
         <div>
           <div className="w-52 h-14 bg-invoice-blue-100 flex items-center justify-center rounded">
@@ -208,13 +186,35 @@ export function DevisPreview({
         </div>
       </div>
 
-      <div className="bg-invoice-blue-50 p-4 rounded-md">
+      <div className="bg-invoice-blue-50 p-4 rounded-md mb-8">
         <p className="text-sm">
           <span className="font-semibold">
             Montant à payer en toutes lettres: {montantTTCEnLettres}
           </span>
         </p>
       </div>
+      
+      {isCreated && (
+        <div className="flex gap-2 justify-end mt-8 border-t pt-6">
+          <Button 
+            variant="destructive" 
+            onClick={onCancel}
+          >
+            Annuler
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={onSave}
+          >
+            Enregistrer
+          </Button>
+          <Button 
+            onClick={onDownload}
+          >
+            Télécharger (PDF)
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
