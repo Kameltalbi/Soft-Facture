@@ -88,9 +88,9 @@ serve(async (req) => {
     const successUrl = `${baseUrl}/paiement-reussi?ref=${payload.orderId}${payload.plan ? `&plan=${payload.plan}` : ''}`;
     const failUrl = `${baseUrl}/paiement-echoue?ref=${payload.orderId}${payload.plan ? `&plan=${payload.plan}` : ''}`;
 
-    // Construire la requête Konnect
+    // Construire la requête Konnect - Utiliser receiverWalletId au lieu de receiver
     const konnectPayload = {
-      receiver: konnectWalletId,
+      receiverWalletId: konnectWalletId,
       amount: payload.amount,
       accept_currency: false,
       orderId: payload.orderId,
