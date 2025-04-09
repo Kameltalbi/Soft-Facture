@@ -1,5 +1,3 @@
-
-
 // Client Types
 export interface Client {
   id: string;
@@ -19,6 +17,7 @@ export interface Produit {
   categorieId: string;
   tauxTVA: number;
   description?: string;
+  unite?: string; // Added unite field
 }
 
 export interface Categorie {

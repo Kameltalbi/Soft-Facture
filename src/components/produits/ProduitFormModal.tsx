@@ -73,16 +73,14 @@ export function ProduitFormModal({
       if (error) throw error;
 
       if (data) {
-        // Get unite from database if it exists, otherwise use default
-        const unite = data.unite || "unite";
-        
         setFormData({
           nom: data.nom || "",
           categorie_id: data.categorie_id || "",
-          prix: data.prix.toString() || "",
-          taux_tva: data.taux_tva.toString() || "20",
+          prix: data.prix?.toString() || "",
+          taux_tva: data.taux_tva?.toString() || "20",
           description: data.description || "",
-          unite: unite
+          // Check if the unite property exists in the data object, otherwise use default
+          unite: data.unite || "unite"
         });
       }
     } catch (error) {
