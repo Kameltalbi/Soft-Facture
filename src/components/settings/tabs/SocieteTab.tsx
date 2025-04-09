@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,7 +34,7 @@ export function SocieteTab({ onSave, onCancel }: { onSave: () => void; onCancel:
     const loadCompanyInfo = async () => {
       try {
         setIsLoading(true);
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabase
           .from('company_info')
           .select('*')
           .limit(1)
@@ -95,17 +94,7 @@ export function SocieteTab({ onSave, onCancel }: { onSave: () => void; onCancel:
     try {
       setIsUploading(true);
       
-      // Create a storage bucket if it doesn't exist
-      const { data: bucketData, error: bucketError } = await supabase.storage.getBucket('company-logos');
-      
-      if (bucketError && bucketError.message.includes('not found')) {
-        await supabase.storage.createBucket('company-logos', {
-          public: true,
-          fileSizeLimit: 2 * 1024 * 1024 // 2MB
-        });
-      }
-      
-      // Upload the file
+      // Upload the file directly - no need to check for bucket existence since we created it in SQL
       const fileExt = file.name.split('.').pop();
       const fileName = `logo-${Date.now()}.${fileExt}`;
       
@@ -115,7 +104,10 @@ export function SocieteTab({ onSave, onCancel }: { onSave: () => void; onCancel:
           upsert: true
         });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Upload error:", error);
+        throw error;
+      }
       
       // Get the public URL
       const { data: publicUrlData } = supabase.storage
@@ -148,7 +140,7 @@ export function SocieteTab({ onSave, onCancel }: { onSave: () => void; onCancel:
       
       // If we have an id, update the record
       if (id) {
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from('company_info')
           .update({
             nom: values.nom,
@@ -164,7 +156,7 @@ export function SocieteTab({ onSave, onCancel }: { onSave: () => void; onCancel:
         if (error) throw error;
       } else {
         // Otherwise insert a new record
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from('company_info')
           .insert({
             nom: values.nom,
@@ -240,6 +232,7 @@ export function SocieteTab({ onSave, onCancel }: { onSave: () => void; onCancel:
               />
             </div>
             
+            {/* Other form fields */}
             <FormField
               control={form.control}
               name="nom"
