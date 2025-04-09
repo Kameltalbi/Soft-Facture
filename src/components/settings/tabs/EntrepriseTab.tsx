@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 
 interface EntrepriseTabProps {
   onSave: () => void;
+  onCancel?: () => void;
 }
 
 interface CompanyFormValues {
@@ -25,7 +26,7 @@ interface CompanyFormValues {
   rib: string;
 }
 
-export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
+export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
   const { t } = useTranslation();
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -183,6 +184,9 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
   const cancelEditing = () => {
     setIsEditing(false);
     setIsDialogOpen(false);
+    if (onCancel) {
+      onCancel();
+    }
   };
 
   if (isLoading) {
@@ -339,7 +343,7 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
                   className="border-gray-300 text-gray-700 hover:bg-gray-100"
                 >
                   <X className="mr-2 h-4 w-4" />
-                  Annuler
+                  {t('common.cancel')}
                 </Button>
                 <Button 
                   type="submit" 
@@ -422,7 +426,7 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
                 className="border-gray-300 text-gray-700 hover:bg-gray-100"
               >
                 <Pencil className="h-4 w-4 mr-2" />
-                Modifier
+                {t('settings.edit')}
               </Button>
             </div>
           </>

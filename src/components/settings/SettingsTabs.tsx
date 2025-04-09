@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from "react";
@@ -126,7 +125,7 @@ export function SettingsTabs() {
       </TabsList>
 
       <TabsContent value="entreprise">
-        <EntrepriseTab onSave={handleSaveSettings} />
+        <EntrepriseTab onSave={handleSaveSettings} onCancel={handleCancel} />
       </TabsContent>
 
       <TabsContent value="facturation">
