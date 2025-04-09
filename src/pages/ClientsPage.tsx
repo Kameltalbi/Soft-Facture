@@ -2,7 +2,7 @@
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Upload } from "lucide-react";
 import { ClientFormModal } from "@/components/clients/ClientFormModal";
 import { ClientDetailView } from "@/components/clients/ClientDetailView";
 import { ClientImportDialog } from "@/components/clients/ClientImportDialog";
@@ -46,10 +46,14 @@ const ClientsPage = () => {
           </p>
         </div>
         <div className="flex space-x-2">
-          <ClientImportDialog 
-            open={importDialogOpen} 
-            onOpenChange={setImportDialogOpen} 
-          />
+          <Button 
+            variant="outline" 
+            onClick={() => setImportDialogOpen(true)}
+            className="flex items-center"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            {t('common.import')}
+          </Button>
           <Button className="flex items-center" onClick={handleCreateClient}>
             <UserPlus className="mr-2 h-4 w-4" />
             {t('client.new')}
@@ -72,6 +76,11 @@ const ClientsPage = () => {
         open={openDetailView}
         onOpenChange={setOpenDetailView}
         client={selectedDetailClient}
+      />
+      
+      <ClientImportDialog 
+        open={importDialogOpen} 
+        onOpenChange={setImportDialogOpen} 
       />
     </MainLayout>
   );

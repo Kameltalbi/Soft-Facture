@@ -48,19 +48,19 @@ export function ClientFormModal({
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="nom">{t('client.form.name')}</Label>
+              <Label htmlFor="name">{t('client.form.name')}</Label>
               <Input
-                id="nom"
-                placeholder={t('client.form.name')}
+                id="name"
+                placeholder={t('client.form.namePlaceholder')}
                 defaultValue={isEditing ? "Jean Dupont" : ""}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="societe">{t('client.form.company')}</Label>
+              <Label htmlFor="company">{t('client.form.company')}</Label>
               <Input
-                id="societe"
-                placeholder={t('client.form.company')}
+                id="company"
+                placeholder={t('client.form.companyPlaceholder')}
                 defaultValue={isEditing ? "Société XYZ" : ""}
               />
             </div>
@@ -72,16 +72,16 @@ export function ClientFormModal({
               <Input
                 id="email"
                 type="email"
-                placeholder="email@example.com"
+                placeholder={t('client.form.emailPlaceholder')}
                 defaultValue={isEditing ? "jean.dupont@xyz.fr" : ""}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="telephone">{t('client.form.phone')}</Label>
+              <Label htmlFor="phone">{t('client.form.phone')}</Label>
               <Input
-                id="telephone"
-                placeholder="06 XX XX XX XX"
+                id="phone"
+                placeholder={t('client.form.phonePlaceholder')}
                 defaultValue={isEditing ? "06 12 34 56 78" : ""}
               />
             </div>
@@ -89,10 +89,10 @@ export function ClientFormModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="tva">{t('client.form.vatNumber')}</Label>
+              <Label htmlFor="vat">{t('client.form.vat')}</Label>
               <Input
-                id="tva"
-                placeholder="FR12345678900"
+                id="vat"
+                placeholder={t('client.form.vatPlaceholder')}
                 defaultValue={isEditing ? "FR12345678901" : ""}
               />
             </div>
@@ -102,10 +102,10 @@ export function ClientFormModal({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="adresse">{t('client.form.address')}</Label>
+            <Label htmlFor="address">{t('client.form.address')}</Label>
             <Textarea
-              id="adresse"
-              placeholder={t('client.form.address')}
+              id="address"
+              placeholder={t('client.form.addressPlaceholder')}
               rows={3}
               defaultValue={
                 isEditing ? "456 Avenue des Clients, 69002 Lyon" : ""

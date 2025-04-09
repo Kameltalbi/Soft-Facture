@@ -291,6 +291,7 @@
     "no_results": "Aucun client trouvé",
     "form": {
       "title": "Informations du client",
+      "description": "Saisissez les informations du client ci-dessous.",
       "name": "Nom",
       "namePlaceholder": "Nom du client",
       "company": "Société",
@@ -302,6 +303,7 @@
       "address": "Adresse",
       "addressPlaceholder": "Adresse complète",
       "vat": "Numéro de TVA",
+      "vatNumber": "Numéro de TVA",
       "vatPlaceholder": "FR 12 345 678 901",
       "save": "Enregistrer",
       "cancel": "Annuler"
