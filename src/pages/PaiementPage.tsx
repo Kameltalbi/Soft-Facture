@@ -176,7 +176,7 @@ const PaiementPage = () => {
         if (error.message?.includes('429')) {
           toast.error("Trop de tentatives de paiement. Veuillez réessayer dans quelques minutes.");
         } else {
-          toast.error("Erreur lors de l'initialisation du paiement. Veuillez réessayer ultérieurement.");
+          toast.error(`Erreur: ${error.message || "Erreur lors de l'initialisation du paiement"}`);
         }
         
         setIsLoading(false);
@@ -198,7 +198,7 @@ const PaiementPage = () => {
       }
     } catch (error) {
       console.error("Erreur:", error);
-      toast.error("Une erreur est survenue lors de la connexion au service de paiement");
+      toast.error(`Une erreur est survenue: ${error.message || "Erreur de connexion au service de paiement"}`);
       setIsLoading(false);
     }
   };

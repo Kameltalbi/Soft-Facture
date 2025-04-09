@@ -116,48 +116,53 @@ serve(async (req) => {
 
     // Analyser la réponse
     const responseData = await response.json();
+    
+    console.log("Réponse Konnect complète:", responseData);
 
-    if (!response.ok || responseData.status !== "success") {
+    // Vérifier si la réponse contient payUrl et paymentRef, qui indiquent un succès
+    // même si le statut peut être différent
+    if (responseData.payUrl && responseData.paymentRef) {
+      // Récupérer l'URL de paiement et la référence
+      const payUrl = responseData.payUrl;
+      const paymentRef = responseData.paymentRef;
+
+      console.log("Paiement initialisé avec succès:", {
+        payUrl,
+        paymentRef,
+        orderId: payload.orderId,
+      });
+
+      try {
+        // Essayer de stocker la référence pour vérification future
+        // Utiliser une RPC pour éviter les problèmes de typage
+        await supabaseAdmin.rpc('store_transaction', {
+          p_reference: paymentRef,
+          p_order_id: payload.orderId,
+          p_amount: payload.amount,
+          p_type: payload.plan || "facture",
+          p_metadata: payload
+        });
+      } catch (error) {
+        // Si l'opération échoue, on continue quand même car ce n'est pas critique
+        console.error("Erreur lors de l'enregistrement de la transaction:", error);
+      }
+
+      // Retourner l'URL de paiement au client
+      return new Response(
+        JSON.stringify({ 
+          payUrl, 
+          paymentRef
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    } else {
+      // Si pas de payUrl/paymentRef, c'est une erreur
       console.error("Erreur Konnect:", responseData);
       throw new Error(`Konnect API error: ${responseData.message || "Unknown error"}`);
     }
-
-    // Récupérer l'URL de paiement et la référence
-    const payUrl = responseData.payUrl;
-    const paymentRef = responseData.paymentRef;
-
-    console.log("Paiement initialisé avec succès:", {
-      payUrl,
-      paymentRef,
-      orderId: payload.orderId,
-    });
-
-    try {
-      // Essayer de stocker la référence pour vérification future
-      // Utiliser une RPC pour éviter les problèmes de typage
-      await supabaseAdmin.rpc('store_transaction', {
-        p_reference: paymentRef,
-        p_order_id: payload.orderId,
-        p_amount: payload.amount,
-        p_type: payload.plan || "facture",
-        p_metadata: payload
-      });
-    } catch (error) {
-      // Si l'opération échoue, on continue quand même car ce n'est pas critique
-      console.error("Erreur lors de l'enregistrement de la transaction:", error);
-    }
-
-    // Retourner l'URL de paiement au client
-    return new Response(
-      JSON.stringify({ 
-        payUrl, 
-        paymentRef
-      }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      }
-    );
   } catch (error) {
     console.error("Erreur:", error);
     
