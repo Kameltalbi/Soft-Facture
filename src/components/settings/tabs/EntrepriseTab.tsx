@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -191,17 +192,13 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
 
   const CompanyInfoDisplay = () => (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader>
         <div>
           <CardTitle>{t('settings.companyInfo')}</CardTitle>
           <CardDescription>
             {t('settings.companyInfoDesc')}
           </CardDescription>
         </div>
-        <Button onClick={startEditing} variant="outline">
-          <Pencil className="h-4 w-4 mr-2" />
-          Modifier
-        </Button>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex justify-center mb-6">
@@ -259,6 +256,13 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
               {form.getValues().rib || '-'}
             </div>
           </div>
+        </div>
+
+        <div className="flex justify-center mt-6">
+          <Button onClick={startEditing} variant="outline">
+            <Pencil className="h-4 w-4 mr-2" />
+            Modifier
+          </Button>
         </div>
       </CardContent>
     </Card>
