@@ -5,32 +5,108 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Image, Save, Upload } from "lucide-react";
+import { Image, Loader2, Save, Upload } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
 
 interface EntrepriseTabProps {
   onSave: () => void;
 }
 
+interface CompanyFormValues {
+  nom_entreprise: string;
+  adresse: string;
+  email: string;
+  telephone: string;
+  iban: string;
+  swift: string;
+  rib: string;
+}
+
 export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
   const { t } = useTranslation();
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Load stored logo on component mount
-  useEffect(() => {
-    const storedLogo = localStorage.getItem('companyLogo');
-    if (storedLogo) {
-      setLogoPreview(storedLogo);
+  const { toast } = useToast();
+  
+  const form = useForm<CompanyFormValues>({
+    defaultValues: {
+      nom_entreprise: "",
+      adresse: "",
+      email: "",
+      telephone: "",
+      iban: "",
+      swift: "",
+      rib: ""
     }
-  }, []);
+  });
+
+  // Load company data from Supabase
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch company info
+        const { data, error } = await supabase
+          .from('parametres')
+          .select('*')
+          .limit(1)
+          .single();
+          
+        if (error) {
+          console.error("Erreur lors de la récupération des données:", error);
+          return;
+        }
+        
+        if (data) {
+          // Set form values
+          form.reset({
+            nom_entreprise: data.nom_entreprise || "",
+            adresse: data.adresse || "",
+            email: data.email || "",
+            telephone: data.telephone || "",
+            iban: data.iban || "",
+            swift: data.swift || "",
+            rib: data.rib || ""
+          });
+          
+          // Set logo preview if exists
+          if (data.logo_url) {
+            setLogoPreview(data.logo_url);
+          } else {
+            // Try to get from localStorage as fallback
+            const storedLogo = localStorage.getItem('companyLogo');
+            if (storedLogo) {
+              setLogoPreview(storedLogo);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Erreur:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCompanyData();
+  }, [form]);
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       // Validate file type
       if (!file.type.match('image/jpeg|image/png|image/svg+xml')) {
-        alert(t('settings.logoFormatError'));
+        toast({
+          title: "Erreur",
+          description: t('settings.logoFormatError'),
+          variant: "destructive"
+        });
         return;
       }
 
@@ -39,7 +115,7 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
       reader.onload = (e) => {
         const result = e.target?.result as string;
         setLogoPreview(result);
-        // Store in localStorage
+        // Store in localStorage as a backup
         localStorage.setItem('companyLogo', result);
       };
       reader.readAsDataURL(file);
@@ -50,133 +126,240 @@ export function EntrepriseTab({ onSave }: EntrepriseTabProps) {
     fileInputRef.current?.click();
   };
 
-  const handleSaveAll = () => {
-    // Additional saving logic could be added here
-    onSave();
+  const handleSaveAll = async (values: CompanyFormValues) => {
+    try {
+      setIsSaving(true);
+      
+      // Prepare data to update
+      const updateData = {
+        ...values,
+        logo_url: logoPreview
+      };
+      
+      // Update in Supabase
+      const { error } = await supabase
+        .from('parametres')
+        .update(updateData)
+        .eq('id', 1); // Assuming there's only one record with id=1
+      
+      if (error) {
+        console.error("Erreur lors de la sauvegarde:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de sauvegarder les informations de l'entreprise.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      toast({
+        title: "Succès",
+        description: "Les informations de l'entreprise ont été sauvegardées avec succès.",
+      });
+      
+      // Call the parent onSave callback
+      onSave();
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la sauvegarde.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center p-6">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t('settings.companyInfo')}</CardTitle>
-        <CardDescription>
-          {t('settings.companyInfoDesc')}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="border rounded-md p-6 flex items-center justify-center flex-col">
-          <div 
-            className="w-40 h-40 bg-muted flex items-center justify-center rounded-md relative mb-4 cursor-pointer"
-            onClick={handleLogoClick}
-          >
-            {logoPreview ? (
-              <img 
-                src={logoPreview} 
-                alt="Company Logo" 
-                className="w-full h-full object-contain rounded-md"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSaveAll)}>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('settings.companyInfo')}</CardTitle>
+            <CardDescription>
+              {t('settings.companyInfoDesc')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="border rounded-md p-6 flex items-center justify-center flex-col">
+              <div 
+                className="w-40 h-40 bg-muted flex items-center justify-center rounded-md relative mb-4 cursor-pointer"
+                onClick={handleLogoClick}
+              >
+                {logoPreview ? (
+                  <img 
+                    src={logoPreview} 
+                    alt="Company Logo" 
+                    className="w-full h-full object-contain rounded-md"
+                  />
+                ) : (
+                  <>
+                    <Image className="w-10 h-10 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">
+                      {t('settings.logo')}
+                    </span>
+                  </>
+                )}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/50 rounded-md">
+                  <Button variant="secondary" size="sm" type="button">
+                    <Upload className="h-4 w-4 mr-2" />
+                    {t('settings.import')}
+                  </Button>
+                </div>
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/png,image/jpeg,image/svg+xml"
+                onChange={handleLogoUpload}
               />
-            ) : (
-              <>
-                <Image className="w-10 h-10 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">
-                  {t('settings.logo')}
-                </span>
-              </>
-            )}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/50 rounded-md">
-              <Button variant="secondary" size="sm" type="button">
-                <Upload className="h-4 w-4 mr-2" />
-                {t('settings.import')}
+              <p className="text-sm text-muted-foreground">
+                {t('settings.logoFormat')}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="nom_entreprise"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('settings.companyName')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={t('settings.companyName')}
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="rib"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('settings.rib')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={t('settings.rib')}
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="adresse"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('settings.address')}</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder={t('settings.address')}
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('settings.email')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder={t('settings.email')}
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="telephone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('settings.phone')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={t('settings.phone')}
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="iban"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('settings.iban')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="IBAN"
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="swift"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('settings.swift')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="SWIFT"
+                        {...field}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex justify-end">
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
+                {t('settings.save')}
               </Button>
             </div>
-          </div>
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            accept="image/png,image/jpeg,image/svg+xml"
-            onChange={handleLogoUpload}
-          />
-          <p className="text-sm text-muted-foreground">
-            {t('settings.logoFormat')}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="companyName">{t('settings.companyName')}</Label>
-            <Input
-              id="companyName"
-              placeholder={t('settings.companyName')}
-              defaultValue="Votre Entreprise"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="rib">{t('settings.rib')}</Label>
-            <Input
-              id="rib"
-              placeholder={t('settings.rib')}
-              defaultValue=""
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="address">{t('settings.address')}</Label>
-          <Textarea
-            id="address"
-            placeholder={t('settings.address')}
-            rows={3}
-            defaultValue="123 Rue de Paris, 75001 Paris, France"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">{t('settings.email')}</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder={t('settings.email')}
-              defaultValue="contact@votreentreprise.fr"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="phone">{t('settings.phone')}</Label>
-            <Input
-              id="phone"
-              placeholder={t('settings.phone')}
-              defaultValue="01 23 45 67 89"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="iban">{t('settings.iban')}</Label>
-            <Input
-              id="iban"
-              placeholder="IBAN"
-              defaultValue="FR76 1234 5678 9101 1121 3141 5161"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="swift">{t('settings.swift')}</Label>
-            <Input
-              id="swift"
-              placeholder="SWIFT"
-              defaultValue="BFRPFRPP"
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-end">
-          <Button onClick={handleSaveAll}>
-            <Save className="mr-2 h-4 w-4" />
-            {t('settings.save')}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      </form>
+    </Form>
   );
 }
