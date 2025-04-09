@@ -1,13 +1,12 @@
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Loader2, Save, X } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { useToast } from "@/hooks/use-toast";
 import { CompanyInfoForm, CompanyFormValues } from "../components/CompanyInfoForm";
 import { CompanyInfoDisplay } from "../components/CompanyInfoDisplay";
 import { fetchCompanyData, saveCompanyData } from "../components/EntrepriseService";
-import { Button } from "@/components/ui/button";
 
 interface EntrepriseTabProps {
   onSave?: () => void;
@@ -39,6 +38,7 @@ export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
         const data = await fetchCompanyData();
         
         if (data) {
+          console.log("Données entreprise chargées:", data);
           // Set form values
           setCompanyData({
             nom_entreprise: data.nom_entreprise || "",
@@ -79,6 +79,8 @@ export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
         logo_url: logoPreview
       };
       
+      console.log("Sauvegarde des données:", updateData);
+      
       // Update in Supabase
       await saveCompanyData(updateData);
       
@@ -115,18 +117,8 @@ export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
 
   const cancelEditing = () => {
     setIsEditing(false);
-  };
-
-  const handleCancelClick = () => {
-    cancelEditing();
     if (onCancel) {
       onCancel();
-    }
-  };
-
-  const handleSaveClick = () => {
-    if (onSave) {
-      onSave();
     }
   };
 
@@ -169,25 +161,6 @@ export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
           />
         )}
       </CardContent>
-      {!isEditing && (
-        <CardFooter className="flex justify-end gap-2">
-          <Button 
-            variant="outline" 
-            onClick={handleCancelClick}
-            className="border-gray-300 text-gray-700 hover:bg-gray-100"
-          >
-            <X className="mr-2 h-4 w-4" />
-            {t('common.cancel')}
-          </Button>
-          <Button 
-            onClick={handleSaveClick}
-            className="bg-primary text-primary-foreground"
-          >
-            <Save className="mr-2 h-4 w-4" />
-            {t('settings.save')}
-          </Button>
-        </CardFooter>
-      )}
     </Card>
   );
 }

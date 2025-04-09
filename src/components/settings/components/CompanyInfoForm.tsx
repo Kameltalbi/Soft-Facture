@@ -40,6 +40,7 @@ export function CompanyInfoForm({
   });
 
   const handleSubmit = async (values: CompanyFormValues) => {
+    console.log("Soumission du formulaire avec:", values);
     await onSave(values);
   };
 

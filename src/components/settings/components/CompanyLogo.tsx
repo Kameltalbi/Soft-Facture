@@ -34,6 +34,7 @@ export function CompanyLogo({ logoPreview, setLogoPreview, isEditing }: CompanyL
       reader.onload = (e) => {
         const result = e.target?.result as string;
         setLogoPreview(result);
+        console.log("Logo chargé et prévisualisé");
         // Store in localStorage as a backup
         localStorage.setItem('companyLogo', result);
       };
