@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Image, Upload } from "lucide-react";
 import { useTranslation } from 'react-i18next';
@@ -62,12 +62,12 @@ export function CompanyLogo({ logoPreview, setLogoPreview, isEditing }: CompanyL
                 className="w-full h-full object-contain rounded-md"
               />
             ) : (
-              <>
+              <div className="flex flex-col items-center justify-center">
                 <Image className="w-10 h-10 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-muted-foreground mt-2">
                   {t('settings.logo')}
                 </span>
-              </>
+              </div>
             )}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/50 rounded-md">
               <Button variant="secondary" size="sm" type="button">

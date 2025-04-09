@@ -39,9 +39,13 @@ export function CompanyInfoForm({
     defaultValues: initialValues
   });
 
+  const handleSubmit = async (values: CompanyFormValues) => {
+    await onSave(values);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSave)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <CompanyLogo 
           logoPreview={logoPreview} 
           setLogoPreview={setLogoPreview} 

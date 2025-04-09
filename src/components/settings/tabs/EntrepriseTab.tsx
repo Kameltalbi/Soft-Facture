@@ -10,7 +10,7 @@ import { fetchCompanyData, saveCompanyData } from "../components/EntrepriseServi
 import { Button } from "@/components/ui/button";
 
 interface EntrepriseTabProps {
-  onSave: () => void;
+  onSave?: () => void;
   onCancel?: () => void;
 }
 
@@ -91,7 +91,9 @@ export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
       });
       
       // Call the parent onSave callback
-      onSave();
+      if (onSave) {
+        onSave();
+      }
       
       // Exit edit mode
       setIsEditing(false);
@@ -113,8 +115,18 @@ export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
 
   const cancelEditing = () => {
     setIsEditing(false);
+  };
+
+  const handleCancelClick = () => {
+    cancelEditing();
     if (onCancel) {
       onCancel();
+    }
+  };
+
+  const handleSaveClick = () => {
+    if (onSave) {
+      onSave();
     }
   };
 
@@ -157,23 +169,25 @@ export function EntrepriseTab({ onSave, onCancel }: EntrepriseTabProps) {
           />
         )}
       </CardContent>
-      <CardFooter className="flex justify-end gap-2">
-        <Button 
-          variant="outline" 
-          onClick={onCancel}
-          className="border-gray-300 text-gray-700 hover:bg-gray-100"
-        >
-          <X className="mr-2 h-4 w-4" />
-          {t('common.cancel')}
-        </Button>
-        <Button 
-          onClick={onSave}
-          className="bg-primary text-primary-foreground"
-        >
-          <Save className="mr-2 h-4 w-4" />
-          {t('settings.save')}
-        </Button>
-      </CardFooter>
+      {!isEditing && (
+        <CardFooter className="flex justify-end gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleCancelClick}
+            className="border-gray-300 text-gray-700 hover:bg-gray-100"
+          >
+            <X className="mr-2 h-4 w-4" />
+            {t('common.cancel')}
+          </Button>
+          <Button 
+            onClick={handleSaveClick}
+            className="bg-primary text-primary-foreground"
+          >
+            <Save className="mr-2 h-4 w-4" />
+            {t('settings.save')}
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }
