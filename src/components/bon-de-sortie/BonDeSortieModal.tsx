@@ -1,9 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Settings, Save, ArrowUpRight, X } from "lucide-react";
+import { Settings, X } from "lucide-react";
 import { BonDeSortieSettingsPanel } from "./BonDeSortieSettingsPanel";
 import { toast } from "sonner";
 import { BonDeSortieModalProps } from "@/types";
@@ -25,7 +23,6 @@ export function BonDeSortieModal({
   const [currency, setCurrency] = useState("TND");
   const [isCreated, setIsCreated] = useState(false);
   const [currentData, setCurrentData] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState("edition");
 
   const isEditing = bonDeSortieId !== null;
 
@@ -107,9 +104,6 @@ export function BonDeSortieModal({
 
     setCurrentData(newBonDeSortie);
     setIsCreated(true);
-    
-    // Switcher sur l'onglet aperçu
-    setActiveTab("apercu");
     
     toast.success(isEditing ? "Bon de sortie modifié avec succès" : "Bon de sortie créé avec succès");
   };
@@ -209,28 +203,39 @@ export function BonDeSortieModal({
 
         <div className="flex gap-6">
           <div className="flex-1">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-              <TabsList>
-                <TabsTrigger value="edition">Édition</TabsTrigger>
-                <TabsTrigger value="apercu">Aperçu</TabsTrigger>
-              </TabsList>
-              <TabsContent value="edition" className="space-y-6 mt-4">
-                <BonDeSortieForm isEditing={isEditing} />
+            {isCreated ? (
+              <BonDeSortiePreview
+                productLines={productLines}
+                applyTVA={applyTVA}
+                showDiscount={showDiscount}
+                currency={currency}
+                subtotal={subtotal}
+                totalTVA={totalTVA}
+                totalTTC={totalTTC}
+                montantTTCEnLettres={montantTTCEnLettres}
+                isCreated={isCreated}
+                onCancel={handleCancel}
+                onSave={handleSave}
+                onDownload={handleDownloadAndClose}
+              />
+            ) : (
+              <>
+                <div className="space-y-6 mt-4">
+                  <BonDeSortieForm isEditing={isEditing} />
 
-                <ProductLineEditor
-                  productLines={productLines}
-                  applyTVA={applyTVA}
-                  showDiscount={showDiscount}
-                  currency={currency}
-                  subtotal={subtotal}
-                  totalTVA={totalTVA}
-                  totalTTC={totalTTC}
-                  onProductLineChange={setProductLines}
-                />
+                  <ProductLineEditor
+                    productLines={productLines}
+                    applyTVA={applyTVA}
+                    showDiscount={showDiscount}
+                    currency={currency}
+                    subtotal={subtotal}
+                    totalTVA={totalTVA}
+                    totalTTC={totalTTC}
+                    onProductLineChange={setProductLines}
+                  />
 
-                <NotesSection />
+                  <NotesSection />
 
-                {!isCreated && (
                   <div className="flex justify-end gap-2 mt-6">
                     <Button variant="outline" onClick={handleCancel}>
                       Annuler
@@ -239,25 +244,9 @@ export function BonDeSortieModal({
                       Créer
                     </Button>
                   </div>
-                )}
-              </TabsContent>
-              <TabsContent value="apercu" className="mt-4">
-                <BonDeSortiePreview
-                  productLines={productLines}
-                  applyTVA={applyTVA}
-                  showDiscount={showDiscount}
-                  currency={currency}
-                  subtotal={subtotal}
-                  totalTVA={totalTVA}
-                  totalTTC={totalTTC}
-                  montantTTCEnLettres={montantTTCEnLettres}
-                  isCreated={isCreated}
-                  onCancel={handleCancel}
-                  onSave={handleSave}
-                  onDownload={handleDownloadAndClose}
-                />
-              </TabsContent>
-            </Tabs>
+                </div>
+              </>
+            )}
           </div>
 
           {showSettings && (

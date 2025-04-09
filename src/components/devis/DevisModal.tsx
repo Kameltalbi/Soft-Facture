@@ -1,9 +1,7 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Settings, Save, ArrowUpRight, X, FileDown, FileX } from "lucide-react";
+import { Settings, X } from "lucide-react";
 import { DevisSettingsPanel } from "./DevisSettingsPanel";
 import { montantEnLettres } from "./utils/devisUtils";
 import { ProductLine } from "./components/ProductLineTable";
@@ -11,6 +9,7 @@ import { DevisForm } from "./components/DevisForm";
 import { DevisPreview } from "./components/DevisPreview";
 import { downloadInvoiceAsPDF } from "@/utils/pdfGenerator";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface DevisModalProps {
   open: boolean;
@@ -150,9 +149,6 @@ export function DevisModal({
     setCurrentDevisData(newDevis);
     setIsCreated(true);
     
-    // Switcher sur l'onglet aperçu
-    setActiveTab("apercu");
-    
     toast.success(isEditing ? "Devis modifié avec succès" : "Devis créé avec succès");
   };
 
@@ -252,12 +248,23 @@ export function DevisModal({
 
         <div className="flex gap-6">
           <div className="flex-1">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-              <TabsList>
-                <TabsTrigger value="edition">Édition</TabsTrigger>
-                <TabsTrigger value="apercu">Aperçu</TabsTrigger>
-              </TabsList>
-              <TabsContent value="edition">
+            {isCreated ? (
+              <DevisPreview 
+                productLines={productLines}
+                applyTVA={applyTVA}
+                showDiscount={showDiscount}
+                currency={currency}
+                subtotal={subtotal}
+                totalTVA={totalTVA}
+                totalTTC={totalTTC}
+                montantTTCEnLettres={montantTTCEnLettres}
+                isCreated={isCreated}
+                onCancel={handleCancelDevis}
+                onSave={handleSaveDevis}
+                onDownload={handleDownloadAndClose}
+              />
+            ) : (
+              <>
                 <DevisForm 
                   isEditing={isEditing}
                   productLines={productLines}
@@ -273,34 +280,16 @@ export function DevisModal({
                   onTaxModeChange={handleTaxModeChange}
                 />
                 
-                {!isCreated && (
-                  <div className="flex justify-end gap-2 mt-6">
-                    <Button variant="outline" onClick={handleCancelDevis}>
-                      Annuler
-                    </Button>
-                    <Button onClick={handleCreateDevis}>
-                      Créer
-                    </Button>
-                  </div>
-                )}
-              </TabsContent>
-              <TabsContent value="apercu" className="mt-4">
-                <DevisPreview 
-                  productLines={productLines}
-                  applyTVA={applyTVA}
-                  showDiscount={showDiscount}
-                  currency={currency}
-                  subtotal={subtotal}
-                  totalTVA={totalTVA}
-                  totalTTC={totalTTC}
-                  montantTTCEnLettres={montantTTCEnLettres}
-                  isCreated={isCreated}
-                  onCancel={handleCancelDevis}
-                  onSave={handleSaveDevis}
-                  onDownload={handleDownloadAndClose}
-                />
-              </TabsContent>
-            </Tabs>
+                <div className="flex justify-end gap-2 mt-6">
+                  <Button variant="outline" onClick={handleCancelDevis}>
+                    Annuler
+                  </Button>
+                  <Button onClick={handleCreateDevis}>
+                    Créer
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
 
           {showSettings && (

@@ -2,6 +2,7 @@
 import { getCurrencySymbol } from "@/components/factures/utils/factureUtils";
 import { Button } from "@/components/ui/button";
 import { formatNumber } from "@/utils/formatters";
+import { FilePdf } from "@/components/ui/custom-icons";
 
 interface FacturePreviewProps {
   productLines: any[];

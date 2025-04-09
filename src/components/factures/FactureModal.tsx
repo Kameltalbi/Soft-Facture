@@ -1,10 +1,7 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Settings, Save, ArrowUpRight, X } from "lucide-react";
-import { FilePdf } from "@/components/ui/custom-icons";
+import { Settings, X } from "lucide-react";
 import { FactureSettingsPanel } from "./FactureSettingsPanel";
 import { FactureModalProps } from "@/types";
 import { downloadInvoiceAsPDF } from "@/utils/pdfGenerator";
@@ -25,7 +22,6 @@ export function FactureModal({
   const [showAdvancePayment, setShowAdvancePayment] = useState(false);
   const [advancePaymentAmount, setAdvancePaymentAmount] = useState(0);
   const [currency, setCurrency] = useState("TND");
-  const [activeTab, setActiveTab] = useState("edition");
   const [isCreated, setIsCreated] = useState(false);
   const [currentData, setCurrentData] = useState<any>(null);
   
@@ -165,9 +161,6 @@ export function FactureModal({
     setCurrentData(newFacture);
     setIsCreated(true);
     
-    // Switch to preview tab
-    setActiveTab("apercu");
-    
     toast.success(isEditing ? "Facture modifiée avec succès" : "Facture créée avec succès");
   };
 
@@ -289,12 +282,26 @@ export function FactureModal({
 
         <div className="flex gap-6">
           <div className="flex-1">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-              <TabsList>
-                <TabsTrigger value="edition">Édition</TabsTrigger>
-                <TabsTrigger value="apercu">Aperçu</TabsTrigger>
-              </TabsList>
-              <TabsContent value="edition">
+            {isCreated ? (
+              <FacturePreview 
+                productLines={productLines}
+                applyTVA={applyTVA}
+                showDiscount={showDiscount}
+                showAdvancePayment={showAdvancePayment}
+                advancePaymentAmount={advancePaymentAmount}
+                currency={currency}
+                subtotal={subtotal}
+                totalTVA={totalTVA}
+                totalTTC={totalTTC}
+                finalAmount={finalAmount}
+                montantEnLettresText={montantEnLettresText}
+                isCreated={isCreated}
+                onCancel={handleCancel}
+                onSave={handleSave}
+                onDownload={handleDownloadAndClose}
+              />
+            ) : (
+              <>
                 <FactureForm 
                   isEditing={isEditing}
                   productLines={productLines}
@@ -315,37 +322,16 @@ export function FactureModal({
                   onTaxModeChange={handleTaxModeChange}
                 />
                 
-                {!isCreated && (
-                  <div className="flex justify-end gap-2 mt-6">
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>
-                      Annuler
-                    </Button>
-                    <Button onClick={handleCreate}>
-                      Créer
-                    </Button>
-                  </div>
-                )}
-              </TabsContent>
-              <TabsContent value="apercu" className="mt-4">
-                <FacturePreview 
-                  productLines={productLines}
-                  applyTVA={applyTVA}
-                  showDiscount={showDiscount}
-                  showAdvancePayment={showAdvancePayment}
-                  advancePaymentAmount={advancePaymentAmount}
-                  currency={currency}
-                  subtotal={subtotal}
-                  totalTVA={totalTVA}
-                  totalTTC={totalTTC}
-                  finalAmount={finalAmount}
-                  montantEnLettresText={montantEnLettresText}
-                  isCreated={isCreated}
-                  onCancel={handleCancel}
-                  onSave={handleSave}
-                  onDownload={handleDownloadAndClose}
-                />
-              </TabsContent>
-            </Tabs>
+                <div className="flex justify-end gap-2 mt-6">
+                  <Button variant="outline" onClick={() => onOpenChange(false)}>
+                    Annuler
+                  </Button>
+                  <Button onClick={handleCreate}>
+                    Créer
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
 
           {showSettings && (
