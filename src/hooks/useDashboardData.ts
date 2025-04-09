@@ -61,7 +61,7 @@ export function useDashboardData(period: DateRange) {
         // 2. Récupérer le nombre de factures par statut
         const { data: invoicesData, error: invoicesError } = await supabase
           .from('factures')
-          .select('statut, total_ttc')
+          .select('statut, total_ttc, date_creation')  // Ajouté date_creation ici
           .gte('date_creation', period.from.toISOString())
           .lte('date_creation', period.to.toISOString());
           
@@ -163,6 +163,7 @@ export function useDashboardData(period: DateRange) {
         });
 
         invoicesData.forEach(invoice => {
+          // Utiliser la date_creation qui est maintenant incluse dans le type
           const date = new Date(invoice.date_creation);
           const monthName = monthNames[date.getMonth()];
           
