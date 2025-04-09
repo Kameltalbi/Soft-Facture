@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { UserPlus, Upload, Loader2 } from "lucide-react";
+import { UserPlus, Import, Loader2 } from "lucide-react";
 import { ClientFormModal } from "@/components/clients/ClientFormModal";
 import { ClientDetailView } from "@/components/clients/ClientDetailView";
 import { ClientImportDialog } from "@/components/clients/ClientImportDialog";
@@ -72,7 +72,7 @@ const ClientsPage = () => {
             onClick={() => setImportDialogOpen(true)}
             className="flex items-center"
           >
-            <Upload className="mr-2 h-4 w-4" />
+            <Import className="mr-2 h-4 w-4" />
             {t('common.import')}
           </Button>
           <Button className="flex items-center" onClick={handleCreateClient}>
@@ -88,6 +88,7 @@ const ClientsPage = () => {
         </div>
       ) : (
         <ClientList 
+          clients={clients}
           onEditClient={handleEditClient}
           onViewClient={handleViewClient}
         />
@@ -108,7 +109,8 @@ const ClientsPage = () => {
       
       <ClientImportDialog 
         open={importDialogOpen} 
-        onOpenChange={setImportDialogOpen} 
+        onOpenChange={setImportDialogOpen}
+        onImportSuccess={loadClients}
       />
     </MainLayout>
   );

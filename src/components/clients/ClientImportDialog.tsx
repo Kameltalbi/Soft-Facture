@@ -1,19 +1,22 @@
 
 import { useTranslation } from "react-i18next";
 import { FileExcel, FileCsv } from "@/components/ui/custom-icons";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
+import { Import } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useState } from "react";
 
 interface ClientImportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onImportSuccess?: () => void;
 }
 
-export const ClientImportDialog = ({ open, onOpenChange }: ClientImportDialogProps) => {
+export const ClientImportDialog = ({ open, onOpenChange, onImportSuccess }: ClientImportDialogProps) => {
   const { t } = useTranslation();
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -25,23 +28,25 @@ export const ClientImportDialog = ({ open, onOpenChange }: ClientImportDialogPro
       return;
     }
 
+    setIsUploading(true);
+
     // Here you would typically process the file
-    // For demo purposes, we'll just show a success toast
-    toast.success(t('import.success', 'File imported successfully'));
-    onOpenChange(false);
-    
-    // Reset the input
-    event.target.value = '';
+    // For demo purposes, we'll just simulate a delay and show a success toast
+    setTimeout(() => {
+      setIsUploading(false);
+      toast.success(t('import.success', 'File imported successfully'));
+      if (onImportSuccess) {
+        onImportSuccess();
+      }
+      onOpenChange(false);
+      
+      // Reset the input
+      event.target.value = '';
+    }, 1500);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          <Upload className="mr-2 h-4 w-4" />
-          {t('common.import')}
-        </Button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('import.clients.title', 'Import Clients')}</DialogTitle>
@@ -59,7 +64,14 @@ export const ClientImportDialog = ({ open, onOpenChange }: ClientImportDialogPro
               accept=".xlsx,.csv" 
               onChange={handleFileUpload}
               className="cursor-pointer"
+              disabled={isUploading}
             />
+            {isUploading && (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                <span className="ml-2">{t('import.uploading', 'Uploading...')}</span>
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>
