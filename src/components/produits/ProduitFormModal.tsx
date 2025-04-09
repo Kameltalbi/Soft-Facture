@@ -78,8 +78,8 @@ export function ProduitFormModal({
           prix: data.prix?.toString() || "",
           taux_tva: data.taux_tva?.toString() || "20",
           description: data.description || "",
-          // Handle the case where unite might not exist in the database yet
-          unite: data.unite || "unite"
+          // Check if the unite field exists in the data object
+          unite: data.unite || "unite" // Safely access unite with fallback
         });
       }
     } catch (error) {
