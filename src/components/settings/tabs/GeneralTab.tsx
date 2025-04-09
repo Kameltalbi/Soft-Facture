@@ -1,9 +1,8 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Save } from "lucide-react";
+import { Save, X } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from "@/components/settings/LanguageSelector";
 import { Devise } from "@/types";
@@ -17,9 +16,10 @@ interface GeneralTabProps {
   setDevise: (value: string) => void;
   devises: Devise[];
   onSave: () => void;
+  onCancel?: () => void;
 }
 
-export function GeneralTab({ devise, setDevise, devises, onSave }: GeneralTabProps) {
+export function GeneralTab({ devise, setDevise, devises, onSave, onCancel }: GeneralTabProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [isDefault, setIsDefault] = useState(false);
@@ -91,7 +91,14 @@ export function GeneralTab({ devise, setDevise, devises, onSave }: GeneralTabPro
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Button 
+            variant="outline" 
+            onClick={onCancel || (() => {})}
+          >
+            <X className="mr-2 h-4 w-4" />
+            {t('common.cancel')}
+          </Button>
           <Button onClick={onSave}>
             <Save className="mr-2 h-4 w-4" />
             {t('settings.save')}

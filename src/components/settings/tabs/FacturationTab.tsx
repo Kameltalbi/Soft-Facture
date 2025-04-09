@@ -1,11 +1,10 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Save } from "lucide-react";
+import { Save, X } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { useState } from "react";
 
@@ -13,9 +12,10 @@ interface FacturationTabProps {
   devise: string;
   setDevise: (value: string) => void;
   onSave: () => void;
+  onCancel?: () => void;
 }
 
-export function FacturationTab({ devise, setDevise, onSave }: FacturationTabProps) {
+export function FacturationTab({ devise, setDevise, onSave, onCancel }: FacturationTabProps) {
   const { t } = useTranslation();
   const [resetNumberingOption, setResetNumberingOption] = useState('annually');
 
@@ -119,7 +119,11 @@ export function FacturationTab({ devise, setDevise, onSave }: FacturationTabProp
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={onCancel || (() => {})}>
+            <X className="mr-2 h-4 w-4" />
+            {t('common.cancel')}
+          </Button>
           <Button onClick={onSave}>
             <Save className="mr-2 h-4 w-4" />
             {t('settings.save')}

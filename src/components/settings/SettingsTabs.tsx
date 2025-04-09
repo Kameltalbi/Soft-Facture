@@ -107,6 +107,13 @@ export function SettingsTabs() {
     });
   };
 
+  const handleCancel = () => {
+    toast({
+      title: t('settings.cancelChanges'),
+      description: t('settings.cancelChangesDesc'),
+    });
+  };
+
   return (
     <Tabs defaultValue="general">
       <TabsList className="mb-4">
@@ -127,6 +134,7 @@ export function SettingsTabs() {
           devise={devise}
           setDevise={setDevise}
           onSave={handleSaveSettings}
+          onCancel={handleCancel}
         />
       </TabsContent>
 
@@ -137,6 +145,7 @@ export function SettingsTabs() {
           taxeEnValeur={taxeEnValeur}
           setTaxeEnValeur={setTaxeEnValeur}
           onSave={handleSaveSettings}
+          onCancel={handleCancel}
         />
       </TabsContent>
 
@@ -145,6 +154,7 @@ export function SettingsTabs() {
           devises={devises}
           setDevises={setDevises}
           onSave={handleSaveSettings}
+          onCancel={handleCancel}
         />
       </TabsContent>
 
@@ -154,6 +164,7 @@ export function SettingsTabs() {
           setDevise={setDevise}
           devises={devises}
           onSave={handleSaveGeneral}
+          onCancel={handleCancel}
         />
       </TabsContent>
 
@@ -162,6 +173,7 @@ export function SettingsTabs() {
           users={users}
           setUsers={setUsers}
           onSave={handleSaveUsers}
+          onCancel={handleCancel}
         />
       </TabsContent>
     </Tabs>

@@ -1,10 +1,9 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Percent, CircleDollarSign, Save } from "lucide-react";
+import { Percent, CircleDollarSign, Save, X } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { TaxePersonnaliseeManager } from "@/components/taxes/TaxePersonnaliseeManager";
 import { TaxePersonnalisee } from "@/types";
@@ -15,6 +14,7 @@ interface TaxesTabProps {
   taxeEnValeur: boolean;
   setTaxeEnValeur: (value: boolean) => void;
   onSave: () => void;
+  onCancel?: () => void;
 }
 
 export function TaxesTab({ 
@@ -22,7 +22,8 @@ export function TaxesTab({
   setTaxesPersonnalisees, 
   taxeEnValeur, 
   setTaxeEnValeur, 
-  onSave 
+  onSave,
+  onCancel 
 }: TaxesTabProps) {
   const { t } = useTranslation();
 
@@ -147,7 +148,11 @@ export function TaxesTab({
           onTaxesChange={setTaxesPersonnalisees}
         />
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={onCancel || (() => {})}>
+            <X className="mr-2 h-4 w-4" />
+            {t('common.cancel')}
+          </Button>
           <Button onClick={onSave}>
             <Save className="mr-2 h-4 w-4" />
             {t('settings.save')}
