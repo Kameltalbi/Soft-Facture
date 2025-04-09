@@ -15,7 +15,7 @@ import { Loader2 } from "lucide-react";
 
 const CategoriesPage = () => {
   const { t } = useTranslation();
-  const [openCategoriesModal, setOpenCategoriesModal] = useState<boolean>(true);
+  const [openCategoriesModal, setOpenCategoriesModal] = useState<boolean>(false);
   const [importDialogOpen, setImportDialogOpen] = useState<boolean>(false);
   const [categories, setCategories] = useState<Categorie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
