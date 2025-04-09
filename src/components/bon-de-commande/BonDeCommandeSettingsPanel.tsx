@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from "../settings/LanguageSelector";
 import { useEffect } from "react";
-import { getDefaultDeviseCode } from "@/utils/formatters";
+import { getDefaultDeviseCode, getDeviseOptions } from "@/utils/formatters";
 
 interface BonDeCommandeSettingsPanelProps {
   applyTVA: boolean;
@@ -26,6 +26,7 @@ export function BonDeCommandeSettingsPanel({
   setCurrency,
 }: BonDeCommandeSettingsPanelProps) {
   const { t } = useTranslation();
+  const deviseOptions = getDeviseOptions();
   
   // Load default currency when component mounts
   useEffect(() => {
@@ -69,12 +70,11 @@ export function BonDeCommandeSettingsPanel({
               <SelectValue placeholder={t('settings.selectCurrency')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="TND">TND - Dinar Tunisien</SelectItem>
-              <SelectItem value="EUR">EUR - Euro</SelectItem>
-              <SelectItem value="USD">USD - Dollar Américain</SelectItem>
-              <SelectItem value="GBP">GBP - Livre Sterling</SelectItem>
-              <SelectItem value="CHF">CHF - Franc Suisse</SelectItem>
-              <SelectItem value="CAD">CAD - Dollar Canadien</SelectItem>
+              {deviseOptions.map(option => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

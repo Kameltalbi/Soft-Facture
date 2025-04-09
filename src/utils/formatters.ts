@@ -89,3 +89,20 @@ export const getDeviseSymbol = (code: string): string => {
 export const getDefaultDeviseCode = (): string => {
   return localStorage.getItem('defaultCurrency') || "TND";
 };
+
+// Load actual currency options dynamically from Supabase
+export const getDeviseOptions = () => {
+  const defaultCurrency = localStorage.getItem('defaultCurrency') || "TND";
+  
+  return [
+    { value: "TND", label: "Dinar Tunisien (TND)" },
+    { value: "EUR", label: "Euro (€)" },
+    { value: "USD", label: "Dollar US ($)" },
+    { value: "GBP", label: "Livre Sterling (£)" },
+    { value: "CHF", label: "Franc Suisse (CHF)" },
+    { value: "CAD", label: "Dollar Canadien (C$)" }
+  ].map(option => ({
+    ...option,
+    isDefault: option.value === defaultCurrency
+  }));
+};

@@ -7,9 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -41,10 +40,10 @@ export function CategoriesManager({
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingCategory, setDeletingCategory] = useState<string | null>(null);
 
+  // Add a new category
   const handleAddCategory = async () => {
-    if (!newCategoryName.trim()) return;
-    
     setIsSubmitting(true);
     
     try {
@@ -56,37 +55,31 @@ export function CategoriesManager({
       if (error) throw error;
       
       console.log('Category added successfully');
-      toast({
-        title: t('category.created'),
-        description: t('category.createSuccess'),
+      toast.success(t('category.created'), {
+        description: t('category.createSuccess')
       });
       
       setNewCategoryName("");
       onCategoriesChange();
     } catch (error) {
       console.error('Error adding category:', error);
-      toast({
-        title: t('common.error'),
-        description: t('category.createError'),
-        variant: "destructive",
+      toast.error(t('category.createError'), {
+        description: t('errors.try_again')
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleStartEdit = (category: Categorie) => {
+  // Start editing a category
+  const handleEditStart = (category: Categorie) => {
     setEditingCategory(category.id);
     setEditValue(category.nom);
   };
 
-  const handleCancelEdit = () => {
-    setEditingCategory(null);
-    setEditValue("");
-  };
-
-  const handleSaveEdit = async (categoryId: string) => {
-    if (!editValue.trim()) return;
+  // Save the edited category
+  const handleSaveEdit = async () => {
+    if (!editingCategory) return;
     
     setIsSubmitting(true);
     
@@ -94,47 +87,47 @@ export function CategoriesManager({
       const { error } = await supabase
         .from('categories')
         .update({ nom: editValue.trim() })
-        .eq('id', categoryId);
+        .eq('id', editingCategory);
       
       if (error) throw error;
       
-      toast({
-        title: t('category.updated'),
-        description: t('category.updateSuccess'),
+      toast.success(t('category.updated'), {
+        description: t('category.updateSuccess')
       });
       
       setEditingCategory(null);
-      setEditValue("");
       onCategoriesChange();
     } catch (error) {
       console.error('Error updating category:', error);
-      toast({
-        title: t('common.error'),
-        description: t('category.updateError'),
-        variant: "destructive",
+      toast.error(t('category.updateError'), {
+        description: t('errors.try_again')
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDeleteCategory = async (categoryId: string) => {
-    setIsSubmitting(true);
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setEditingCategory(null);
+    setEditValue("");
+  };
+
+  // Confirm category deletion
+  const handleConfirmDelete = async (id: string) => {
+    setDeletingCategory(id);
     
     try {
-      // Check if this category is used by any products
-      const { data: productsWithCategory, error: checkError } = await supabase
+      // Check if any products use this category
+      const { data: products } = await supabase
         .from('produits')
         .select('id')
-        .eq('categorie_id', categoryId);
+        .eq('categorie_id', id)
+        .limit(1);
       
-      if (checkError) throw checkError;
-      
-      if (productsWithCategory && productsWithCategory.length > 0) {
-        toast({
-          title: t('category.cantDelete'),
-          description: t('category.inUse'),
-          variant: "destructive",
+      if (products && products.length > 0) {
+        toast.error(t('category.deleteError'), {
+          description: t('category.inUseError')
         });
         return;
       }
@@ -142,143 +135,121 @@ export function CategoriesManager({
       const { error } = await supabase
         .from('categories')
         .delete()
-        .eq('id', categoryId);
+        .eq('id', id);
       
       if (error) throw error;
       
-      toast({
-        title: t('category.deleted'),
-        description: t('category.deleteSuccess'),
+      toast.success(t('category.deleted'), {
+        description: t('category.deleteSuccess')
       });
       
       onCategoriesChange();
     } catch (error) {
       console.error('Error deleting category:', error);
-      toast({
-        title: t('common.error'),
-        description: t('category.deleteError'),
-        variant: "destructive",
+      toast.error(t('category.deleteError'), {
+        description: t('errors.try_again')
       });
     } finally {
-      setIsSubmitting(false);
+      setDeletingCategory(null);
     }
   };
-
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t('product.categories.title')}</DialogTitle>
+          <DialogTitle>{t('product.categories.manage')}</DialogTitle>
         </DialogHeader>
-
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="newCategory">{t('product.categories.new')}</Label>
-            <div className="flex space-x-2">
-              <Input
-                id="newCategory"
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                placeholder={t('product.categories.categoryNamePlaceholder')}
-                disabled={isSubmitting}
-              />
-              <Button 
-                type="button" 
-                onClick={handleAddCategory}
-                disabled={isSubmitting || !newCategoryName.trim()}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                {t('product.categories.add')}
-              </Button>
-            </div>
-          </div>
-
-          <div className="border rounded-md">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t('product.categories.categoryName')}</TableHead>
-                  <TableHead className="w-[120px]">{t('product.categories.actions')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {categories.length > 0 ? (
-                  categories.map((category) => (
-                    <TableRow key={category.id}>
-                      <TableCell>
-                        {editingCategory === category.id ? (
-                          <Input
-                            value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
-                            autoFocus
-                            disabled={isSubmitting}
-                          />
-                        ) : (
-                          category.nom
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-1">
-                          {editingCategory === category.id ? (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleSaveEdit(category.id)}
-                                disabled={isSubmitting || !editValue.trim()}
-                              >
-                                <Save className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={handleCancelEdit}
-                                disabled={isSubmitting}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </>
-                          ) : (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleStartEdit(category)}
-                                disabled={isSubmitting}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-destructive"
-                                onClick={() => handleDeleteCategory(category.id)}
-                                disabled={isSubmitting}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={2} className="text-center py-4">
-                      {t('product.categories.noCategories')}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-
-          <div className="flex justify-end">
-            <Button onClick={() => onOpenChange(false)} disabled={isSubmitting}>
-              {t('product.categories.close')}
+        
+        <div className="space-y-4 py-2">
+          <div className="flex space-x-2">
+            <Input
+              placeholder={t('product.categories.newCategoryPlaceholder')}
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              className="flex-1"
+            />
+            <Button 
+              onClick={handleAddCategory} 
+              disabled={!newCategoryName.trim() || isSubmitting}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              {t('common.add')}
             </Button>
           </div>
+          
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t('product.categories.categoryName')}</TableHead>
+                <TableHead className="w-24 text-right">{t('common.actions')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {categories.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={2} className="text-center py-4 text-muted-foreground">
+                    {t('product.categories.noCategories')}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                categories.map((category) => (
+                  <TableRow key={category.id}>
+                    <TableCell>
+                      {editingCategory === category.id ? (
+                        <Input
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          className="h-8"
+                        />
+                      ) : (
+                        category.nom
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {editingCategory === category.id ? (
+                        <div className="flex space-x-1 justify-end">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleCancelEdit}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleSaveEdit}
+                            disabled={!editValue.trim() || isSubmitting}
+                          >
+                            <Save className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex space-x-1 justify-end">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditStart(category)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleConfirmDelete(category.id)}
+                            disabled={deletingCategory === category.id}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       </DialogContent>
     </Dialog>
