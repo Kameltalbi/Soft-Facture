@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CompanyInfoForm, CompanyFormValues } from "../components/CompanyInfoForm";
 import { CompanyInfoDisplay } from "../components/CompanyInfoDisplay";
 import { fetchCompanyData, saveCompanyData } from "../components/EntrepriseService";
+import { CompanyInfo } from "@/types/settings";
 
 interface EntrepriseTabProps {
   onSave?: () => void;
