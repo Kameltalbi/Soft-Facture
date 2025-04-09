@@ -1,9 +1,9 @@
 
-import { Download } from "lucide-react"; 
-import { FilePdf } from "@/components/ui/custom-icons";
 import { Button } from "@/components/ui/button";
+import { FilePdf } from "@/components/ui/custom-icons";
 import { getCurrencySymbol } from "../utils/bonDeSortieUtils";
 import { formatNumber } from "@/utils/formatters";
+import { DocumentHeader } from "@/components/documents/DocumentHeader";
 
 interface ProductLine {
   id: string;
@@ -30,6 +30,9 @@ interface BonDeSortiePreviewProps {
   onDownload?: () => void;
   onCancel?: () => void;
   onSave?: () => void;
+  numero?: string;
+  dateCreation?: string;
+  dateEcheance?: string;
 }
 
 export function BonDeSortiePreview({
@@ -44,7 +47,10 @@ export function BonDeSortiePreview({
   isCreated = false,
   onDownload,
   onCancel,
-  onSave
+  onSave,
+  numero = "BDS2025-005",
+  dateCreation = new Date().toLocaleDateString("fr-FR"),
+  dateEcheance = new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString("fr-FR")
 }: BonDeSortiePreviewProps) {
   const currencySymbol = getCurrencySymbol(currency);
   
@@ -64,44 +70,13 @@ export function BonDeSortiePreview({
         </div>
       )}
       
-      <div className="flex justify-between items-start mb-8">
-        <div>
-          <div className="w-52 h-14 bg-invoice-blue-100 flex items-center justify-center rounded">
-            <p className="font-bold text-invoice-blue-700">
-              SOFT-FACTURE
-            </p>
-          </div>
-          <div className="mt-4 text-sm">
-            <p className="font-semibold">Soft-Facture</p>
-            <p>123 Rue de Paris</p>
-            <p>75001 Paris, France</p>
-            <p>Tél: 01 23 45 67 89</p>
-            <p>Email: contact@soft-facture.fr</p>
-          </div>
-        </div>
-        <div className="text-right">
-          <h1 className="text-2xl font-bold text-invoice-blue-600 mb-2">
-            BON DE SORTIE
-          </h1>
-          <div className="text-sm">
-            <p>
-              <span className="font-medium">№ :</span> BDS2025-005
-            </p>
-            <p>
-              <span className="font-medium">Date d'émission :</span>{" "}
-              {new Date().toLocaleDateString("fr-FR")}
-            </p>
-            <p>
-              <span className="font-medium">
-                Date d'échéance :
-              </span>{" "}
-              {new Date(
-                new Date().setDate(new Date().getDate() + 30)
-              ).toLocaleDateString("fr-FR")}
-            </p>
-          </div>
-        </div>
-      </div>
+      <DocumentHeader 
+        title="BON DE SORTIE"
+        documentNumber={numero}
+        emissionDate={dateCreation}
+        dueDate={dateEcheance}
+        variant="bon-sortie"
+      />
 
       <div className="border-t border-b py-6 my-8">
         <h2 className="text-sm font-semibold mb-1 text-muted-foreground">

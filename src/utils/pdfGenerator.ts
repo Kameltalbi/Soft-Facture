@@ -3,6 +3,8 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { StatutFacture } from "@/types";
 import { getCurrencySymbol } from "@/components/factures/utils/factureUtils";
+import { CompanyInfo } from "@/types/settings";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProductLine {
   name: string;
@@ -67,18 +69,84 @@ const getStatusLabel = (statut: StatutFacture, locale: string = "fr"): string =>
   }
 };
 
+// Fetch company information from Supabase
+const getCompanyInfo = async (): Promise<CompanyInfo | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('company_info')
+      .select('*')
+      .limit(1)
+      .single();
+    
+    if (error) {
+      console.error("Erreur lors du chargement des informations de l'entreprise:", error);
+      return null;
+    }
+    
+    return data as CompanyInfo;
+  } catch (error) {
+    console.error("Erreur lors du chargement des informations de l'entreprise:", error);
+    return null;
+  }
+};
+
 // Add company information to the PDF
-const addCompanyInfo = (doc: jsPDF): void => {
+const addCompanyInfo = async (doc: jsPDF): Promise<void> => {
+  const companyInfo = await getCompanyInfo();
+  
   doc.setFontSize(20);
   doc.setTextColor(44, 62, 80); // Dark blue color
-  doc.text("VOTRE ENTREPRISE", 20, 20);
   
-  doc.setFontSize(10);
-  doc.setTextColor(100, 100, 100);
-  doc.text("123 Rue de Paris", 20, 30);
-  doc.text("75001 Paris, France", 20, 35);
-  doc.text("Tél: 01 23 45 67 89", 20, 40);
-  doc.text("Email: contact@votreentreprise.fr", 20, 45);
+  if (companyInfo) {
+    doc.text(companyInfo.nom, 20, 20);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    
+    if (companyInfo.adresse) {
+      const addressLines = companyInfo.adresse.split(',');
+      addressLines.forEach((line, index) => {
+        doc.text(line.trim(), 20, 30 + (index * 5));
+      });
+    }
+    
+    let yPos = 30 + (companyInfo.adresse ? companyInfo.adresse.split(',').length * 5 : 0);
+    
+    if (companyInfo.code_tva) {
+      doc.text(`TVA: ${companyInfo.code_tva}`, 20, yPos);
+      yPos += 5;
+    }
+    
+    if (companyInfo.telephone) {
+      doc.text(`Tél: ${companyInfo.telephone}`, 20, yPos);
+      yPos += 5;
+    }
+    
+    if (companyInfo.email_contact) {
+      doc.text(`Email: ${companyInfo.email_contact}`, 20, yPos);
+    }
+    
+    // Add logo if available
+    if (companyInfo.logo_url) {
+      try {
+        const img = new Image();
+        img.src = companyInfo.logo_url;
+        doc.addImage(img, 'JPEG', 140, 10, 40, 20, undefined, 'FAST');
+      } catch (error) {
+        console.error("Erreur lors de l'ajout du logo:", error);
+      }
+    }
+  } else {
+    // Default company info
+    doc.text("VOTRE ENTREPRISE", 20, 20);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text("123 Rue de Paris", 20, 30);
+    doc.text("75001 Paris, France", 20, 35);
+    doc.text("Tél: 01 23 45 67 89", 20, 40);
+    doc.text("Email: contact@votreentreprise.fr", 20, 45);
+  }
 };
 
 // Add invoice header with title and info
@@ -237,15 +305,15 @@ const addFooter = (doc: jsPDF, finalY: number, locale: string): void => {
 };
 
 // Main function to generate the invoice PDF
-export const generateInvoicePDF = (
+export const generateInvoicePDF = async (
   invoiceData: InvoiceData,
   locale: string = "fr"
-): jsPDF => {
+): Promise<jsPDF> => {
   const doc = new jsPDF();
   const currencySymbol = getCurrencySymbol(invoiceData.currency || "TND");
   
   // Add company information
-  addCompanyInfo(doc);
+  await addCompanyInfo(doc);
   
   // Add invoice header
   addInvoiceHeader(doc, invoiceData, locale);
@@ -266,10 +334,10 @@ export const generateInvoicePDF = (
 };
 
 // Function to download the invoice as PDF
-export const downloadInvoiceAsPDF = (
+export const downloadInvoiceAsPDF = async (
   invoiceData: InvoiceData,
   locale: string = "fr"
 ) => {
-  const doc = generateInvoicePDF(invoiceData, locale);
+  const doc = await generateInvoicePDF(invoiceData, locale);
   doc.save(`${invoiceData.numero}.pdf`);
 };

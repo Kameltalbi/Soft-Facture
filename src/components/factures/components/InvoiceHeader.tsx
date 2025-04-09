@@ -2,56 +2,34 @@
 import { getCurrencySymbol } from "@/components/factures/utils/factureUtils";
 import { Button } from "@/components/ui/button";
 import { FilePdf } from "@/components/ui/custom-icons";
+import { DocumentHeader } from "@/components/documents/DocumentHeader";
 
 interface InvoiceHeaderProps {
   isCreated: boolean;
   onDownload?: () => void;
   currency: string;
+  numero?: string;
+  dateEmission?: string;
+  dateEcheance?: string;
 }
 
 export function InvoiceHeader({
   isCreated,
   onDownload,
-  currency
+  currency,
+  numero = "FAC2025-005",
+  dateEmission = new Date().toLocaleDateString("fr-FR"),
+  dateEcheance = new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString("fr-FR")
 }: InvoiceHeaderProps) {
   return (
-    <div className="flex justify-between items-start mb-8">
-      <div>
-        <div className="w-52 h-14 bg-invoice-blue-100 flex items-center justify-center rounded">
-          <p className="font-bold text-invoice-blue-700">
-            VOTRE LOGO
-          </p>
-        </div>
-        <div className="mt-4 text-sm">
-          <p className="font-semibold">Votre Entreprise</p>
-          <p>123 Rue de Paris</p>
-          <p>75001 Paris, France</p>
-          <p>Tél: 01 23 45 67 89</p>
-          <p>Email: contact@votreentreprise.fr</p>
-        </div>
-      </div>
-      <div className="text-right">
-        <h1 className="text-2xl font-bold text-invoice-blue-600 mb-2">
-          FACTURE
-        </h1>
-        <div className="text-sm">
-          <p>
-            <span className="font-medium">№ :</span> FAC2025-005
-          </p>
-          <p>
-            <span className="font-medium">Date d'émission :</span>{" "}
-            {new Date().toLocaleDateString("fr-FR")}
-          </p>
-          <p>
-            <span className="font-medium">
-              Date d'échéance :
-            </span>{" "}
-            {new Date(
-              new Date().setDate(new Date().getDate() + 30)
-            ).toLocaleDateString("fr-FR")}
-          </p>
-        </div>
-      </div>
+    <>
+      <DocumentHeader 
+        title="FACTURE"
+        documentNumber={numero}
+        emissionDate={dateEmission}
+        dueDate={dateEcheance}
+        variant="facture"
+      />
       
       {!isCreated && onDownload && (
         <div className="absolute top-4 right-4">
@@ -66,6 +44,6 @@ export function InvoiceHeader({
           </Button>
         </div>
       )}
-    </div>
+    </>
   );
 }

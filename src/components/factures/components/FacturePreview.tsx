@@ -21,6 +21,9 @@ interface FacturePreviewProps {
   onDownload?: () => void;
   onCancel?: () => void;
   onSave?: () => void;
+  numero?: string;
+  dateCreation?: string;
+  dateEcheance?: string;
 }
 
 export function FacturePreview({
@@ -39,6 +42,9 @@ export function FacturePreview({
   onDownload,
   onCancel,
   onSave,
+  numero = "FAC2025-005",
+  dateCreation = new Date().toLocaleDateString("fr-FR"),
+  dateEcheance = new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString("fr-FR")
 }: FacturePreviewProps) {
   const currencySymbol = getCurrencySymbol(currency);
 
@@ -48,6 +54,9 @@ export function FacturePreview({
         isCreated={isCreated} 
         onDownload={onDownload} 
         currency={currency}
+        numero={numero}
+        dateEmission={dateCreation}
+        dateEcheance={dateEcheance}
       />
       
       <div className="border-t border-b py-6 my-8">

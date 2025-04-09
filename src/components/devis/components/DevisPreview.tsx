@@ -1,9 +1,9 @@
 
-import { Download } from "lucide-react";
-import { FilePdf } from "@/components/ui/custom-icons";
 import { Button } from "@/components/ui/button";
+import { FilePdf } from "@/components/ui/custom-icons";
 import { getCurrencySymbol } from "../utils/devisUtils";
 import { ProductLine } from "./ProductLineTable";
+import { DocumentHeader } from "@/components/documents/DocumentHeader";
 
 interface DevisPreviewProps {
   productLines: ProductLine[];
@@ -18,6 +18,9 @@ interface DevisPreviewProps {
   onDownload?: () => void;
   onCancel?: () => void;
   onSave?: () => void;
+  numero?: string;
+  dateCreation?: string;
+  dateEcheance?: string;
 }
 
 export function DevisPreview({
@@ -32,26 +35,16 @@ export function DevisPreview({
   isCreated = false,
   onDownload,
   onCancel,
-  onSave
+  onSave,
+  numero = "DEV2025-005",
+  dateCreation = new Date().toLocaleDateString("fr-FR"),
+  dateEcheance = new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString("fr-FR")
 }: DevisPreviewProps) {
   const currencySymbol = getCurrencySymbol(currency);
   
-  // These would come from the company settings in a real implementation
-  const companyInfo = {
-    name: "Votre Entreprise",
-    address: "123 Rue de Paris",
-    city: "75001 Paris, France",
-    phone: "01 23 45 67 89",
-    email: "contact@votreentreprise.fr",
-    rib: "12345678901",
-    iban: "FR76 1234 5678 9101 1121 3141 5161",
-    swift: "BFRPFRPP"
-  };
-
   // Helper function to format numbers with proper thousand separator
   const formatNumber = (number: number): string => {
     // Use French locale which uses spaces as thousand separators
-    // and make sure not to use the '/' character
     return number.toLocaleString("fr-FR", {
       useGrouping: true,
       minimumFractionDigits: 2,
@@ -61,44 +54,27 @@ export function DevisPreview({
 
   return (
     <div className="relative invoice-paper animate-fade-in py-8 px-10">
-      <div className="flex justify-between items-start mb-8">
-        <div>
-          <div className="w-52 h-14 bg-invoice-blue-100 flex items-center justify-center rounded">
-            <p className="font-bold text-invoice-blue-700">
-              VOTRE LOGO
-            </p>
-          </div>
-          <div className="mt-4 text-sm">
-            <p className="font-semibold">{companyInfo.name}</p>
-            <p>{companyInfo.address}</p>
-            <p>{companyInfo.city}</p>
-            <p>Tél: {companyInfo.phone}</p>
-            <p>Email: {companyInfo.email}</p>
-          </div>
+      {!isCreated && onDownload && (
+        <div className="absolute top-4 right-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onDownload}
+            className="bg-white/80 hover:bg-white"
+          >
+            <FilePdf className="mr-2 h-4 w-4" />
+            Télécharger PDF
+          </Button>
         </div>
-        <div className="text-right">
-          <h1 className="text-2xl font-bold text-invoice-blue-600 mb-2">
-            DEVIS
-          </h1>
-          <div className="text-sm">
-            <p>
-              <span className="font-medium">№ :</span> DEV2025-005
-            </p>
-            <p>
-              <span className="font-medium">Date d'émission :</span>{" "}
-              {new Date().toLocaleDateString("fr-FR")}
-            </p>
-            <p>
-              <span className="font-medium">
-                Date d'échéance :
-              </span>{" "}
-              {new Date(
-                new Date().setDate(new Date().getDate() + 30)
-              ).toLocaleDateString("fr-FR")}
-            </p>
-          </div>
-        </div>
-      </div>
+      )}
+      
+      <DocumentHeader 
+        title="DEVIS"
+        documentNumber={numero}
+        emissionDate={dateCreation}
+        dueDate={dateEcheance}
+        variant="devis"
+      />
 
       <div className="border-t border-b py-6 my-8">
         <h2 className="text-sm font-semibold mb-1 text-muted-foreground">
