@@ -1,4 +1,3 @@
-
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { StatutFacture } from "@/types";
@@ -128,12 +127,15 @@ const addCompanyInfo = async (doc: jsPDF): Promise<void> => {
       doc.text(`Email: ${companyInfo.email_contact}`, 20, yPos);
     }
     
-    // Add logo if available
+    // Add logo if available - positioning it in the top right
     if (companyInfo.logo_url) {
       try {
         const img = new Image();
         img.src = companyInfo.logo_url;
-        doc.addImage(img, 'JPEG', 140, 10, 40, 20, undefined, 'FAST');
+        
+        // Position the logo in the top right corner
+        // Make sure the height is reasonable to avoid overlapping with the document header
+        doc.addImage(img, 'JPEG', 150, 10, 40, 40, undefined, 'FAST');
       } catch (error) {
         console.error("Erreur lors de l'ajout du logo:", error);
       }
@@ -160,14 +162,15 @@ const addInvoiceHeader = (doc: jsPDF, invoiceData: InvoiceData, locale: string):
   doc.setFontSize(24);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(44, 62, 80);
-  doc.text(locale === "fr" ? "FACTURE" : "INVOICE", 140, 25);
+  // Adjust the position to place it under the logo
+  doc.text(locale === "fr" ? "FACTURE" : "INVOICE", 140, 65);
   
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text(`${locale === "fr" ? "№" : "#"}: ${invoiceData.numero}`, 140, 35);
-  doc.text(`${locale === "fr" ? "Date d'émission" : "Date"}: ${formatDate(invoiceData.dateCreation, locale === "fr" ? "fr-FR" : "en-US")}`, 140, 40);
-  doc.text(`${locale === "fr" ? "Date d'échéance" : "Due Date"}: ${formatDate(invoiceData.dateEcheance, locale === "fr" ? "fr-FR" : "en-US")}`, 140, 45);
-  doc.text(`${locale === "fr" ? "Statut" : "Status"}: ${getStatusLabel(invoiceData.statut, locale)}`, 140, 50);
+  doc.text(`${locale === "fr" ? "№" : "#"}: ${invoiceData.numero}`, 140, 75);
+  doc.text(`${locale === "fr" ? "Date d'émission" : "Date"}: ${formatDate(invoiceData.dateCreation, locale === "fr" ? "fr-FR" : "en-US")}`, 140, 80);
+  doc.text(`${locale === "fr" ? "Date d'échéance" : "Due Date"}: ${formatDate(invoiceData.dateEcheance, locale === "fr" ? "fr-FR" : "en-US")}`, 140, 85);
+  doc.text(`${locale === "fr" ? "Statut" : "Status"}: ${getStatusLabel(invoiceData.statut, locale)}`, 140, 90);
 };
 
 // Add client information to the PDF

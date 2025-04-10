@@ -24,7 +24,7 @@ export function InvoiceHeader({
   statut = "Brouillon"
 }: InvoiceHeaderProps) {
   return (
-    <>
+    <div className="relative">
       <DocumentHeader 
         title="FACTURE"
         documentNumber={numero}
@@ -35,7 +35,7 @@ export function InvoiceHeader({
       />
       
       {!isCreated && onDownload && (
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-0 right-0">
           <Button 
             variant="outline" 
             size="sm" 
@@ -47,6 +47,6 @@ export function InvoiceHeader({
           </Button>
         </div>
       )}
-    </>
+    </div>
   );
 }
