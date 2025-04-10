@@ -1,4 +1,3 @@
-
 import { Devise } from "@/types";
 
 // Get the default currency from the list
@@ -62,7 +61,7 @@ export const formatNumber = (number: number): string => {
     useGrouping: true,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
-  });
+  }).replace(/\s/g, " "); // Ensure spaces are regular spaces for consistent display
 };
 
 // Get currency symbol by code

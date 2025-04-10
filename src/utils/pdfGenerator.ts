@@ -38,10 +38,9 @@ interface InvoiceData {
 // Format number with proper formatting (spaces as thousand separator)
 const formatNumber = (number: number, locale: string = "fr-FR"): string => {
   return number.toLocaleString(locale, {
-    useGrouping: true,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
-  });
+  }).replace(/\s/g, " "); // Ensure spaces are regular spaces for consistent display
 };
 
 // Format date according to locale
