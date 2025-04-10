@@ -11,6 +11,7 @@ interface InvoiceHeaderProps {
   numero?: string;
   dateEmission?: string;
   dateEcheance?: string;
+  statut?: string;
 }
 
 export function InvoiceHeader({
@@ -19,7 +20,8 @@ export function InvoiceHeader({
   currency,
   numero = "FAC2025-005",
   dateEmission = new Date().toLocaleDateString("fr-FR"),
-  dateEcheance = new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString("fr-FR")
+  dateEcheance = new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString("fr-FR"),
+  statut = "Brouillon"
 }: InvoiceHeaderProps) {
   return (
     <>
@@ -29,6 +31,7 @@ export function InvoiceHeader({
         emissionDate={dateEmission}
         dueDate={dateEcheance}
         variant="facture"
+        status={statut}
       />
       
       {!isCreated && onDownload && (

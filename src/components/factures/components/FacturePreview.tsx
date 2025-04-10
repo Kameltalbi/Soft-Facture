@@ -24,6 +24,7 @@ interface FacturePreviewProps {
   numero?: string;
   dateCreation?: string;
   dateEcheance?: string;
+  statut?: string;
 }
 
 export function FacturePreview({
@@ -44,12 +45,13 @@ export function FacturePreview({
   onSave,
   numero = "FAC2025-005",
   dateCreation = new Date().toLocaleDateString("fr-FR"),
-  dateEcheance = new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString("fr-FR")
+  dateEcheance = new Date(new Date().setDate(new Date().getDate() + 30)).toLocaleDateString("fr-FR"),
+  statut = "Brouillon"
 }: FacturePreviewProps) {
   const currencySymbol = getCurrencySymbol(currency);
 
   return (
-    <div className="relative invoice-paper animate-fade-in py-8 px-10">
+    <div className="relative invoice-paper animate-fade-in py-8 px-10 bg-white">
       <InvoiceHeader 
         isCreated={isCreated} 
         onDownload={onDownload} 
@@ -57,6 +59,7 @@ export function FacturePreview({
         numero={numero}
         dateEmission={dateCreation}
         dateEcheance={dateEcheance}
+        statut={statut}
       />
       
       <div className="border-t border-b py-6 my-8">
@@ -90,12 +93,21 @@ export function FacturePreview({
         currencySymbol={currencySymbol}
       />
 
-      <div className="bg-invoice-blue-50 p-4 rounded-md mb-8">
-        <p className="text-sm">
-          <span className="font-semibold">
-            {montantEnLettresText}
-          </span>
-        </p>
+      {montantEnLettresText && (
+        <div className="bg-invoice-blue-50 p-4 rounded-md mb-8">
+          <p className="text-sm">
+            <span className="font-semibold">
+              {montantEnLettresText}
+            </span>
+          </p>
+        </div>
+      )}
+
+      <div className="mt-10 text-sm border-t pt-6">
+        <h4 className="font-semibold mb-2">Conditions de paiement:</h4>
+        <p>Payable sous 30 jours.</p>
+        <p>Coordonnées bancaires: IBAN FR76 1234 5678 9101 1121 3141 5161</p>
+        <p className="mt-4">Merci pour votre confiance. Pour toute question concernant cette facture, veuillez nous contacter.</p>
       </div>
 
       <InvoiceActions

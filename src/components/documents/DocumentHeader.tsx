@@ -10,6 +10,7 @@ interface DocumentHeaderProps {
   emissionDate: string;
   dueDate: string;
   variant?: "facture" | "devis" | "bon-sortie";
+  status?: string;
 }
 
 export function DocumentHeader({
@@ -18,6 +19,7 @@ export function DocumentHeader({
   emissionDate,
   dueDate,
   variant = "facture",
+  status,
 }: DocumentHeaderProps) {
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -59,40 +61,30 @@ export function DocumentHeader({
   };
   
   return (
-    <div className="flex justify-between items-start mb-8">
-      <div>
+    <div className="flex justify-between mb-8">
+      <div className="text-left">
         {isLoading ? (
           <div className="w-52 h-14 bg-gray-200 animate-pulse rounded"></div>
-        ) : companyInfo?.logo_url ? (
-          <div className="w-52 h-14 flex items-center justify-center">
-            <img 
-              src={companyInfo.logo_url} 
-              alt={companyInfo.nom || "Logo entreprise"} 
-              className="h-full object-contain"
-            />
-          </div>
         ) : (
-          <div className="w-52 h-14 bg-invoice-blue-100 flex items-center justify-center rounded">
-            <Building className="mr-2 h-5 w-5 text-invoice-blue-700" />
-            <p className="font-bold text-invoice-blue-700">
-              {companyInfo?.nom || "VOTRE ENTREPRISE"}
-            </p>
-          </div>
+          <>
+            <h2 className="text-xl font-bold">
+              {companyInfo?.nom || "Votre Entreprise"}
+            </h2>
+            <div className="text-sm mt-2">
+              <p>{companyInfo?.adresse || "Adresse de l'entreprise"}</p>
+              {companyInfo?.code_tva && <p>TVA: {companyInfo.code_tva}</p>}
+              {companyInfo?.telephone && <p>Tél: {companyInfo.telephone}</p>}
+              {companyInfo?.email_contact && <p>Email: {companyInfo.email_contact}</p>}
+            </div>
+          </>
         )}
-        
-        <div className="mt-4 text-sm">
-          <p className="font-semibold">{companyInfo?.nom || "Votre Entreprise"}</p>
-          <p>{companyInfo?.adresse || "Adresse de l'entreprise"}</p>
-          {companyInfo?.code_tva && <p>TVA: {companyInfo.code_tva}</p>}
-          {companyInfo?.telephone && <p>Tél: {companyInfo.telephone}</p>}
-          {companyInfo?.email_contact && <p>Email: {companyInfo.email_contact}</p>}
-        </div>
       </div>
+      
       <div className="text-right">
-        <h1 className={`text-2xl font-bold ${getColorClass()} mb-2`}>
+        <h1 className={`text-3xl font-bold ${getColorClass()}`}>
           {title}
         </h1>
-        <div className="text-sm">
+        <div className="text-sm mt-3 space-y-1">
           <p>
             <span className="font-medium">№ :</span> {documentNumber}
           </p>
@@ -106,6 +98,14 @@ export function DocumentHeader({
             </span>{" "}
             {dueDate}
           </p>
+          {status && (
+            <p>
+              <span className="font-medium">
+                Statut :
+              </span>{" "}
+              {status}
+            </p>
+          )}
         </div>
       </div>
     </div>

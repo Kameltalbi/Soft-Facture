@@ -94,23 +94,25 @@ const getCompanyInfo = async (): Promise<CompanyInfo | null> => {
 const addCompanyInfo = async (doc: jsPDF): Promise<void> => {
   const companyInfo = await getCompanyInfo();
   
-  doc.setFontSize(20);
-  doc.setTextColor(44, 62, 80); // Dark blue color
-  
   if (companyInfo) {
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(44, 62, 80); // Dark blue color
+    
     doc.text(companyInfo.nom, 20, 20);
     
     doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(80, 80, 80);
     
     if (companyInfo.adresse) {
       const addressLines = companyInfo.adresse.split(',');
       addressLines.forEach((line, index) => {
-        doc.text(line.trim(), 20, 30 + (index * 5));
+        doc.text(line.trim(), 20, 28 + (index * 5));
       });
     }
     
-    let yPos = 30 + (companyInfo.adresse ? companyInfo.adresse.split(',').length * 5 : 0);
+    let yPos = 28 + (companyInfo.adresse ? companyInfo.adresse.split(',').length * 5 : 0);
     
     if (companyInfo.code_tva) {
       doc.text(`TVA: ${companyInfo.code_tva}`, 20, yPos);
@@ -138,24 +140,30 @@ const addCompanyInfo = async (doc: jsPDF): Promise<void> => {
     }
   } else {
     // Default company info
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(44, 62, 80);
     doc.text("VOTRE ENTREPRISE", 20, 20);
     
     doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text("123 Rue de Paris", 20, 30);
-    doc.text("75001 Paris, France", 20, 35);
-    doc.text("Tél: 01 23 45 67 89", 20, 40);
-    doc.text("Email: contact@votreentreprise.fr", 20, 45);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(80, 80, 80);
+    doc.text("123 Rue de Paris", 20, 28);
+    doc.text("75001 Paris, France", 20, 33);
+    doc.text("Tél: 01 23 45 67 89", 20, 38);
+    doc.text("Email: contact@votreentreprise.fr", 20, 43);
   }
 };
 
 // Add invoice header with title and info
 const addInvoiceHeader = (doc: jsPDF, invoiceData: InvoiceData, locale: string): void => {
   doc.setFontSize(24);
+  doc.setFont('helvetica', 'bold');
   doc.setTextColor(44, 62, 80);
   doc.text(locale === "fr" ? "FACTURE" : "INVOICE", 140, 25);
   
   doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
   doc.text(`${locale === "fr" ? "№" : "#"}: ${invoiceData.numero}`, 140, 35);
   doc.text(`${locale === "fr" ? "Date d'émission" : "Date"}: ${formatDate(invoiceData.dateCreation, locale === "fr" ? "fr-FR" : "en-US")}`, 140, 40);
   doc.text(`${locale === "fr" ? "Date d'échéance" : "Due Date"}: ${formatDate(invoiceData.dateEcheance, locale === "fr" ? "fr-FR" : "en-US")}`, 140, 45);
@@ -165,10 +173,12 @@ const addInvoiceHeader = (doc: jsPDF, invoiceData: InvoiceData, locale: string):
 // Add client information to the PDF
 const addClientInfo = (doc: jsPDF, invoiceData: InvoiceData, locale: string): void => {
   doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
   doc.setTextColor(44, 62, 80);
   doc.text(locale === "fr" ? "FACTURER À" : "BILL TO", 20, 60);
   
   doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
   doc.text(invoiceData.client.nom, 20, 67);
   if (invoiceData.client.adresse) {
     doc.text(invoiceData.client.adresse, 20, 72);
@@ -248,10 +258,13 @@ const addProductTable = (doc: jsPDF, invoiceData: InvoiceData, locale: string, c
       cellPadding: 5,
     },
     headStyles: {
-      fillColor: [44, 62, 80],
+      fillColor: [50, 55, 65],
       textColor: [255, 255, 255],
       fontStyle: "bold",
     },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245],
+    }
   });
   
   // Return the final Y position for subsequent elements
@@ -277,7 +290,7 @@ const addTotalsSection = (doc: jsPDF, invoiceData: InvoiceData, finalY: number, 
   
   // Total with tax
   doc.setFontSize(12);
-  doc.setFont(undefined, "bold");
+  doc.setFont('helvetica', 'bold');
   doc.text(locale === "fr" ? "Total TTC:" : "Total Amount:", 120, finalY + 15);
   doc.text(`${formatNumber(invoiceData.totalTTC)} ${currencySymbol}`, 170, finalY + 15, { align: "right" });
 };
@@ -285,8 +298,8 @@ const addTotalsSection = (doc: jsPDF, invoiceData: InvoiceData, finalY: number, 
 // Add footer with payment terms and thank you note
 const addFooter = (doc: jsPDF, finalY: number, locale: string): void => {
   doc.setFontSize(9);
-  doc.setFont(undefined, "normal");
-  doc.setTextColor(100, 100, 100);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(80, 80, 80);
   const footerY = finalY + 30;
   
   doc.text(locale === "fr" ? "Conditions de paiement:" : "Payment Terms:", 20, footerY);
