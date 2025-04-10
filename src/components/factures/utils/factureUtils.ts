@@ -119,11 +119,13 @@ export const getCurrencySymbol = (currency: string): string => {
 // Function to create full text for the displayed amount in words
 export const getMontantEnLettresText = (totalTTC: number, advancePaymentAmount: number, finalAmount: number, showAdvancePayment: boolean, currency: string): string => {
   const montantTTCEnLettres = montantEnLettres(totalTTC, currency);
-  const avanceEnLettres = showAdvancePayment && advancePaymentAmount > 0 ? montantEnLettres(advancePaymentAmount, currency) : "";
-  const resteAPayerEnLettres = showAdvancePayment && advancePaymentAmount > 0 ? montantEnLettres(finalAmount, currency) : "";
-
+  
   if (showAdvancePayment && advancePaymentAmount > 0) {
+    const avanceEnLettres = montantEnLettres(advancePaymentAmount, currency);
+    const resteAPayerEnLettres = montantEnLettres(finalAmount, currency);
+    
     return `Montant total: ${montantTTCEnLettres}. Avance perçue: ${avanceEnLettres}. Reste à payer: ${resteAPayerEnLettres}.`;
   }
+  
   return `Montant à payer en toutes lettres: ${montantTTCEnLettres}`;
 };

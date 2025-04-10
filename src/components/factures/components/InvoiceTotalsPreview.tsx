@@ -43,15 +43,17 @@ export function InvoiceTotalsPreview({
             <span className="font-medium">0.00 {currencySymbol}</span>
           </div>
         )}
-        {showAdvancePayment && (
+        {showAdvancePayment && advancePaymentAmount > 0 && (
           <div className="flex justify-between py-1">
             <span className="w-32 text-left">Avance perçue:</span>
-            <span className="font-medium">{formatNumber(advancePaymentAmount)} {currencySymbol}</span>
+            <span className="font-medium">-{formatNumber(advancePaymentAmount)} {currencySymbol}</span>
           </div>
         )}
         <div className="flex justify-between py-2 border-t mt-1 font-bold">
-          <span className="w-32 text-left">Total TTC:</span>
-          <span>{showAdvancePayment ? formatNumber(finalAmount) : formatNumber(totalTTC)} {currencySymbol}</span>
+          <span className="w-32 text-left">
+            {showAdvancePayment && advancePaymentAmount > 0 ? "Reste à payer:" : "Total TTC:"}
+          </span>
+          <span>{formatNumber(showAdvancePayment ? finalAmount : totalTTC)} {currencySymbol}</span>
         </div>
       </div>
     </div>

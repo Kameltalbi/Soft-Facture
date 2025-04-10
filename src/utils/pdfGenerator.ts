@@ -1,4 +1,3 @@
-
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { StatutFacture } from "@/types";
@@ -310,6 +309,7 @@ const addTotalsSection = (doc: jsPDF, invoiceData: InvoiceData, finalY: number, 
     ? (locale === "fr" ? "Reste à payer:" : "Amount Due:") 
     : (locale === "fr" ? "Total TTC:" : "Total Amount:");
   
+  // Fix the spacing issue by ensuring there's proper spacing
   doc.text(totalLabel, 120, finalY + yOffset);
   
   // Calculate final amount based on whether advance payment was applied
@@ -321,7 +321,11 @@ const addTotalsSection = (doc: jsPDF, invoiceData: InvoiceData, finalY: number, 
   
   // Add amount in words
   if (finalAmount) {
-    const amountInWords = montantEnLettres(finalAmount, invoiceData.currency || "TND");
+    // Use the proper function to get the amount in words, including advance payment info
+    const amountInWords = invoiceData.showAdvancePayment && invoiceData.advancePaymentAmount && invoiceData.advancePaymentAmount > 0
+      ? getMontantEnLettresWithAdvance(invoiceData.totalTTC, invoiceData.advancePaymentAmount, finalAmount, invoiceData.currency || "TND", locale)
+      : montantEnLettres(finalAmount, invoiceData.currency || "TND");
+    
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     
@@ -336,6 +340,19 @@ const addTotalsSection = (doc: jsPDF, invoiceData: InvoiceData, finalY: number, 
   }
   
   return finalY + yOffset + 30; // Return the new Y position after all totals and amount in words
+};
+
+// New helper function to format the amount in words with advance payment information
+const getMontantEnLettresWithAdvance = (total: number, advance: number, remaining: number, currency: string, locale: string): string => {
+  const totalInWords = montantEnLettres(total, currency);
+  const advanceInWords = montantEnLettres(advance, currency);
+  const remainingInWords = montantEnLettres(remaining, currency);
+  
+  if (locale === "fr") {
+    return `Montant total: ${totalInWords}. Avance perçue: ${advanceInWords}. Reste à payer: ${remainingInWords}.`;
+  } else {
+    return `Total amount: ${totalInWords}. Advance payment: ${advanceInWords}. Amount due: ${remainingInWords}.`;
+  }
 };
 
 // Main function to generate the invoice PDF
