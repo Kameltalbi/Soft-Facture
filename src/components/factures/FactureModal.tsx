@@ -30,6 +30,7 @@ export function FactureModal({
     setCurrency,
     isCreated,
     isEditing,
+    isLoading,
     productLines,
     currencySymbol,
     subtotal,
@@ -37,6 +38,8 @@ export function FactureModal({
     totalTTC,
     finalAmount,
     montantEnLettresText,
+    clientName,
+    setClientName,
     addProductLine,
     removeProductLine,
     handleTaxChange,
@@ -121,6 +124,7 @@ export function FactureModal({
                 onCancel={handleCancelAndClose}
                 onSave={handleSave}
                 onDownload={handleDownloadAndClose}
+                clientName={clientName}
               />
             ) : (
               <>
@@ -145,14 +149,16 @@ export function FactureModal({
                   onQuantityChange={handleQuantityChange}
                   onPriceChange={handlePriceChange}
                   onProductNameChange={handleProductNameChange}
+                  clientName={clientName}
+                  setClientName={setClientName}
                 />
                 
                 <div className="flex justify-end gap-2 mt-6">
                   <Button variant="outline" onClick={() => onOpenChange(false)}>
                     Annuler
                   </Button>
-                  <Button onClick={handleCreate}>
-                    Créer
+                  <Button onClick={handleCreate} disabled={isLoading}>
+                    {isLoading ? "Création..." : "Créer"}
                   </Button>
                 </div>
               </>

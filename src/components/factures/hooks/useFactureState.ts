@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getCurrencySymbol, getMontantEnLettresText } from "../utils/factureUtils";
 import { toast } from "sonner";
 import { downloadInvoiceAsPDF } from "@/utils/pdfGenerator";
 import { StatutFacture } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
 
 export function useFactureState(factureId: string | null) {
   const [showSettings, setShowSettings] = useState(false);
@@ -13,10 +14,67 @@ export function useFactureState(factureId: string | null) {
   const [currency, setCurrency] = useState("TND");
   const [isCreated, setIsCreated] = useState(false);
   const [currentData, setCurrentData] = useState<any>(null);
+  const [clientName, setClientName] = useState("Entreprise ABC");
+  const [isLoading, setIsLoading] = useState(false);
   
   const currencySymbol = getCurrencySymbol(currency);
 
   const isEditing = factureId !== null;
+
+  // Fetch facture data if editing
+  useEffect(() => {
+    const fetchFactureData = async () => {
+      if (!factureId) return;
+      
+      setIsLoading(true);
+      
+      try {
+        const { data, error } = await supabase
+          .from('factures')
+          .select('*, lignes_facture(*)')
+          .eq('id', factureId)
+          .single();
+          
+        if (error) {
+          throw error;
+        }
+        
+        if (data) {
+          // Set form data based on fetched facture
+          setClientName(data.client_nom || "Entreprise ABC");
+          setApplyTVA(data.appliquer_tva !== false);
+          setShowDiscount(!!data.remise_globale);
+          setShowAdvancePayment(!!data.avance_percue);
+          setAdvancePaymentAmount(data.avance_percue || 0);
+          setCurrency(data.devise || "TND");
+          
+          // Set product lines
+          if (data.lignes_facture && data.lignes_facture.length > 0) {
+            setProductLines(data.lignes_facture.map((line: any) => ({
+              id: line.id,
+              name: line.nom,
+              quantity: line.quantite,
+              unitPrice: line.prix_unitaire,
+              tva: line.taux_tva,
+              montantTVA: line.montant_tva || 0,
+              estTauxTVA: line.est_taux_tva,
+              discount: line.remise || 0,
+              total: line.sous_total,
+            })));
+          }
+          
+          setCurrentData(data);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement de la facture:", error);
+        toast.error("Erreur lors du chargement de la facture");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchFactureData();
+  }, [factureId]);
 
   // Lignes de produits avec ajout des nouveaux champs pour la TVA
   const [productLines, setProductLines] = useState([
@@ -153,34 +211,102 @@ export function useFactureState(factureId: string | null) {
   );
 
   // Generate a facture number
-  const generateFactureNumber = () => {
+  const generateFactureNumber = async () => {
     const year = new Date().getFullYear();
-    const randomId = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    return `FAC-${year}-${randomId}`;
+    
+    try {
+      // Get the count of existing invoices to generate a sequential number
+      const { count, error } = await supabase
+        .from('factures')
+        .select('*', { count: 'exact', head: true });
+        
+      if (error) throw error;
+      
+      const nextNumber = (count || 0) + 1;
+      return `FAC-${year}-${nextNumber.toString().padStart(3, '0')}`;
+    } catch (error) {
+      console.error("Erreur lors de la génération du numéro de facture:", error);
+      // Fallback to random number if count fails
+      const randomId = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      return `FAC-${year}-${randomId}`;
+    }
   };
 
   // Handler for creating the invoice
-  const handleCreate = () => {
-    // Create the new invoice
-    const newFacture = {
-      id: isEditing ? factureId : Date.now().toString(),
-      numero: isEditing ? "FAC2025-001" : generateFactureNumber(),
-      client: "Entreprise ABC",
-      date: new Date().toISOString(),
-      montant: totalTTC,
-      statut: "draft",
-      products: productLines,
-      currency: currency,
-      subtotal: subtotal,
-      totalTVA: totalTVA,
-      totalTTC: totalTTC,
-      montantEnLettresText: montantEnLettresText
-    };
-
-    setCurrentData(newFacture);
-    setIsCreated(true);
+  const handleCreate = async () => {
+    setIsLoading(true);
     
-    toast.success(isEditing ? "Facture modifiée avec succès" : "Facture créée avec succès");
+    try {
+      const factureNumber = await generateFactureNumber();
+      
+      // Create the invoice in Supabase
+      const { data: factureData, error: factureError } = await supabase
+        .from('factures')
+        .insert({
+          numero: factureNumber,
+          client_nom: clientName,
+          date_creation: new Date().toISOString(),
+          date_echeance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
+          sous_total: subtotal,
+          total_tva: totalTVA,
+          total_ttc: totalTTC,
+          remise_globale: showDiscount ? 0 : null,
+          avance_percue: showAdvancePayment ? advancePaymentAmount : null,
+          statut: 'brouillon' as StatutFacture,
+          notes: '',
+          appliquer_tva: applyTVA,
+          devise: currency
+        })
+        .select()
+        .single();
+        
+      if (factureError) throw factureError;
+
+      // Insert product lines
+      const productLinesData = productLines.map(line => ({
+        facture_id: factureData.id,
+        nom: line.name,
+        quantite: line.quantity,
+        prix_unitaire: line.unitPrice,
+        taux_tva: line.tva,
+        montant_tva: line.montantTVA,
+        est_taux_tva: line.estTauxTVA,
+        remise: line.discount,
+        sous_total: line.total
+      }));
+      
+      const { error: linesError } = await supabase
+        .from('lignes_facture')
+        .insert(productLinesData);
+        
+      if (linesError) throw linesError;
+
+      // Create the new invoice object for the UI
+      const newFacture = {
+        id: factureData.id,
+        numero: factureNumber,
+        client: clientName,
+        date: new Date().toISOString(),
+        montant: totalTTC,
+        statut: "brouillon",
+        products: productLines,
+        currency: currency,
+        subtotal: subtotal,
+        totalTVA: totalTVA,
+        totalTTC: totalTTC,
+        montantEnLettresText: montantEnLettresText
+      };
+
+      setCurrentData(newFacture);
+      setIsCreated(true);
+      
+      toast.success(isEditing ? "Facture modifiée avec succès" : "Facture créée avec succès");
+    } catch (error) {
+      console.error("Erreur lors de la création de la facture:", error);
+      toast.error("Erreur lors de la création de la facture");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Handler for cancelling
@@ -190,11 +316,42 @@ export function useFactureState(factureId: string | null) {
   };
 
   // Handler for saving (without closing the modal)
-  const handleSave = () => {
-    toast.success("Facture enregistrée");
+  const handleSave = async () => {
+    if (!currentData?.id) {
+      toast.error("Impossible d'enregistrer une facture qui n'existe pas encore");
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      // Update the invoice in Supabase
+      const { error } = await supabase
+        .from('factures')
+        .update({
+          client_nom: clientName,
+          sous_total: subtotal,
+          total_tva: totalTVA,
+          total_ttc: totalTTC,
+          remise_globale: showDiscount ? 0 : null,
+          avance_percue: showAdvancePayment ? advancePaymentAmount : null,
+          appliquer_tva: applyTVA,
+          devise: currency,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', currentData.id);
+        
+      if (error) throw error;
+      
+      toast.success("Facture enregistrée");
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement de la facture:", error);
+      toast.error("Erreur lors de l'enregistrement de la facture");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Handler for downloading the invoice as PDF
   const handleDownloadPDF = () => {
     try {
       if (!currentData) {
@@ -270,6 +427,7 @@ export function useFactureState(factureId: string | null) {
     setCurrency,
     isCreated,
     isEditing,
+    isLoading,
     productLines,
     currencySymbol,
     subtotal,
@@ -277,6 +435,8 @@ export function useFactureState(factureId: string | null) {
     totalTTC,
     finalAmount,
     montantEnLettresText,
+    clientName,
+    setClientName,
     addProductLine,
     removeProductLine,
     handleTaxChange,

@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,61 +20,15 @@ import {
   Search, 
   Plus, 
   ArrowLeft,
-  ArrowRight
+  ArrowRight,
+  Loader2
 } from "lucide-react";
 import { FilePdf } from "@/components/ui/custom-icons";
 import PeriodSelector, { DateRange } from "@/components/common/PeriodSelector";
 import { FactureModal } from "@/components/factures/FactureModal";
 import { downloadInvoiceAsPDF } from "@/utils/pdfGenerator";
-
-// Données factices pour la démonstration
-const demoFactures = [
-  {
-    id: 1,
-    number: "FAC2025-001",
-    client: "Entreprise ABC",
-    date: "2025-03-01",
-    dueDate: "2025-03-31",
-    amount: 1250.00,
-    status: "draft"
-  },
-  {
-    id: 2,
-    number: "FAC2025-002",
-    client: "Société XYZ",
-    date: "2025-03-05",
-    dueDate: "2025-04-05",
-    amount: 3680.50,
-    status: "sent"
-  },
-  {
-    id: 3,
-    number: "FAC2025-003",
-    client: "Client Particulier",
-    date: "2025-03-10",
-    dueDate: "2025-03-25",
-    amount: 580.00,
-    status: "paid"
-  },
-  {
-    id: 4,
-    number: "FAC2025-004",
-    client: "Entreprise 123",
-    date: "2025-02-15",
-    dueDate: "2025-03-15",
-    amount: 2340.00,
-    status: "overdue"
-  },
-  {
-    id: 5,
-    number: "FAC2025-005",
-    client: "Association DEF",
-    date: "2025-03-20",
-    dueDate: "2025-04-20",
-    amount: 4500.00,
-    status: "sent"
-  }
-];
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const FacturesPage = () => {
   const { t } = useTranslation();
@@ -81,15 +36,47 @@ const FacturesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFacture, setSelectedFacture] = useState<any>(null);
   const [modalAction, setModalAction] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [factures, setFactures] = useState<any[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<DateRange>({
-    from: new Date(),
-    to: new Date()
+    from: new Date(new Date().getFullYear(), new Date().getMonth(), 1), // Premier jour du mois courant
+    to: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0) // Dernier jour du mois courant
   });
+  
+  // Charger les factures depuis Supabase
+  useEffect(() => {
+    const fetchFactures = async () => {
+      setLoading(true);
+      
+      try {
+        // Convertir les dates en format ISO pour la requête
+        const fromDate = selectedPeriod.from.toISOString();
+        const toDate = selectedPeriod.to.toISOString();
+        
+        const { data, error } = await supabase
+          .from('factures')
+          .select('*')
+          .gte('date_creation', fromDate)
+          .lte('date_creation', toDate)
+          .order('date_creation', { ascending: false });
+          
+        if (error) throw error;
+        
+        setFactures(data || []);
+      } catch (error) {
+        console.error("Erreur lors du chargement des factures:", error);
+        toast.error("Erreur lors du chargement des factures");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchFactures();
+  }, [selectedPeriod]);
   
   // This function would typically filter data based on the selected period
   const handlePeriodChange = (dateRange: DateRange) => {
     setSelectedPeriod(dateRange);
-    // In a real app, you would fetch or filter invoices for this period here
     console.log("Filtering invoices for period:", dateRange);
   };
   
@@ -121,19 +108,12 @@ const FacturesPage = () => {
     handlePeriodChange(newPeriod);
   };
   
-  // Filter invoices based on search query and selected period
-  const filteredFactures = demoFactures.filter(facture => {
-    const matchesSearch = 
-      facture.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      facture.client.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // In a real app, you would also filter by date range here
-    const factureDate = new Date(facture.date);
-    const isInSelectedPeriod = 
-      factureDate >= selectedPeriod.from && 
-      factureDate <= selectedPeriod.to;
-    
-    return matchesSearch && isInSelectedPeriod;
+  // Filter invoices based on search query
+  const filteredFactures = factures.filter(facture => {
+    return (
+      facture.numero?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      facture.client_nom?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
   });
   
   const openModal = (action: string, facture?: any) => {
@@ -146,19 +126,51 @@ const FacturesPage = () => {
     setIsModalOpen(false);
     setSelectedFacture(null);
     setModalAction("");
+    
+    // Rafraîchir la liste des factures
+    const refreshFactures = async () => {
+      setLoading(true);
+      
+      try {
+        const fromDate = selectedPeriod.from.toISOString();
+        const toDate = selectedPeriod.to.toISOString();
+        
+        const { data, error } = await supabase
+          .from('factures')
+          .select('*')
+          .gte('date_creation', fromDate)
+          .lte('date_creation', toDate)
+          .order('date_creation', { ascending: false });
+          
+        if (error) throw error;
+        
+        setFactures(data || []);
+      } catch (error) {
+        console.error("Erreur lors du rafraîchissement des factures:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    refreshFactures();
   };
   
   const getStatusClass = (status: string) => {
     switch (status) {
       case "paid":
+      case "payee":
         return "bg-invoice-status-paid/10 text-invoice-status-paid";
       case "sent":
+      case "envoyee":
         return "bg-invoice-status-pending/10 text-invoice-status-pending";
       case "overdue":
+      case "retard":
         return "bg-invoice-status-overdue/10 text-invoice-status-overdue";
       case "draft":
+      case "brouillon":
         return "bg-invoice-status-draft/10 text-invoice-status-draft";
       case "cancelled":
+      case "annulee":
         return "bg-invoice-status-cancelled/10 text-invoice-status-cancelled";
       default:
         return "bg-gray-100 text-gray-500";
@@ -166,27 +178,92 @@ const FacturesPage = () => {
   };
   
   const renderStatusText = (status: string) => {
-    return t(`invoice.status_${status}`) || status;
+    const statusKey = status.replace('-', '_');
+    return t(`invoice.status_${statusKey}`) || status;
   };
   
-  const handleDownloadPDF = (facture: any) => {
-    // Construct invoice data for PDF generation
-    const invoiceData = {
-      id: facture.id.toString(),
-      numero: facture.number,
-      client: {
-        id: "1",
-        nom: facture.client,
-        email: "contact@client.fr",
-      },
-      dateCreation: facture.date,
-      dateEcheance: facture.dueDate,
-      totalTTC: facture.amount,
-      statut: facture.status,
-    };
+  const handleDownloadPDF = async (facture: any) => {
+    setLoading(true);
     
-    // Download the PDF
-    downloadInvoiceAsPDF(invoiceData);
+    try {
+      // Récupérer les lignes de facture
+      const { data: lignesFacture, error: lignesError } = await supabase
+        .from('lignes_facture')
+        .select('*')
+        .eq('facture_id', facture.id);
+        
+      if (lignesError) throw lignesError;
+      
+      // Convertir les lignes de facture au format attendu par le PDF
+      const productLines = lignesFacture?.map(line => ({
+        name: line.nom,
+        quantity: line.quantite,
+        unitPrice: line.prix_unitaire,
+        tva: line.taux_tva,
+        montantTVA: line.montant_tva,
+        estTauxTVA: line.est_taux_tva,
+        discount: line.remise || 0,
+        total: line.sous_total
+      })) || [];
+      
+      // Construire les données pour la génération du PDF
+      const invoiceData = {
+        id: facture.id,
+        numero: facture.numero,
+        client: {
+          id: facture.client_id || "1",
+          nom: facture.client_nom || "Client",
+          email: "contact@client.fr",
+          adresse: facture.client_adresse
+        },
+        dateCreation: facture.date_creation,
+        dateEcheance: facture.date_echeance,
+        totalTTC: facture.total_ttc,
+        statut: facture.statut,
+        produits: productLines,
+        applyTVA: facture.appliquer_tva !== false,
+        showDiscount: !!facture.remise_globale,
+        showAdvancePayment: !!facture.avance_percue,
+        advancePaymentAmount: facture.avance_percue || 0,
+        currency: facture.devise || "TND"
+      };
+      
+      // Télécharger le PDF
+      await downloadInvoiceAsPDF(invoiceData);
+    } catch (error) {
+      console.error("Erreur lors du téléchargement du PDF:", error);
+      toast.error("Erreur lors du téléchargement du PDF");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Fonction pour mettre à jour le statut d'une facture
+  const updateInvoiceStatus = async (factureId: string, newStatus: string) => {
+    setLoading(true);
+    
+    try {
+      const { error } = await supabase
+        .from('factures')
+        .update({ statut: newStatus })
+        .eq('id', factureId);
+        
+      if (error) throw error;
+      
+      // Mise à jour de l'état local
+      setFactures(factures.map(facture => 
+        facture.id === factureId 
+          ? { ...facture, statut: newStatus } 
+          : facture
+      ));
+      
+      toast.success(`Statut de la facture mis à jour: ${renderStatusText(newStatus)}`);
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du statut:", error);
+      toast.error("Erreur lors de la mise à jour du statut");
+    } finally {
+      setLoading(false);
+    }
   };
   
   return (
@@ -197,7 +274,6 @@ const FacturesPage = () => {
             <h1 className="text-3xl font-bold tracking-tight">
               {t("invoice.title")}
             </h1>
-            {/* Subtitle removed as requested */}
           </div>
           
           <div className="flex items-center gap-2">
@@ -210,7 +286,10 @@ const FacturesPage = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             
-            <PeriodSelector onPeriodChange={handlePeriodChange} />
+            <PeriodSelector 
+              initialValue={selectedPeriod}
+              onPeriodChange={handlePeriodChange} 
+            />
             
             <Button
               variant="outline"
@@ -257,7 +336,16 @@ const FacturesPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredFactures.length === 0 ? (
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    <div className="flex justify-center items-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary mr-2" />
+                      {t("common.loading")}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : filteredFactures.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="h-24 text-center">
                     {searchQuery 
@@ -268,14 +356,14 @@ const FacturesPage = () => {
               ) : (
                 filteredFactures.map((facture) => (
                   <TableRow key={facture.id}>
-                    <TableCell className="font-medium">{facture.number}</TableCell>
-                    <TableCell>{facture.client}</TableCell>
-                    <TableCell>{new Date(facture.date).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(facture.dueDate).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-right">{facture.amount.toFixed(2)} €</TableCell>
+                    <TableCell className="font-medium">{facture.numero}</TableCell>
+                    <TableCell>{facture.client_nom || "Client"}</TableCell>
+                    <TableCell>{new Date(facture.date_creation).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(facture.date_echeance).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-right">{facture.total_ttc.toFixed(2)} {facture.devise || "€"}</TableCell>
                     <TableCell>
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusClass(facture.status)}`}>
-                        {renderStatusText(facture.status)}
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusClass(facture.statut)}`}>
+                        {renderStatusText(facture.statut)}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
@@ -299,7 +387,8 @@ const FacturesPage = () => {
                         <Button 
                           variant="ghost" 
                           size="icon"
-                          onClick={() => openModal("cancel", facture)}
+                          onClick={() => updateInvoiceStatus(facture.id, 'annulee')}
+                          disabled={facture.statut === 'annulee'}
                         >
                           <X className="h-4 w-4" />
                           <span className="sr-only">{t("invoice.cancel")}</span>
@@ -307,7 +396,8 @@ const FacturesPage = () => {
                         <Button 
                           variant="ghost" 
                           size="icon"
-                          onClick={() => openModal("validate", facture)}
+                          onClick={() => updateInvoiceStatus(facture.id, 'envoyee')}
+                          disabled={facture.statut === 'payee' || facture.statut === 'annulee'}
                         >
                           <CheckCircle className="h-4 w-4" />
                           <span className="sr-only">{t("invoice.validate")}</span>
@@ -315,7 +405,8 @@ const FacturesPage = () => {
                         <Button 
                           variant="ghost" 
                           size="icon"
-                          onClick={() => openModal("pay", facture)}
+                          onClick={() => updateInvoiceStatus(facture.id, 'payee')}
+                          disabled={facture.statut === 'annulee'}
                         >
                           <CreditCard className="h-4 w-4" />
                           <span className="sr-only">{t("invoice.pay")}</span>
@@ -333,7 +424,7 @@ const FacturesPage = () => {
       {isModalOpen && (
         <FactureModal
           open={isModalOpen}
-          onOpenChange={setIsModalOpen}
+          onOpenChange={closeModal}
           factureId={selectedFacture?.id || null}
         />
       )}
