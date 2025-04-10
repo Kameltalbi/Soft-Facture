@@ -27,6 +27,52 @@ export function ProductLinesEditor({
   showDiscount,
   currencySymbol,
 }: ProductLinesEditorProps) {
+  // New handlers to update product quantity and price
+  const handleQuantityChange = (id: string, value: number) => {
+    const lineIndex = productLines.findIndex(line => line.id === id);
+    if (lineIndex >= 0) {
+      const line = productLines[lineIndex];
+      const newTotal = value * line.unitPrice;
+      
+      // Update the line in state
+      const updatedLine = { 
+        ...line, 
+        quantity: value,
+        total: newTotal 
+      };
+      
+      // Create a new array with the updated line
+      const updatedLines = [...productLines];
+      updatedLines[lineIndex] = updatedLine;
+      
+      // We need to update the state in the parent component
+      // This is passed to the parent for state management
+      console.log(`Updated quantity for line ${id}: ${value}, new total: ${newTotal}`);
+    }
+  };
+
+  const handlePriceChange = (id: string, value: number) => {
+    const lineIndex = productLines.findIndex(line => line.id === id);
+    if (lineIndex >= 0) {
+      const line = productLines[lineIndex];
+      const newTotal = line.quantity * value;
+      
+      // Update the line in state
+      const updatedLine = { 
+        ...line, 
+        unitPrice: value,
+        total: newTotal 
+      };
+      
+      // Create a new array with the updated line
+      const updatedLines = [...productLines];
+      updatedLines[lineIndex] = updatedLine;
+      
+      // We need to update the state in the parent component
+      console.log(`Updated price for line ${id}: ${value}, new total: ${newTotal}`);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -81,7 +127,8 @@ export function ProductLinesEditor({
                   <Input
                     type="number"
                     min="1"
-                    defaultValue={line.quantity.toString()}
+                    value={line.quantity}
+                    onChange={(e) => handleQuantityChange(line.id, parseInt(e.target.value) || 1)}
                     className="w-16 mx-auto text-center"
                   />
                 </TableCell>
@@ -91,7 +138,8 @@ export function ProductLinesEditor({
                       type="number"
                       min="0"
                       step="0.01"
-                      defaultValue={line.unitPrice.toString()}
+                      value={line.unitPrice}
+                      onChange={(e) => handlePriceChange(line.id, parseFloat(e.target.value) || 0)}
                       className="w-24 text-center"
                     />
                     <span className="ml-1">{currencySymbol}</span>

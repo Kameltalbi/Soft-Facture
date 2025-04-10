@@ -41,6 +41,9 @@ export function FactureModal({
     removeProductLine,
     handleTaxChange,
     handleTaxModeChange,
+    handleQuantityChange,
+    handlePriceChange,
+    handleProductNameChange,
     handleAdvancePaymentChange,
     handleCreate,
     handleCancel,
@@ -139,6 +142,9 @@ export function FactureModal({
                   onRemoveProductLine={removeProductLine}
                   onTaxChange={handleTaxChange}
                   onTaxModeChange={handleTaxModeChange}
+                  onQuantityChange={handleQuantityChange}
+                  onPriceChange={handlePriceChange}
+                  onProductNameChange={handleProductNameChange}
                 />
                 
                 <div className="flex justify-end gap-2 mt-6">

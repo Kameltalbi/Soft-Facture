@@ -84,6 +84,36 @@ export function useFactureState(factureId: string | null) {
     }));
   };
 
+  // New handlers for updating product line quantity and price
+  const handleQuantityChange = (id: string, value: number) => {
+    setProductLines(productLines.map(line => {
+      if (line.id === id) {
+        const newTotal = value * line.unitPrice;
+        return { ...line, quantity: value, total: newTotal };
+      }
+      return line;
+    }));
+  };
+
+  const handlePriceChange = (id: string, value: number) => {
+    setProductLines(productLines.map(line => {
+      if (line.id === id) {
+        const newTotal = line.quantity * value;
+        return { ...line, unitPrice: value, total: newTotal };
+      }
+      return line;
+    }));
+  };
+
+  const handleProductNameChange = (id: string, value: string) => {
+    setProductLines(productLines.map(line => {
+      if (line.id === id) {
+        return { ...line, name: value };
+      }
+      return line;
+    }));
+  };
+
   const subtotal = productLines.reduce(
     (sum, line) => sum + line.quantity * line.unitPrice,
     0
@@ -248,6 +278,9 @@ export function useFactureState(factureId: string | null) {
     removeProductLine,
     handleTaxChange,
     handleTaxModeChange,
+    handleQuantityChange,
+    handlePriceChange,
+    handleProductNameChange,
     handleAdvancePaymentChange,
     handleCreate,
     handleCancel,
