@@ -309,7 +309,7 @@ const addTotalsSection = (doc: jsPDF, invoiceData: InvoiceData, finalY: number, 
     ? (locale === "fr" ? "Reste à payer:" : "Amount Due:") 
     : (locale === "fr" ? "Total TTC:" : "Total Amount:");
   
-  // Fix the spacing issue by ensuring there's proper spacing
+  // Fix the spacing issue by adding proper spacing between label and amount
   doc.text(totalLabel, 120, finalY + yOffset);
   
   // Calculate final amount based on whether advance payment was applied
@@ -333,16 +333,23 @@ const addTotalsSection = (doc: jsPDF, invoiceData: InvoiceData, finalY: number, 
     doc.setFillColor(240, 247, 255); // Light blue background
     doc.rect(20, finalY + yOffset + 10, doc.internal.pageSize.width - 40, 15, 'F');
     
-    // Add the text
+    // Add the text with word wrapping for long texts
     doc.setTextColor(44, 62, 80); // Dark blue text
-    doc.text(locale === "fr" ? `Montant à payer en toutes lettres: ${amountInWords}` : 
-      `Amount in words: ${amountInWords}`, 25, finalY + yOffset + 18);
+    
+    // Handle text wrapping for long text
+    const textLines = doc.splitTextToSize(
+      locale === "fr" ? `Montant à payer en toutes lettres: ${amountInWords}` : 
+      `Amount in words: ${amountInWords}`, 
+      doc.internal.pageSize.width - 50
+    );
+    
+    doc.text(textLines, 25, finalY + yOffset + 18);
   }
   
   return finalY + yOffset + 30; // Return the new Y position after all totals and amount in words
 };
 
-// New helper function to format the amount in words with advance payment information
+// Helper function to format the amount in words with advance payment information
 const getMontantEnLettresWithAdvance = (total: number, advance: number, remaining: number, currency: string, locale: string): string => {
   const totalInWords = montantEnLettres(total, currency);
   const advanceInWords = montantEnLettres(advance, currency);

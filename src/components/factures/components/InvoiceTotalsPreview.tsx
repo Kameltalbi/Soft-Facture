@@ -53,7 +53,7 @@ export function InvoiceTotalsPreview({
           <span className="w-32 text-left">
             {showAdvancePayment && advancePaymentAmount > 0 ? "Reste à payer:" : "Total TTC:"}
           </span>
-          <span>{formatNumber(showAdvancePayment ? finalAmount : totalTTC)} {currencySymbol}</span>
+          <span className="text-right">{formatNumber(showAdvancePayment ? finalAmount : totalTTC)} {currencySymbol}</span>
         </div>
       </div>
     </div>
