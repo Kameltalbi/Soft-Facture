@@ -4,6 +4,7 @@ import { StatutFacture } from "@/types";
 import { getCurrencySymbol } from "@/components/factures/utils/factureUtils";
 import { CompanyInfo } from "@/types/settings";
 import { supabase } from "@/integrations/supabase/client";
+import { montantEnLettres } from "@/components/factures/utils/factureUtils";
 
 interface ProductLine {
   name: string;
@@ -273,7 +274,7 @@ const addProductTable = (doc: jsPDF, invoiceData: InvoiceData, locale: string, c
 };
 
 // Add totals section to the PDF
-const addTotalsSection = (doc: jsPDF, invoiceData: InvoiceData, finalY: number, locale: string, currencySymbol: string): void => {
+const addTotalsSection = (doc: jsPDF, invoiceData: InvoiceData, finalY: number, locale: string, currencySymbol: string): number => {
   doc.setFontSize(10);
   
   // Create a formatted totals section with better spacing
@@ -294,28 +295,24 @@ const addTotalsSection = (doc: jsPDF, invoiceData: InvoiceData, finalY: number, 
   doc.setFont('helvetica', 'bold');
   doc.text(locale === "fr" ? "Total TTC:" : "Total Amount:", 120, finalY + 15);
   doc.text(`${formatNumber(invoiceData.totalTTC)} ${currencySymbol}`, 170, finalY + 15, { align: "right" });
-};
-
-// Add footer with payment terms and thank you note
-const addFooter = (doc: jsPDF, finalY: number, locale: string): void => {
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(80, 80, 80);
-  const footerY = finalY + 30;
   
-  doc.text(locale === "fr" ? "Conditions de paiement:" : "Payment Terms:", 20, footerY);
-  doc.text(locale === "fr" ? "Payable sous 30 jours." : "Payable within 30 days.", 20, footerY + 5);
-  doc.text(locale === "fr" ? "Coordonnées bancaires: IBAN FR76 1234 5678 9101 1121 3141 5161" : 
-    "Bank details: IBAN FR76 1234 5678 9101 1121 3141 5161", 20, footerY + 10);
+  // Add amount in words
+  if (invoiceData.totalTTC) {
+    const amountInWords = montantEnLettres(invoiceData.totalTTC, invoiceData.currency || "TND");
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    
+    // Add a light blue background for the text (similar to the preview)
+    doc.setFillColor(240, 247, 255); // Light blue background
+    doc.rect(20, finalY + 25, doc.internal.pageSize.width - 40, 15, 'F');
+    
+    // Add the text
+    doc.setTextColor(44, 62, 80); // Dark blue text
+    doc.text(locale === "fr" ? `Montant à payer en toutes lettres: ${amountInWords}` : 
+      `Amount in words: ${amountInWords}`, 25, finalY + 33);
+  }
   
-  // Thank you note
-  doc.text(
-    locale === "fr" 
-      ? "Merci pour votre confiance. Pour toute question concernant cette facture, veuillez nous contacter."
-      : "Thank you for your business. For any questions regarding this invoice, please contact us.",
-    20, 
-    footerY + 20
-  );
+  return finalY + 40; // Return the new Y position after all totals and amount in words
 };
 
 // Main function to generate the invoice PDF
@@ -338,11 +335,8 @@ export const generateInvoicePDF = async (
   // Add product table and get the ending Y position
   const finalY = addProductTable(doc, invoiceData, locale, currencySymbol);
   
-  // Add totals section
+  // Add totals section including amount in words
   addTotalsSection(doc, invoiceData, finalY, locale, currencySymbol);
-  
-  // Add footer
-  addFooter(doc, finalY, locale);
   
   return doc;
 };
