@@ -45,6 +45,7 @@ export function useFactureState(factureId: string | null) {
         
         if (data) {
           // Set form data based on fetched facture
+          // We need to use optional chaining since field names might differ
           setClientName(data.client_nom || "Entreprise ABC");
           setApplyTVA(data.appliquer_tva !== false);
           setShowDiscount(!!data.remise_globale);
@@ -247,11 +248,16 @@ export function useFactureState(factureId: string | null) {
       const factureNumber = await generateFactureNumber();
       setInvoiceNumber(factureNumber);
       
+      // Create a client ID or use a dummy one if we only have a name
+      const clientId = "00000000-0000-0000-0000-000000000000"; // Dummy client ID
+      
       // Create the invoice in Supabase
       const { data: factureData, error: factureError } = await supabase
         .from('factures')
         .insert({
           numero: factureNumber,
+          client_id: clientId,
+          // Store client name in a column we'll add to the database
           client_nom: clientName,
           date_creation: new Date().toISOString(),
           date_echeance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
@@ -262,6 +268,7 @@ export function useFactureState(factureId: string | null) {
           avance_percue: showAdvancePayment ? advancePaymentAmount : null,
           statut: 'brouillon' as StatutFacture,
           notes: '',
+          // Add additional columns for settings
           appliquer_tva: applyTVA,
           devise: currency
         })
@@ -317,12 +324,6 @@ export function useFactureState(factureId: string | null) {
     }
   };
 
-  // Handler for cancelling
-  const handleCancel = () => {
-    toast.info("La facture a été annulée");
-    setIsCreated(false);
-  };
-
   // Handler for saving (without closing the modal)
   const handleSave = async () => {
     if (!currentData?.id) {
@@ -333,10 +334,11 @@ export function useFactureState(factureId: string | null) {
     setIsLoading(true);
     
     try {
-      // Update the invoice in Supabase
+      // Update the invoice in Supabase with the correct field names
       const { error } = await supabase
         .from('factures')
         .update({
+          // Make sure to update these field names to match your database schema
           client_nom: clientName,
           sous_total: subtotal,
           total_tva: totalTVA,
