@@ -287,8 +287,8 @@ const FacturesPage = () => {
             </Button>
             
             <PeriodSelector 
-              initialValue={selectedPeriod}
-              onPeriodChange={handlePeriodChange} 
+              value={selectedPeriod}
+              onChange={handlePeriodChange} 
             />
             
             <Button

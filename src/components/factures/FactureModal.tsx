@@ -40,6 +40,9 @@ export function FactureModal({
     montantEnLettresText,
     clientName,
     setClientName,
+    invoiceNumber,
+    invoiceDate,
+    dueDate,
     addProductLine,
     removeProductLine,
     handleTaxChange,
@@ -125,6 +128,9 @@ export function FactureModal({
                 onSave={handleSave}
                 onDownload={handleDownloadAndClose}
                 clientName={clientName}
+                invoiceNumber={invoiceNumber}
+                invoiceDate={invoiceDate}
+                dueDate={dueDate}
               />
             ) : (
               <>

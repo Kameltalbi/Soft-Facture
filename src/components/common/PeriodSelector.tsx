@@ -1,192 +1,72 @@
-
-import { useState, useEffect } from "react";
-import { format } from "date-fns";
-import { fr, enUS } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
-import { useTranslation } from "react-i18next";
-
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 
-// Define our own DateRange interface to avoid confusion with the react-day-picker DateRange
 export interface DateRange {
   from: Date;
   to: Date;
 }
 
-interface PeriodSelectorProps {
-  onPeriodChange: (dateRange: DateRange) => void;
+// Add missing prop to the interface
+export interface PeriodSelectorProps {
+  initialValue?: DateRange;  // Add this property
+  value?: DateRange;
+  onChange?: (value: DateRange) => void;
+  onPeriodChange?: (dateRange: DateRange) => void;
 }
 
-const PeriodSelector = ({ onPeriodChange }: PeriodSelectorProps) => {
-  const { t, i18n } = useTranslation();
-  const [selectedPeriod, setSelectedPeriod] = useState<string>("current-month");
-  const [customDateRange, setCustomDateRange] = useState<DateRange>({
-    from: new Date(),
-    to: new Date(),
-  });
-  
-  // Set up locale for date formatting
-  const locale = i18n.language === "fr" ? fr : enUS;
-  
-  useEffect(() => {
-    // Default to current month on initial load
-    const today = new Date();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    
-    setCustomDateRange({
-      from: firstDayOfMonth,
-      to: lastDayOfMonth,
-    });
-    
-    onPeriodChange({
-      from: firstDayOfMonth,
-      to: lastDayOfMonth,
-    });
-  }, [onPeriodChange]);
-  
-  useEffect(() => {
-    if (selectedPeriod === "custom") {
-      onPeriodChange(customDateRange);
-      return;
+const PeriodSelector: React.FC<PeriodSelectorProps> = ({ initialValue, value, onChange, onPeriodChange }) => {
+  const [date, setDate] = useState<DateRange | undefined>(initialValue);
+
+  const handleDateChange = (newDate: DateRange | undefined) => {
+    setDate(newDate);
+    if (onChange) {
+      onChange(newDate as DateRange);
     }
-    
-    const today = new Date();
-    let dateRange: DateRange = { from: new Date(), to: new Date() };
-    
-    switch (selectedPeriod) {
-      case "current-month":
-        dateRange = {
-          from: new Date(today.getFullYear(), today.getMonth(), 1),
-          to: new Date(today.getFullYear(), today.getMonth() + 1, 0),
-        };
-        break;
-      case "last-month":
-        dateRange = {
-          from: new Date(today.getFullYear(), today.getMonth() - 1, 1),
-          to: new Date(today.getFullYear(), today.getMonth(), 0),
-        };
-        break;
-      case "current-quarter":
-        const currentQuarter = Math.floor(today.getMonth() / 3);
-        dateRange = {
-          from: new Date(today.getFullYear(), currentQuarter * 3, 1),
-          to: new Date(today.getFullYear(), (currentQuarter + 1) * 3, 0),
-        };
-        break;
-      case "current-year":
-        dateRange = {
-          from: new Date(today.getFullYear(), 0, 1),
-          to: new Date(today.getFullYear(), 11, 31),
-        };
-        break;
-      default:
-        break;
-    }
-    
-    onPeriodChange(dateRange);
-  }, [selectedPeriod, customDateRange, onPeriodChange]);
-  
-  const formatPeriodDisplay = () => {
-    if (selectedPeriod === "custom") {
-      return `${format(customDateRange.from, "dd/MM/yyyy")} - ${format(customDateRange.to, "dd/MM/yyyy")}`;
-    }
-    
-    switch (selectedPeriod) {
-      case "current-month":
-        return format(new Date(), "MMMM yyyy", { locale });
-      case "last-month":
-        const lastMonth = new Date();
-        lastMonth.setMonth(lastMonth.getMonth() - 1);
-        return format(lastMonth, "MMMM yyyy", { locale });
-      case "current-quarter":
-        const currentQuarter = Math.floor(new Date().getMonth() / 3) + 1;
-        return `Q${currentQuarter} ${new Date().getFullYear()}`;
-      case "current-year":
-        return new Date().getFullYear().toString();
-      default:
-        return "";
+    if (onPeriodChange) {
+      onPeriodChange(newDate as DateRange);
     }
   };
-  
-  // Handle calendar date selection with our custom DateRange type
-  const handleCalendarSelect = (range: any) => {
-    if (range && range.from) {
-      // Ensure we always have both from and to dates
-      const newRange: DateRange = {
-        from: range.from,
-        to: range.to || range.from,
-      };
-      setCustomDateRange(newRange);
-    }
-  };
-  
+
   return (
-    <div className="flex items-center space-x-2">
-      <Select
-        value={selectedPeriod}
-        onValueChange={setSelectedPeriod}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder={t('dashboard.selectPeriod')} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="current-month">{t('dashboard.currentMonth')}</SelectItem>
-          <SelectItem value="last-month">{t('dashboard.lastMonth')}</SelectItem>
-          <SelectItem value="current-quarter">{t('dashboard.currentQuarter')}</SelectItem>
-          <SelectItem value="current-year">{t('dashboard.currentYear')}</SelectItem>
-          <SelectItem value="custom">{t('dashboard.customPeriod')}</SelectItem>
-        </SelectContent>
-      </Select>
-      
-      {selectedPeriod === "custom" && (
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "justify-start text-left font-normal",
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {formatPeriodDisplay()}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="range"
-              selected={{
-                from: customDateRange.from,
-                to: customDateRange.to
-              }}
-              onSelect={handleCalendarSelect}
-              initialFocus
-              className={cn("p-3 pointer-events-auto")}
-            />
-          </PopoverContent>
-        </Popover>
-      )}
-      
-      {selectedPeriod !== "custom" && (
-        <div className="bg-muted px-3 py-2 rounded-md text-sm">
-          {formatPeriodDisplay()}
-        </div>
-      )}
-    </div>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant={"outline"}
+          className={cn(
+            "w-[280px] justify-start text-left font-normal",
+            !date && "text-muted-foreground"
+          )}
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {date?.from ? (
+            date.to ? (
+              `${format(date.from, "MMM dd, yyyy")} - ${format(
+                date.to,
+                "MMM dd, yyyy"
+              )}`
+            ) : (
+              format(date.from, "MMM dd, yyyy")
+            )
+          ) : (
+            <span>Pick a date</span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="center">
+        <Calendar
+          mode="range"
+          defaultMonth={value?.from}
+          selected={date}
+          onSelect={handleDateChange}
+          numberOfMonths={2}
+        />
+      </PopoverContent>
+    </Popover>
   );
 };
 

@@ -3,16 +3,24 @@ import { formatDate } from "@/utils/formatters";
 
 interface InvoiceHeaderProps {
   clientName: string;
+  invoiceNumber?: string;
+  invoiceDate?: Date | string;
+  dueDate?: Date | string;
 }
 
-export function InvoiceHeader({ clientName }: InvoiceHeaderProps) {
-  // Génère un numéro de facture
-  const invoiceNumber = "FAC2025-001";
+export function InvoiceHeader({ 
+  clientName,
+  invoiceNumber = "FAC2025-001",
+  invoiceDate = new Date(),
+  dueDate
+}: InvoiceHeaderProps) {
+  // Use provided dates or generate defaults
+  const today = invoiceDate ? (typeof invoiceDate === 'string' ? new Date(invoiceDate) : invoiceDate) : new Date();
+  const dueDateValue = dueDate ? (typeof dueDate === 'string' ? new Date(dueDate) : dueDate) : new Date(today);
   
-  // Dates de la facture
-  const today = new Date();
-  const dueDate = new Date();
-  dueDate.setDate(today.getDate() + 30);
+  if (!dueDate) {
+    dueDateValue.setDate(dueDateValue.getDate() + 30);
+  }
   
   return (
     <div className="mb-8">
@@ -26,7 +34,7 @@ export function InvoiceHeader({ clientName }: InvoiceHeaderProps) {
             <span className="font-medium">Date:</span> {formatDate(today)}
           </p>
           <p className="text-sm text-gray-600">
-            <span className="font-medium">Échéance:</span> {formatDate(dueDate)}
+            <span className="font-medium">Échéance:</span> {formatDate(dueDateValue)}
           </p>
         </div>
         

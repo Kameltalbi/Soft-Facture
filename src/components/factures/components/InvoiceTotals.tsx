@@ -1,71 +1,79 @@
 
-import { Input } from "@/components/ui/input";
+import { formatNumber } from "@/utils/formatters";
 
 interface InvoiceTotalsProps {
   subtotal: number;
   totalTVA: number;
   totalTTC: number;
+  finalAmount: number;
   applyTVA: boolean;
   showDiscount: boolean;
   showAdvancePayment: boolean;
   advancePaymentAmount: number;
-  handleAdvancePaymentChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  finalAmount: number;
-  currencySymbol: string;
+  montantEnLettresText: string;
+  currency: string;
 }
 
 export function InvoiceTotals({
   subtotal,
   totalTVA,
   totalTTC,
+  finalAmount,
   applyTVA,
   showDiscount,
   showAdvancePayment,
   advancePaymentAmount,
-  handleAdvancePaymentChange,
-  finalAmount,
-  currencySymbol,
+  montantEnLettresText,
+  currency
 }: InvoiceTotalsProps) {
   return (
-    <div className="flex justify-end">
-      <div className="w-64 space-y-2">
-        <div className="flex justify-between">
-          <span className="w-28 text-left">Sous-total</span>
-          <span>{subtotal.toLocaleString("fr-FR")} {currencySymbol}</span>
-        </div>
-        {applyTVA && (
-          <div className="flex justify-between">
-            <span className="w-28 text-left">TVA</span>
-            <span>{totalTVA.toLocaleString("fr-FR")} {currencySymbol}</span>
+    <div className="mt-6 mb-8">
+      <div className="flex flex-col items-end">
+        <div className="w-64 border-t pt-4">
+          <div className="flex justify-between mb-2">
+            <span>Sous-total:</span>
+            <span>{formatNumber(subtotal)} {currency}</span>
           </div>
-        )}
-        {showDiscount && (
-          <div className="flex justify-between">
-            <span className="w-28 text-left">Remise globale</span>
-            <span>0.00 {currencySymbol}</span>
-          </div>
-        )}
-        {showAdvancePayment && (
-          <div className="flex justify-between items-center">
-            <span className="w-28 text-left">Avance perçue</span>
-            <div className="w-24 flex items-center">
-              <Input
-                type="number"
-                min="0"
-                max={totalTTC}
-                step="0.01"
-                value={advancePaymentAmount}
-                onChange={handleAdvancePaymentChange}
-                className="w-full text-right pr-1"
-              />
-              <span className="ml-1">{currencySymbol}</span>
+          
+          {applyTVA && (
+            <div className="flex justify-between mb-2">
+              <span>TVA:</span>
+              <span>{formatNumber(totalTVA)} {currency}</span>
             </div>
+          )}
+          
+          {showDiscount && (
+            <div className="flex justify-between mb-2">
+              <span>Remise:</span>
+              <span>0.00 {currency}</span>
+            </div>
+          )}
+          
+          <div className="flex justify-between mb-2 font-medium">
+            <span>Total TTC:</span>
+            <span>{formatNumber(totalTTC)} {currency}</span>
           </div>
-        )}
-        <div className="flex justify-between pt-2 border-t font-bold">
-          <span className="w-28 text-left">Total TTC</span>
-          <span>{showAdvancePayment ? finalAmount.toLocaleString("fr-FR") : totalTTC.toLocaleString("fr-FR")} {currencySymbol}</span>
+          
+          {showAdvancePayment && advancePaymentAmount > 0 && (
+            <div className="flex justify-between mb-2">
+              <span>Avance perçue:</span>
+              <span>-{formatNumber(advancePaymentAmount)} {currency}</span>
+            </div>
+          )}
+          
+          {showAdvancePayment && advancePaymentAmount > 0 && (
+            <div className="flex justify-between font-bold pt-2 border-t">
+              <span>Reste à payer:</span>
+              <span>{formatNumber(finalAmount)} {currency}</span>
+            </div>
+          )}
         </div>
+      </div>
+      
+      <div className="mt-8 p-3 bg-blue-50 rounded-md">
+        <p className="text-sm text-gray-700">
+          <span className="font-medium">Montant en toutes lettres:</span> {montantEnLettresText}
+        </p>
       </div>
     </div>
   );

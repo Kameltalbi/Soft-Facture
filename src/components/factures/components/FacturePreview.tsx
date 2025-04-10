@@ -21,6 +21,9 @@ interface FacturePreviewProps {
   onSave?: () => void;
   onDownload?: () => void;
   clientName: string;
+  invoiceNumber?: string;
+  invoiceDate?: Date | string;
+  dueDate?: Date | string;
 }
 
 export function FacturePreview({
@@ -39,12 +42,18 @@ export function FacturePreview({
   onCancel,
   onSave,
   onDownload,
-  clientName
+  clientName,
+  invoiceNumber,
+  invoiceDate,
+  dueDate
 }: FacturePreviewProps) {
   return (
     <div className="bg-white p-6 rounded-lg border">
       <InvoiceHeader 
         clientName={clientName}
+        invoiceNumber={invoiceNumber}
+        invoiceDate={invoiceDate}
+        dueDate={dueDate}
       />
       
       <InvoiceTable 

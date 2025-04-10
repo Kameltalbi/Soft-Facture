@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { getCurrencySymbol, getMontantEnLettresText } from "../utils/factureUtils";
 import { toast } from "sonner";
@@ -16,6 +17,9 @@ export function useFactureState(factureId: string | null) {
   const [currentData, setCurrentData] = useState<any>(null);
   const [clientName, setClientName] = useState("Entreprise ABC");
   const [isLoading, setIsLoading] = useState(false);
+  const [invoiceNumber, setInvoiceNumber] = useState<string | undefined>(undefined);
+  const [invoiceDate, setInvoiceDate] = useState<string | undefined>(undefined);
+  const [dueDate, setDueDate] = useState<string | undefined>(undefined);
   
   const currencySymbol = getCurrencySymbol(currency);
 
@@ -47,6 +51,9 @@ export function useFactureState(factureId: string | null) {
           setShowAdvancePayment(!!data.avance_percue);
           setAdvancePaymentAmount(data.avance_percue || 0);
           setCurrency(data.devise || "TND");
+          setInvoiceNumber(data.numero);
+          setInvoiceDate(data.date_creation);
+          setDueDate(data.date_echeance);
           
           // Set product lines
           if (data.lignes_facture && data.lignes_facture.length > 0) {
@@ -238,6 +245,7 @@ export function useFactureState(factureId: string | null) {
     
     try {
       const factureNumber = await generateFactureNumber();
+      setInvoiceNumber(factureNumber);
       
       // Create the invoice in Supabase
       const { data: factureData, error: factureError } = await supabase
@@ -285,15 +293,15 @@ export function useFactureState(factureId: string | null) {
       const newFacture = {
         id: factureData.id,
         numero: factureNumber,
-        client: clientName,
-        date: new Date().toISOString(),
-        montant: totalTTC,
+        client_nom: clientName,
+        date_creation: new Date().toISOString(),
+        date_echeance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
+        total_ttc: totalTTC,
         statut: "brouillon",
-        products: productLines,
-        currency: currency,
-        subtotal: subtotal,
-        totalTVA: totalTVA,
-        totalTTC: totalTTC,
+        produits: productLines,
+        devise: currency,
+        sous_total: subtotal,
+        total_tva: totalTVA,
         montantEnLettresText: montantEnLettresText
       };
 
@@ -358,15 +366,15 @@ export function useFactureState(factureId: string | null) {
         // If we're not in created state yet, construct the data
         const invoiceData = {
           id: factureId || "new",
-          numero: isEditing ? "FAC2025-001" : "FAC2025-005",
+          numero: invoiceNumber || "FAC2025-001",
           client: {
             id: "1",
-            nom: "Entreprise ABC",
+            nom: clientName,
             email: "contact@abc.fr",
             adresse: "456 Avenue des Clients, 69002 Lyon, France"
           },
-          dateCreation: new Date().toISOString(),
-          dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
+          dateCreation: invoiceDate || new Date().toISOString(),
+          dateEcheance: dueDate || new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
           totalTTC: totalTTC,
           statut: "brouillon" as StatutFacture,
           produits: productLines,
@@ -388,20 +396,20 @@ export function useFactureState(factureId: string | null) {
         numero: currentData.numero,
         client: {
           id: "client-id",
-          nom: currentData.client,
+          nom: currentData.client_nom || clientName,
           email: "client@example.com",
           adresse: "456 Avenue des Clients, 69002 Lyon, France"
         },
-        dateCreation: currentData.date,
-        dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
-        totalTTC: currentData.totalTTC,
-        statut: "brouillon" as StatutFacture,
-        produits: currentData.products,
+        dateCreation: currentData.date_creation || new Date().toISOString(),
+        dateEcheance: currentData.date_echeance || new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
+        totalTTC: currentData.total_ttc || totalTTC,
+        statut: currentData.statut || "brouillon" as StatutFacture,
+        produits: productLines,
         applyTVA: applyTVA,
         showDiscount: showDiscount,
         showAdvancePayment: showAdvancePayment,
         advancePaymentAmount: advancePaymentAmount,
-        currency: currentData.currency
+        currency: currentData.devise || currency
       };
 
       downloadInvoiceAsPDF(invoiceData);
@@ -437,6 +445,9 @@ export function useFactureState(factureId: string | null) {
     montantEnLettresText,
     clientName,
     setClientName,
+    invoiceNumber,
+    invoiceDate,
+    dueDate,
     addProductLine,
     removeProductLine,
     handleTaxChange,
