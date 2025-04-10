@@ -62,6 +62,9 @@ export function FactureForm({
         onRemoveProductLine={onRemoveProductLine}
         onTaxChange={onTaxChange}
         onTaxModeChange={onTaxModeChange}
+        onQuantityChange={onQuantityChange}
+        onPriceChange={onPriceChange}
+        onProductNameChange={onProductNameChange}
         applyTVA={applyTVA}
         showDiscount={showDiscount}
         currencySymbol={currencySymbol}

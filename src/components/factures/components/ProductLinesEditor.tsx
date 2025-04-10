@@ -12,6 +12,9 @@ interface ProductLinesEditorProps {
   onRemoveProductLine: (id: string) => void;
   onTaxChange: (id: string, value: number, estTauxTVA: boolean) => void;
   onTaxModeChange: (id: string, estTauxTVA: boolean) => void;
+  onQuantityChange?: (id: string, value: number) => void;
+  onPriceChange?: (id: string, value: number) => void;
+  onProductNameChange?: (id: string, value: string) => void;
   applyTVA: boolean;
   showDiscount: boolean;
   currencySymbol: string;
@@ -23,56 +26,13 @@ export function ProductLinesEditor({
   onRemoveProductLine,
   onTaxChange,
   onTaxModeChange,
+  onQuantityChange,
+  onPriceChange,
+  onProductNameChange,
   applyTVA,
   showDiscount,
   currencySymbol,
 }: ProductLinesEditorProps) {
-  // New handlers to update product quantity and price
-  const handleQuantityChange = (id: string, value: number) => {
-    const lineIndex = productLines.findIndex(line => line.id === id);
-    if (lineIndex >= 0) {
-      const line = productLines[lineIndex];
-      const newTotal = value * line.unitPrice;
-      
-      // Update the line in state
-      const updatedLine = { 
-        ...line, 
-        quantity: value,
-        total: newTotal 
-      };
-      
-      // Create a new array with the updated line
-      const updatedLines = [...productLines];
-      updatedLines[lineIndex] = updatedLine;
-      
-      // We need to update the state in the parent component
-      // This is passed to the parent for state management
-      console.log(`Updated quantity for line ${id}: ${value}, new total: ${newTotal}`);
-    }
-  };
-
-  const handlePriceChange = (id: string, value: number) => {
-    const lineIndex = productLines.findIndex(line => line.id === id);
-    if (lineIndex >= 0) {
-      const line = productLines[lineIndex];
-      const newTotal = line.quantity * value;
-      
-      // Update the line in state
-      const updatedLine = { 
-        ...line, 
-        unitPrice: value,
-        total: newTotal 
-      };
-      
-      // Create a new array with the updated line
-      const updatedLines = [...productLines];
-      updatedLines[lineIndex] = updatedLine;
-      
-      // We need to update the state in the parent component
-      console.log(`Updated price for line ${id}: ${value}, new total: ${newTotal}`);
-    }
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -121,6 +81,7 @@ export function ProductLinesEditor({
                   <Input
                     placeholder="Description"
                     defaultValue={line.name}
+                    onChange={(e) => onProductNameChange && onProductNameChange(line.id, e.target.value)}
                   />
                 </TableCell>
                 <TableCell className="text-center">
@@ -128,7 +89,7 @@ export function ProductLinesEditor({
                     type="number"
                     min="1"
                     value={line.quantity}
-                    onChange={(e) => handleQuantityChange(line.id, parseInt(e.target.value) || 1)}
+                    onChange={(e) => onQuantityChange && onQuantityChange(line.id, parseInt(e.target.value) || 1)}
                     className="w-16 mx-auto text-center"
                   />
                 </TableCell>
@@ -139,7 +100,7 @@ export function ProductLinesEditor({
                       min="0"
                       step="0.01"
                       value={line.unitPrice}
-                      onChange={(e) => handlePriceChange(line.id, parseFloat(e.target.value) || 0)}
+                      onChange={(e) => onPriceChange && onPriceChange(line.id, parseFloat(e.target.value) || 0)}
                       className="w-24 text-center"
                     />
                     <span className="ml-1">{currencySymbol}</span>
