@@ -10,6 +10,7 @@ interface DocumentHeaderProps {
   dueDate: string;
   variant?: "facture" | "devis" | "bon-sortie";
   status?: string;
+  hideStatus?: boolean;
 }
 
 export function DocumentHeader({
@@ -19,6 +20,7 @@ export function DocumentHeader({
   dueDate,
   variant = "facture",
   status,
+  hideStatus = false,
 }: DocumentHeaderProps) {
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -115,7 +117,7 @@ export function DocumentHeader({
                 </span>{" "}
                 {dueDate}
               </p>
-              {status && (
+              {status && !hideStatus && (
                 <p>
                   <span className="font-medium">
                     Statut :

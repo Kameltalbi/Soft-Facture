@@ -168,7 +168,7 @@ const addInvoiceHeader = (doc: jsPDF, invoiceData: InvoiceData, locale: string):
   doc.text(`${locale === "fr" ? "№" : "#"}: ${invoiceData.numero}`, 140, 80);
   doc.text(`${locale === "fr" ? "Date d'émission" : "Date"}: ${formatDate(invoiceData.dateCreation, locale === "fr" ? "fr-FR" : "en-US")}`, 140, 85);
   doc.text(`${locale === "fr" ? "Date d'échéance" : "Due Date"}: ${formatDate(invoiceData.dateEcheance, locale === "fr" ? "fr-FR" : "en-US")}`, 140, 90);
-  doc.text(`${locale === "fr" ? "Statut" : "Status"}: ${getStatusLabel(invoiceData.statut, locale)}`, 140, 95);
+  // Remove status line
 };
 
 // Add client information to the PDF

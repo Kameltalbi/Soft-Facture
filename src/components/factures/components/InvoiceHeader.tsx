@@ -31,7 +31,7 @@ export function InvoiceHeader({
         emissionDate={dateEmission}
         dueDate={dateEcheance}
         variant="facture"
-        status={statut}
+        hideStatus={true}
       />
       
       {!isCreated && onDownload && (
