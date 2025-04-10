@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { getCurrencySymbol, getMontantEnLettresText } from "../utils/factureUtils";
 import { toast } from "sonner";
@@ -216,6 +215,8 @@ export function useFactureState(factureId: string | null) {
           produits: productLines,
           applyTVA,
           showDiscount,
+          showAdvancePayment,
+          advancePaymentAmount, 
           currency
         };
         
@@ -241,6 +242,8 @@ export function useFactureState(factureId: string | null) {
         produits: currentData.products,
         applyTVA: applyTVA,
         showDiscount: showDiscount,
+        showAdvancePayment: showAdvancePayment,
+        advancePaymentAmount: advancePaymentAmount,
         currency: currentData.currency
       };
 

@@ -1,3 +1,4 @@
+
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { StatutFacture } from "@/types";
@@ -33,6 +34,8 @@ interface InvoiceData {
   produits?: ProductLine[];
   applyTVA?: boolean;
   showDiscount?: boolean;
+  showAdvancePayment?: boolean;
+  advancePaymentAmount?: number;
   currency?: string;
 }
 
@@ -290,29 +293,49 @@ const addTotalsSection = (doc: jsPDF, invoiceData: InvoiceData, finalY: number, 
     doc.text(`${formatNumber(tax)} ${currencySymbol}`, 170, finalY + 7, { align: "right" });
   }
   
+  // Show advance payment if applicable
+  let yOffset = 15;
+  if (invoiceData.showAdvancePayment && invoiceData.advancePaymentAmount && invoiceData.advancePaymentAmount > 0) {
+    doc.text(locale === "fr" ? "Avance perçue:" : "Advance Payment:", 120, finalY + 15);
+    doc.text(`-${formatNumber(invoiceData.advancePaymentAmount)} ${currencySymbol}`, 170, finalY + 15, { align: "right" });
+    yOffset = 23; // Increase offset for final amount
+  }
+  
   // Total with tax
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
-  doc.text(locale === "fr" ? "Total TTC:" : "Total Amount:", 120, finalY + 15);
-  doc.text(`${formatNumber(invoiceData.totalTTC)} ${currencySymbol}`, 170, finalY + 15, { align: "right" });
+  
+  // Change total label based on whether advance payment was applied
+  const totalLabel = (invoiceData.showAdvancePayment && invoiceData.advancePaymentAmount && invoiceData.advancePaymentAmount > 0) 
+    ? (locale === "fr" ? "Reste à payer:" : "Amount Due:") 
+    : (locale === "fr" ? "Total TTC:" : "Total Amount:");
+  
+  doc.text(totalLabel, 120, finalY + yOffset);
+  
+  // Calculate final amount based on whether advance payment was applied
+  const finalAmount = (invoiceData.showAdvancePayment && invoiceData.advancePaymentAmount) 
+    ? invoiceData.totalTTC - invoiceData.advancePaymentAmount
+    : invoiceData.totalTTC;
+  
+  doc.text(`${formatNumber(finalAmount)} ${currencySymbol}`, 170, finalY + yOffset, { align: "right" });
   
   // Add amount in words
-  if (invoiceData.totalTTC) {
-    const amountInWords = montantEnLettres(invoiceData.totalTTC, invoiceData.currency || "TND");
+  if (finalAmount) {
+    const amountInWords = montantEnLettres(finalAmount, invoiceData.currency || "TND");
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     
     // Add a light blue background for the text (similar to the preview)
     doc.setFillColor(240, 247, 255); // Light blue background
-    doc.rect(20, finalY + 25, doc.internal.pageSize.width - 40, 15, 'F');
+    doc.rect(20, finalY + yOffset + 10, doc.internal.pageSize.width - 40, 15, 'F');
     
     // Add the text
     doc.setTextColor(44, 62, 80); // Dark blue text
     doc.text(locale === "fr" ? `Montant à payer en toutes lettres: ${amountInWords}` : 
-      `Amount in words: ${amountInWords}`, 25, finalY + 33);
+      `Amount in words: ${amountInWords}`, 25, finalY + yOffset + 18);
   }
   
-  return finalY + 40; // Return the new Y position after all totals and amount in words
+  return finalY + yOffset + 30; // Return the new Y position after all totals and amount in words
 };
 
 // Main function to generate the invoice PDF
