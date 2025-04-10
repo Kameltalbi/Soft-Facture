@@ -324,6 +324,12 @@ export function useFactureState(factureId: string | null) {
     }
   };
 
+  // Handler for cancelling
+  const handleCancel = () => {
+    toast.info("La facture a été annulée");
+    setIsCreated(false);
+  };
+
   // Handler for saving (without closing the modal)
   const handleSave = async () => {
     if (!currentData?.id) {

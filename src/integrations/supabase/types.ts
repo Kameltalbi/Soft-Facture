@@ -350,12 +350,15 @@ export type Database = {
       }
       factures: {
         Row: {
+          appliquer_tva: boolean | null
           avance_percue: number | null
           client_id: string
+          client_nom: string | null
           created_at: string
           created_by: string | null
           date_creation: string
           date_echeance: string
+          devise: string | null
           id: string
           notes: string | null
           numero: string
@@ -367,12 +370,15 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          appliquer_tva?: boolean | null
           avance_percue?: number | null
           client_id: string
+          client_nom?: string | null
           created_at?: string
           created_by?: string | null
           date_creation?: string
           date_echeance: string
+          devise?: string | null
           id?: string
           notes?: string | null
           numero: string
@@ -384,12 +390,15 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          appliquer_tva?: boolean | null
           avance_percue?: number | null
           client_id?: string
+          client_nom?: string | null
           created_at?: string
           created_by?: string | null
           date_creation?: string
           date_echeance?: string
+          devise?: string | null
           id?: string
           notes?: string | null
           numero?: string
