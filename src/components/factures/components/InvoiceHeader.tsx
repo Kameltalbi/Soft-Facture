@@ -24,7 +24,7 @@ export function InvoiceHeader({
   statut = "Brouillon"
 }: InvoiceHeaderProps) {
   return (
-    <div className="relative">
+    <div className="relative mb-2">
       <DocumentHeader 
         title="FACTURE"
         documentNumber={numero}

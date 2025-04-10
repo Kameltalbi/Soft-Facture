@@ -61,7 +61,7 @@ export function DocumentHeader({
   };
   
   return (
-    <div className="mb-8">
+    <div className="mb-10">
       <div className="flex justify-between items-start">
         {/* Colonne gauche pour les informations de l'entreprise */}
         <div className="text-left max-w-[50%]">

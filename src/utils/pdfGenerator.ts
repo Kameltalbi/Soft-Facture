@@ -250,11 +250,11 @@ const addProductTable = (doc: jsPDF, invoiceData: InvoiceData, locale: string, c
   const headers = createTableHeaders(invoiceData, locale);
   const data = prepareProductData(invoiceData, locale, currencySymbol);
   
-  // Generate table
+  // Generate table - adjust start Y position to give more space after header
   autoTable(doc, {
     head: [headers],
     body: data,
-    startY: 90,
+    startY: 100,
     theme: "grid",
     styles: {
       fontSize: 9,
