@@ -86,7 +86,7 @@ export function DocumentHeader({
         <div className="flex flex-col items-end">
           {/* Logo de l'entreprise */}
           {companyInfo?.logo_url && (
-            <div className="mb-4 w-32 h-32 flex items-center justify-center">
+            <div className="mb-4 w-40 h-40 flex items-center justify-center">
               <img 
                 src={companyInfo.logo_url} 
                 alt="Logo entreprise" 
