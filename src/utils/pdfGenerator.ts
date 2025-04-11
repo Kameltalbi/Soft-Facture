@@ -20,22 +20,34 @@ interface ProductLine {
 interface InvoiceData {
   id: string;
   numero: string;
+  dateCreation: string;
+  dateEcheance: string;
   client: {
     id: string;
     nom: string;
+    adresse: string;
     email: string;
-    adresse?: string;
+    telephone: string;
+    code_tva: string;
   };
-  dateCreation: string;
-  dateEcheance: string;
-  totalTTC: number;
-  statut: StatutFacture;
   produits?: ProductLine[];
+  items: ProductLine[];
+  totalHT: number;
+  totalTVA: number;
+  totalTTC: number;
+  avance?: number;
+  devise: string;
+  currency?: string;
   applyTVA?: boolean;
   showDiscount?: boolean;
   showAdvancePayment?: boolean;
   advancePaymentAmount?: number;
-  currency?: string;
+  bankInfo?: {
+    bankName: string;
+    rib: string;
+    iban: string;
+    swift: string;
+  };
 }
 
 // Format number with proper formatting (spaces as thousand separator)
@@ -362,14 +374,32 @@ const getMontantEnLettresWithAdvance = (total: number, advance: number, remainin
   }
 };
 
-// Add footer with page number
-const addFooter = (doc: jsPDF): void => {
+// Add footer with page number and bank info
+const addFooter = (doc: jsPDF, invoiceData: InvoiceData, locale: string): void => {
   const pageCount = doc.getNumberOfPages();
+  const pageWidth = doc.internal.pageSize.width;
+  const marginX = 15;
+  
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Page ${i} / ${pageCount}`, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+    
+    // Ligne 1 : Informations bancaires
+    if (invoiceData.bankInfo) {
+      const bankLine = `${locale === 'fr' ? 'Banque' : 'Bank'}: ${invoiceData.bankInfo.bankName} - RIB: ${invoiceData.bankInfo.rib}`;
+      doc.text(bankLine, marginX, doc.internal.pageSize.height - 15);
+    }
+    
+    // Ligne 2 : IBAN, SWIFT et pagination
+    if (invoiceData.bankInfo) {
+      const bankInfo = `IBAN: ${invoiceData.bankInfo.iban} - SWIFT: ${invoiceData.bankInfo.swift}`;
+      doc.text(bankInfo, marginX, doc.internal.pageSize.height - 8);
+      doc.text(`Page ${i}/${pageCount}`, pageWidth - marginX, doc.internal.pageSize.height - 8, { align: 'right' });
+    } else {
+      // Si pas d'infos bancaires, seulement la pagination
+      doc.text(`Page ${i}/${pageCount}`, pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+    }
   }
 };
 
@@ -396,8 +426,8 @@ export const generateInvoicePDF = async (
   // Add totals section including amount in words
   addTotalsSection(doc, invoiceData, finalY, locale, currencySymbol);
   
-  // Add footer with page numbers
-  addFooter(doc);
+  // Add footer with page numbers and bank info
+  addFooter(doc, invoiceData, locale);
   
   return doc;
 };
