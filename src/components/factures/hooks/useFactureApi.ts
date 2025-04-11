@@ -37,19 +37,9 @@ export function useFactureApi() {
     try {
       console.log("Creating facture with data:", factureData);
       
-      // Ensure we're not trying to set client_id to null or undefined
+      // Remove client_id from factureData to avoid foreign key constraint violation
       const dataToInsert = { ...factureData };
-      
-      // Récupérer l'ID utilisateur depuis la session
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      // Si l'utilisateur est connecté, utiliser son ID comme valeur par défaut pour client_id
-      if (user) {
-        dataToInsert.client_id = user.id;
-      } else {
-        // Si aucun utilisateur n'est connecté, utiliser une valeur par défaut
-        dataToInsert.client_id = "00000000-0000-0000-0000-000000000000";
-      }
+      delete dataToInsert.client_id; // Important: remove client_id completely
       
       // Create the invoice in Supabase
       const { data, error: factureError } = await supabase

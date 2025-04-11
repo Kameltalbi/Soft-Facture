@@ -115,7 +115,7 @@ export function useFactureState(factureId: string | null) {
     const factureNumber = await generateFactureNumber();
     setInvoiceNumber(factureNumber);
     
-    // Prepare the facture data with client_nom field
+    // Prepare the facture data without client_id to avoid foreign key constraint
     const factureData = {
       numero: factureNumber,
       client_nom: clientName,
