@@ -39,3 +39,13 @@ export interface CompanyInfo {
   created_at: string;
   updated_at: string;
 }
+
+export interface BankInfo {
+  id: string;
+  bank_name: string;
+  rib: string;
+  iban: string;
+  swift: string;
+  created_at: string;
+  updated_at: string;
+}

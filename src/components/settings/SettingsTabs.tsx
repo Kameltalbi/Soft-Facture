@@ -11,6 +11,7 @@ import { SocieteTab } from "./tabs/SocieteTab";
 import { TaxePersonnalisee, Devise } from "@/types";
 import { User } from "@/components/users/UserFormModal";
 import { useToast } from "@/hooks/use-toast";
+import { BankSettingsPanel } from "./BankSettingsPanel";
 
 export function SettingsTabs() {
   const [taxeEnValeur, setTaxeEnValeur] = useState(false);
@@ -121,6 +122,7 @@ export function SettingsTabs() {
         <TabsTrigger value="facturation">{t('settings.billingTab')}</TabsTrigger>
         <TabsTrigger value="taxes">{t('settings.taxesTab')}</TabsTrigger>
         <TabsTrigger value="devise">Devise</TabsTrigger>
+        <TabsTrigger value="banque">Banque</TabsTrigger>
         <TabsTrigger value="general">{t('settings.generalTab')}</TabsTrigger>
         <TabsTrigger value="utilisateurs">{t('settings.usersTab')}</TabsTrigger>
       </TabsList>
@@ -178,6 +180,10 @@ export function SettingsTabs() {
           onSave={handleSaveUsers}
           onCancel={handleCancel}
         />
+      </TabsContent>
+
+      <TabsContent value="banque">
+        <BankSettingsPanel />
       </TabsContent>
     </Tabs>
   );
