@@ -6,6 +6,8 @@ import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { InvoiceTotalsPreview } from "./InvoiceTotalsPreview";
 import { formatNumber } from "@/utils/formatters";
+import { useProducts } from "@/hooks/useProducts";
+import { ProductCombobox } from "./ProductCombobox";
 
 interface FactureFormProps {
   isEditing: boolean;
@@ -27,7 +29,7 @@ interface FactureFormProps {
   onTaxModeChange: (id: string, estTauxTVA: boolean) => void;
   onQuantityChange: (id: string, value: number) => void;
   onPriceChange: (id: string, value: number) => void;
-  onProductNameChange: (id: string, value: string) => void;
+  onProductNameChange: (id: string, value: string, prix?: number, taux_tva?: number) => void;
   clientName: string;
   setClientName: (value: string) => void;
 }
@@ -58,6 +60,11 @@ export function FactureForm({
 }: FactureFormProps) {
   // État local pour gérer le type de saisie de TVA
   const [taxInputType, setTaxInputType] = useState<Record<string, "percentage" | "amount">>({});
+  
+  // Récupérer la liste des produits
+  const { products, loading: productsLoading } = useProducts();
+  console.log('FactureForm - Products:', products);
+  console.log('FactureForm - Loading:', productsLoading);
 
   // Fonction pour basculer entre les types de saisie de TVA
   const toggleTaxInputType = (id: string) => {
@@ -90,11 +97,18 @@ export function FactureForm({
               <Label htmlFor={`product-${line.id}`} className="sr-only">
                 Produit ou service
               </Label>
-              <Input
-                id={`product-${line.id}`}
+              <ProductCombobox
+                products={products}
                 value={line.name}
-                onChange={(e) => onProductNameChange(line.id, e.target.value)}
-                placeholder="Nom du produit ou service"
+                onChange={(value, product) => {
+                  onProductNameChange(
+                    line.id,
+                    value,
+                    product?.prix,
+                    product?.taux_tva
+                  );
+                }}
+                disabled={productsLoading}
               />
             </div>
 

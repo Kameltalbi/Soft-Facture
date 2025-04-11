@@ -132,13 +132,13 @@ export function ProduitFormModal({
     setLoading(true);
 
     try {
+      console.log('Form data:', JSON.stringify(formData, null, 2));
       const productData = {
         nom: formData.nom,
         categorie_id: formData.categorie_id || null,
         prix: parseFloat(formData.prix),
         taux_tva: parseFloat(formData.taux_tva),
         description: formData.description || null,
-        unite: formData.unite,
       };
 
       let result;
@@ -149,12 +149,17 @@ export function ProduitFormModal({
           .update(productData)
           .eq('id', produitId);
       } else {
+        console.log('Sending to Supabase:', JSON.stringify(productData, null, 2));
         result = await supabase
           .from('produits')
           .insert(productData);
+        console.log('Supabase result:', JSON.stringify(result, null, 2));
       }
 
-      if (result.error) throw result.error;
+      if (result.error) {
+        console.log('Supabase error:', JSON.stringify(result.error, null, 2));
+        throw result.error;
+      }
 
       toast({
         title: produitId ? t('product.updated') : t('product.created'),

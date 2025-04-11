@@ -6,14 +6,14 @@ export function useProductLines() {
   const [productLines, setProductLines] = useState([
     {
       id: "1",
-      name: "Développement site web",
+      name: "",
       quantity: 1,
-      unitPrice: 1200,
+      unitPrice: 0,
       tva: 20,
       montantTVA: 0,
       estTauxTVA: true, // Par défaut, on utilise un taux de TVA
       discount: 0,
-      total: 1200,
+      total: 0,
     },
   ]);
 
@@ -88,10 +88,18 @@ export function useProductLines() {
     }));
   };
 
-  const handleProductNameChange = (id: string, value: string) => {
+  const handleProductNameChange = (id: string, value: string, prix?: number, taux_tva?: number) => {
     setProductLines(productLines.map(line => {
       if (line.id === id) {
-        return { ...line, name: value };
+        const updates: any = { name: value };
+        if (prix !== undefined) {
+          updates.unitPrice = prix;
+          updates.total = line.quantity * prix;
+        }
+        if (taux_tva !== undefined) {
+          updates.tva = taux_tva;
+        }
+        return { ...line, ...updates };
       }
       return line;
     }));
