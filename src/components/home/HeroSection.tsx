@@ -45,12 +45,12 @@ const HeroSection = () => {
         <div className="w-full md:w-1/2 flex justify-center opacity-0 animate-[fade-in_0.8s_ease-out_0.4s_forwards] translate-x-4 md:translate-x-8">
           <div className="w-full max-w-md rounded-lg overflow-hidden shadow-xl transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] transform-gpu">
             <img 
-              src="/lovable-uploads/f3335221-0d73-477f-a85d-920a39994cbc.png" 
-              alt="Tableau de bord d'analyse de business avec graphiques" 
-              className="w-full h-auto"
+              src="/images/softfacture-dashbord.png" 
+              alt="Tableau de bord montrant les statistiques de l'entreprise" 
+              className="w-full h-auto rounded-lg shadow-lg"
               loading="eager"
-              width="600"
-              height="400"
+              width="800"
+              height="600"
             />
           </div>
         </div>
