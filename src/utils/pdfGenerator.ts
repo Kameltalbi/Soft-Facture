@@ -362,6 +362,17 @@ const getMontantEnLettresWithAdvance = (total: number, advance: number, remainin
   }
 };
 
+// Add footer with page number
+const addFooter = (doc: jsPDF): void => {
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Page ${i} / ${pageCount}`, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+  }
+};
+
 // Main function to generate the invoice PDF
 export const generateInvoicePDF = async (
   invoiceData: InvoiceData,
@@ -384,6 +395,9 @@ export const generateInvoicePDF = async (
   
   // Add totals section including amount in words
   addTotalsSection(doc, invoiceData, finalY, locale, currencySymbol);
+  
+  // Add footer with page numbers
+  addFooter(doc);
   
   return doc;
 };
