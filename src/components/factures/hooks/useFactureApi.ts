@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,16 +36,10 @@ export function useFactureApi() {
     try {
       console.log("Creating facture with data:", factureData);
       
-      // Remove client_id from factureData if it's a dummy value
-      const dataToInsert = { ...factureData };
-      if (dataToInsert.client_id === "00000000-0000-0000-0000-000000000000") {
-        delete dataToInsert.client_id;
-      }
-      
       // Create the invoice in Supabase
       const { data, error: factureError } = await supabase
         .from('factures')
-        .insert(dataToInsert)
+        .insert(factureData)
         .select()
         .single();
         
