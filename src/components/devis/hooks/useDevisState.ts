@@ -151,20 +151,25 @@ export function useDevisState(devisId: string | null) {
       const invoiceData = {
         id: currentDevisData.id,
         numero: currentDevisData.numero,
+        type: 'devis' as const,
         client: {
           id: "client-id",
           nom: currentDevisData.client,
           email: "client@example.com",
-          adresse: "Adresse du client"
+          adresse: "Adresse du client",
+          telephone: "",
+          code_tva: ""
         },
         dateCreation: currentDevisData.date,
         dateEcheance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
-        totalTTC: currentDevisData.totalTTC,
-        statut: "brouillon" as const, // Fix the type by using 'as const'
-        produits: currentDevisData.products,
+        items: currentDevisData.products,
+        totalHT: subtotal,
+        totalTVA: totalTVA,
+        totalTTC: totalTTC,
+        devise: currentDevisData.currency,
+        currency: currentDevisData.currency,
         applyTVA: applyTVA,
-        showDiscount: showDiscount,
-        currency: currentDevisData.currency
+        showDiscount: showDiscount
       };
 
       downloadInvoiceAsPDF(invoiceData, "fr");

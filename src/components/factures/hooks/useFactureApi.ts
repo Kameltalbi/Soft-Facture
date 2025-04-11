@@ -178,15 +178,27 @@ export function useFactureApi() {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase
+      // Récupérer la facture avec ses lignes
+      const { data: factureData, error: factureError } = await supabase
         .from('factures')
         .select('*, lignes_facture(*)')
         .eq('id', factureId)
         .single();
           
-      if (error) throw error;
+      if (factureError) throw factureError;
+
+      // Récupérer les informations bancaires
+      const { data: bankData, error: bankError } = await supabase
+        .from('bank_info')
+        .select('*')
+        .single();
+
+      if (bankError && bankError.code !== 'PGRST116') throw bankError;
       
-      return data;
+      return {
+        ...factureData,
+        bankInfo: bankData || null
+      };
     } catch (error) {
       console.error("Erreur lors du chargement de la facture:", error);
       toast.error("Erreur lors du chargement de la facture");
@@ -197,9 +209,33 @@ export function useFactureApi() {
   };
 
   // Download the facture as PDF
-  const downloadPDF = (invoiceData: any) => {
+  const downloadPDF = async (invoiceData: any) => {
     try {
-      downloadInvoiceAsPDF(invoiceData);
+      console.log('Début du téléchargement PDF...');
+      
+      // Toujours récupérer les informations bancaires fraîches
+      const { data: bankData, error: bankError } = await supabase
+        .from('bank_info')
+        .select('*')
+        .maybeSingle();
+
+      if (bankError) {
+        console.error('Erreur lors de la récupération des infos bancaires:', bankError);
+        throw bankError;
+      }
+
+      console.log('Informations bancaires récupérées:', bankData);
+
+      // Créer une copie des données de facture avec les infos bancaires
+      const invoiceDataWithBank = {
+        ...invoiceData,
+        bankInfo: bankData
+      };
+
+      console.log('Données complètes pour le PDF:', invoiceDataWithBank);
+
+      // Générer le PDF avec les données complètes
+      downloadInvoiceAsPDF(invoiceDataWithBank);
       return true;
     } catch (error) {
       console.error("Erreur lors de la génération du PDF :", error);

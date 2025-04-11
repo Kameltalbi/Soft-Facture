@@ -9,13 +9,42 @@ export const useBankSettings = () => {
 
   const fetchBankInfo = async () => {
     try {
+      console.log('Récupération des informations bancaires...');
       const { data, error } = await supabase
         .from('bank_info')
         .select('*')
         .single();
 
-      if (error) throw error;
+      console.log('Résultat de la requête:', { data, error });
 
+      if (error) {
+        console.log('Erreur détectée:', error);
+        if (error.code === 'PGRST116') {
+          console.log('Aucune donnée trouvée, création d\'une entrée vide...');
+          const { data: newData, error: createError } = await supabase
+            .from('bank_info')
+            .insert({
+              bank_name: '',
+              rib: '',
+              iban: '',
+              swift: '',
+            })
+            .select()
+            .single();
+
+          console.log('Résultat de la création:', { newData, createError });
+
+          if (createError) {
+            console.error('Erreur lors de la création:', createError);
+            throw createError;
+          }
+          setBankInfo(newData);
+          return;
+        }
+        throw error;
+      }
+
+      console.log('Données bancaires trouvées:', data);
       setBankInfo(data);
     } catch (err) {
       console.error('Error fetching bank info:', err);
@@ -32,6 +61,7 @@ export const useBankSettings = () => {
         .from('bank_info')
         .upsert({
           ...info,
+          id: bankInfo?.id, // Garder le même ID s'il existe
           updated_at: new Date().toISOString(),
         })
         .select()

@@ -22,6 +22,7 @@ interface InvoiceData {
   numero: string;
   dateCreation: string;
   dateEcheance: string;
+  type?: 'devis' | 'facture';
   client: {
     id: string;
     nom: string;
@@ -43,7 +44,7 @@ interface InvoiceData {
   showAdvancePayment?: boolean;
   advancePaymentAmount?: number;
   bankInfo?: {
-    bankName: string;
+    bank_name: string;
     rib: string;
     iban: string;
     swift: string;
@@ -175,15 +176,18 @@ const addInvoiceHeader = (doc: jsPDF, invoiceData: InvoiceData, locale: string):
   doc.setFontSize(24);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(44, 62, 80);
-  // Adjust the position to place it under the logo
-  doc.text(locale === "fr" ? "FACTURE" : "INVOICE", 140, 70);
+  
+  // Add document title based on type
+  const title = invoiceData.type === 'devis' ? 'DEVIS' : 'FACTURE';
+  doc.text(title, doc.internal.pageSize.width - 20, 70, { align: 'right' });
   
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text(`${locale === "fr" ? "№" : "#"}: ${invoiceData.numero}`, 140, 80);
-  doc.text(`${locale === "fr" ? "Date d'émission" : "Date"}: ${formatDate(invoiceData.dateCreation, locale === "fr" ? "fr-FR" : "en-US")}`, 140, 85);
-  doc.text(`${locale === "fr" ? "Date d'échéance" : "Due Date"}: ${formatDate(invoiceData.dateEcheance, locale === "fr" ? "fr-FR" : "en-US")}`, 140, 90);
-  // Remove status line
+  
+  // Add document number and dates
+  doc.text(`${locale === 'fr' ? 'N°' : 'No.'} ${invoiceData.numero}`, doc.internal.pageSize.width - 20, 80, { align: 'right' });
+  doc.text(`${locale === 'fr' ? 'Date d\'émission' : 'Issue Date'}: ${formatDate(invoiceData.dateCreation, locale)}`, doc.internal.pageSize.width - 20, 85, { align: 'right' });
+  doc.text(`${locale === 'fr' ? 'Date d\'échéance' : 'Due Date'}: ${formatDate(invoiceData.dateEcheance, locale)}`, doc.internal.pageSize.width - 20, 90, { align: 'right' });
 };
 
 // Add client information to the PDF
@@ -376,29 +380,45 @@ const getMontantEnLettresWithAdvance = (total: number, advance: number, remainin
 
 // Add footer with page number and bank info
 const addFooter = (doc: jsPDF, invoiceData: InvoiceData, locale: string): void => {
+  console.log('Ajout du pied de page avec les données:', invoiceData);
+  console.log('Informations bancaires:', invoiceData.bankInfo);
+
   const pageCount = doc.getNumberOfPages();
   const pageWidth = doc.internal.pageSize.width;
+  const pageHeight = doc.internal.pageSize.height;
   const marginX = 15;
   
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
+    
+    // Ajouter une ligne fine au-dessus du footer
+    doc.setDrawColor(200, 200, 200); // Gris clair
+    doc.setLineWidth(0.1);
+    doc.line(marginX, pageHeight - 20, pageWidth - marginX, pageHeight - 20);
+    
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
     
     // Ligne 1 : Informations bancaires
     if (invoiceData.bankInfo) {
-      const bankLine = `${locale === 'fr' ? 'Banque' : 'Bank'}: ${invoiceData.bankInfo.bankName} - RIB: ${invoiceData.bankInfo.rib}`;
-      doc.text(bankLine, marginX, doc.internal.pageSize.height - 15);
+      console.log('Ajout de la ligne bancaire...');
+      const bankLine = `${locale === 'fr' ? 'Banque' : 'Bank'}: ${invoiceData.bankInfo.bank_name} - RIB: ${invoiceData.bankInfo.rib}`;
+      console.log('Ligne bancaire:', bankLine);
+      doc.text(bankLine, marginX, pageHeight - 15);
+    } else {
+      console.log('Pas d\'informations bancaires disponibles');
     }
     
     // Ligne 2 : IBAN, SWIFT et pagination
     if (invoiceData.bankInfo) {
+      console.log('Ajout de la ligne IBAN/SWIFT...');
       const bankInfo = `IBAN: ${invoiceData.bankInfo.iban} - SWIFT: ${invoiceData.bankInfo.swift}`;
-      doc.text(bankInfo, marginX, doc.internal.pageSize.height - 8);
-      doc.text(`Page ${i}/${pageCount}`, pageWidth - marginX, doc.internal.pageSize.height - 8, { align: 'right' });
+      console.log('Ligne IBAN/SWIFT:', bankInfo);
+      doc.text(bankInfo, marginX, pageHeight - 8);
+      doc.text(`Page ${i}/${pageCount}`, pageWidth - marginX, pageHeight - 8, { align: 'right' });
     } else {
       // Si pas d'infos bancaires, seulement la pagination
-      doc.text(`Page ${i}/${pageCount}`, pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+      doc.text(`Page ${i}/${pageCount}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
     }
   }
 };
