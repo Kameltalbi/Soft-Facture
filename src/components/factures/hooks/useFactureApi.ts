@@ -35,6 +35,8 @@ export function useFactureApi() {
     setIsLoading(true);
     
     try {
+      console.log("Creating facture with data:", factureData);
+      
       // Create the invoice in Supabase
       const { data, error: factureError } = await supabase
         .from('factures')
@@ -42,7 +44,12 @@ export function useFactureApi() {
         .select()
         .single();
         
-      if (factureError) throw factureError;
+      if (factureError) {
+        console.error("Error creating facture:", factureError);
+        throw factureError;
+      }
+
+      console.log("Facture created successfully:", data);
 
       // Insert product lines
       const linesData = productLinesData.map(line => ({
@@ -61,7 +68,10 @@ export function useFactureApi() {
         .from('lignes_facture')
         .insert(linesData);
         
-      if (linesError) throw linesError;
+      if (linesError) {
+        console.error("Error creating product lines:", linesError);
+        throw linesError;
+      }
       
       toast.success("Facture créée avec succès");
       return data;

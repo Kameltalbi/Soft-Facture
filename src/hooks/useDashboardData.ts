@@ -48,6 +48,8 @@ export function useDashboardData(period: DateRange) {
       setError(null);
       
       try {
+        console.log("Fetching dashboard data for period:", period);
+        
         // 1. Récupérer les données de chiffre d'affaires par mois
         const { data: revenueData, error: revenueError } = await supabase
           .from('factures')
@@ -56,30 +58,48 @@ export function useDashboardData(period: DateRange) {
           .lte('date_creation', new Date(period.to.getFullYear(), 11, 31).toISOString())
           .eq('statut', 'payee');
           
-        if (revenueError) throw revenueError;
+        if (revenueError) {
+          console.error("Error fetching revenue data:", revenueError);
+          throw revenueError;
+        }
 
         // 2. Récupérer le nombre de factures par statut
         const { data: invoicesData, error: invoicesError } = await supabase
           .from('factures')
-          .select('statut, total_ttc, date_creation')  // Ajouté date_creation ici
+          .select('statut, total_ttc, date_creation')
           .gte('date_creation', period.from.toISOString())
           .lte('date_creation', period.to.toISOString());
           
-        if (invoicesError) throw invoicesError;
+        if (invoicesError) {
+          console.error("Error fetching invoices data:", invoicesError);
+          throw invoicesError;
+        }
 
         // 3. Récupérer le nombre de clients actifs
         const { count: clientsCount, error: clientsError } = await supabase
           .from('clients')
           .select('id', { count: 'exact', head: true });
           
-        if (clientsError) throw clientsError;
+        if (clientsError) {
+          console.error("Error fetching clients count:", clientsError);
+          throw clientsError;
+        }
 
         // 4. Récupérer les produits par catégorie
         const { data: productsData, error: productsError } = await supabase
           .from('produits')
           .select('categorie_id, categories(nom)');
           
-        if (productsError) throw productsError;
+        if (productsError) {
+          console.error("Error fetching products data:", productsError);
+          throw productsError;
+        }
+
+        console.log("Data fetched successfully");
+        console.log("Revenue data count:", revenueData?.length);
+        console.log("Invoices data count:", invoicesData?.length);
+        console.log("Clients count:", clientsCount);
+        console.log("Products data count:", productsData?.length);
 
         // Traiter les données pour les graphiques
         // 1. Données de revenus par mois
@@ -90,11 +110,13 @@ export function useDashboardData(period: DateRange) {
           revenueByMonth[month] = 0;
         });
 
-        revenueData.forEach((invoice) => {
-          const date = new Date(invoice.date_creation);
-          const monthName = monthNames[date.getMonth()];
-          revenueByMonth[monthName] = (revenueByMonth[monthName] || 0) + Number(invoice.total_ttc);
-        });
+        if (revenueData) {
+          revenueData.forEach((invoice) => {
+            const date = new Date(invoice.date_creation);
+            const monthName = monthNames[date.getMonth()];
+            revenueByMonth[monthName] = (revenueByMonth[monthName] || 0) + Number(invoice.total_ttc);
+          });
+        }
 
         const formattedRevenueData = Object.entries(revenueByMonth).map(([name, montant]) => ({
           name,
@@ -109,16 +131,18 @@ export function useDashboardData(period: DateRange) {
           total: 0
         };
 
-        invoicesData.forEach(invoice => {
-          invoiceStats.total++;
-          if (invoice.statut === 'payee') {
-            invoiceStats.payees++;
-          } else if (invoice.statut === 'envoyee') {
-            invoiceStats.en_attente++;
-          } else if (invoice.statut === 'retard') {
-            invoiceStats.impayees++;
-          }
-        });
+        if (invoicesData) {
+          invoicesData.forEach(invoice => {
+            invoiceStats.total++;
+            if (invoice.statut === 'payee') {
+              invoiceStats.payees++;
+            } else if (invoice.statut === 'envoyee') {
+              invoiceStats.en_attente++;
+            } else if (invoice.statut === 'retard') {
+              invoiceStats.impayees++;
+            }
+          });
+        }
 
         // Convertir en pourcentage
         const recoveryRateData = [
@@ -142,10 +166,12 @@ export function useDashboardData(period: DateRange) {
         // 3. Données pour le graphique des secteurs
         const categoryCounts: { [key: string]: number } = {};
         
-        productsData.forEach(product => {
-          const categoryName = product.categories?.nom || 'Non classé';
-          categoryCounts[categoryName] = (categoryCounts[categoryName] || 0) + 1;
-        });
+        if (productsData) {
+          productsData.forEach(product => {
+            const categoryName = product.categories?.nom || 'Non classé';
+            categoryCounts[categoryName] = (categoryCounts[categoryName] || 0) + 1;
+          });
+        }
 
         const pieData = Object.entries(categoryCounts)
           .map(([name, count]) => ({
@@ -162,17 +188,19 @@ export function useDashboardData(period: DateRange) {
           invoiceStatusByMonth[month] = { payées: 0, impayées: 0 };
         });
 
-        invoicesData.forEach(invoice => {
-          // Utiliser la date_creation qui est maintenant incluse dans le type
-          const date = new Date(invoice.date_creation);
-          const monthName = monthNames[date.getMonth()];
-          
-          if (invoice.statut === 'payee') {
-            invoiceStatusByMonth[monthName].payées++;
-          } else if (invoice.statut === 'retard') {
-            invoiceStatusByMonth[monthName].impayées++;
-          }
-        });
+        if (invoicesData) {
+          invoicesData.forEach(invoice => {
+            // Utiliser la date_creation qui est maintenant incluse dans le type
+            const date = new Date(invoice.date_creation);
+            const monthName = monthNames[date.getMonth()];
+            
+            if (invoice.statut === 'payee') {
+              invoiceStatusByMonth[monthName].payées++;
+            } else if (invoice.statut === 'retard') {
+              invoiceStatusByMonth[monthName].impayées++;
+            }
+          });
+        }
 
         const invoiceStatusData = Object.entries(invoiceStatusByMonth).map(([name, values]) => ({
           name,
@@ -181,9 +209,9 @@ export function useDashboardData(period: DateRange) {
         }));
 
         // 5. Données pour les cartes de résumé
-        const totalRevenue = revenueData.reduce((sum, invoice) => sum + Number(invoice.total_ttc), 0);
+        const totalRevenue = revenueData ? revenueData.reduce((sum, invoice) => sum + Number(invoice.total_ttc), 0) : 0;
         
-        const unpaidInvoices = invoicesData.filter(inv => inv.statut === 'retard' || inv.statut === 'envoyee');
+        const unpaidInvoices = invoicesData ? invoicesData.filter(inv => inv.statut === 'retard' || inv.statut === 'envoyee') : [];
         const unpaidAmount = unpaidInvoices.reduce((sum, inv) => sum + Number(inv.total_ttc), 0);
 
         // Pour les pourcentages de croissance, dans un cas réel, nous comparerions avec la période précédente
@@ -193,7 +221,7 @@ export function useDashboardData(period: DateRange) {
           revenueGrowth: 20,
           clients: clientsCount || 0,
           clientsGrowth: 12,
-          invoices: invoicesData.length,
+          invoices: invoicesData ? invoicesData.length : 0,
           invoicesGrowth: 8,
           unpaidAmount: Math.round(unpaidAmount),
           unpaidCount: unpaidInvoices.length

@@ -23,7 +23,7 @@ const DashboardContent = () => {
   };
   
   return (
-    <MainLayout title="Tableau de bord">
+    <MainLayout title={t('common.dashboard')}>
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">{t('dashboard.welcome')}</h2>
         <PeriodSelector onPeriodChange={handlePeriodChange} />
