@@ -1,19 +1,35 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { StatutFacture } from "@/types";
 import { useProductLines } from "./useProductLines";
 import { useFactureApi } from "./useFactureApi";
 import { useFactureCalculations } from "./useFactureCalculations";
+import { useFactureSettings } from "./useFactureSettings";
 
 export function useFactureState(factureId: string | null) {
   // Settings state
   const [showSettings, setShowSettings] = useState(false);
-  const [applyTVA, setApplyTVA] = useState(true);
-  const [showDiscount, setShowDiscount] = useState(false);
-  const [showAdvancePayment, setShowAdvancePayment] = useState(false);
-  const [advancePaymentAmount, setAdvancePaymentAmount] = useState(0);
-  const [currency, setCurrency] = useState("TND");
+  const {
+    applyTVA,
+    setApplyTVA,
+    showDiscount,
+    setShowDiscount,
+    showAdvancePayment,
+    setShowAdvancePayment,
+    currency,
+    setCurrency
+  } = useFactureSettings();
+
+  // Initialiser l'avance depuis le localStorage
+  const [advancePaymentAmount, setAdvancePaymentAmount] = useState(() => {
+    const storedAmount = localStorage.getItem('advancePaymentAmount');
+    return storedAmount ? parseFloat(storedAmount) : 0;
+  });
+
+  // Sauvegarder l'avance dans le localStorage
+  useEffect(() => {
+    localStorage.setItem('advancePaymentAmount', advancePaymentAmount.toString());
+  }, [advancePaymentAmount]);
   
   // Form state
   const [isCreated, setIsCreated] = useState(false);
@@ -149,7 +165,9 @@ export function useFactureState(factureId: string | null) {
         devise: currency,
         sous_total: subtotal,
         total_tva: totalTVA,
-        montantEnLettresText: montantEnLettresText
+        montantEnLettresText: montantEnLettresText,
+        showAdvancePayment: showAdvancePayment,
+        advancePaymentAmount: showAdvancePayment ? advancePaymentAmount : 0
       };
 
       setCurrentData(newFacture);

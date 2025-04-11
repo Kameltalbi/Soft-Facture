@@ -33,15 +33,67 @@ export function useFactureApi() {
   // Create a new facture in the database
   const createFacture = async (factureData: any, productLinesData: any[]) => {
     setIsLoading(true);
-    
+    console.log('Starting createFacture...');
+
     try {
+      // Vérifier si l'utilisateur est connecté
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      console.log('Session check result:', { session, error: sessionError });
+
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        toast.error("Erreur lors de la vérification de la session");
+        return null;
+      }
+
+      if (!session) {
+        console.log('No active session found');
+        toast.error("Vous devez être connecté pour créer une facture");
+        return null;
+      }
+
+      console.log('User is authenticated, proceeding with facture creation...');
+      console.log('Facture data:', factureData);
+      console.log('Product lines:', productLinesData);
       console.log("Creating facture with data:", factureData);
       
       // Remove client_id from factureData to avoid foreign key constraint violation
       const dataToInsert = { ...factureData };
       delete dataToInsert.client_id; // Important: remove client_id completely
       
-      // Create the invoice in Supabase
+      // D'abord, créer ou récupérer le client
+      const clientName = factureData.client_nom;
+      const { data: clientData, error: clientError } = await supabase
+        .from('clients')
+        .select('id')
+        .eq('nom', clientName)
+        .single();
+
+      let clientId;
+      
+      if (clientError) {
+        // Le client n'existe pas, on le crée
+        const { data: newClient, error: createClientError } = await supabase
+          .from('clients')
+          .insert({ nom: clientName })
+          .select()
+          .single();
+
+        if (createClientError) {
+          console.error('Error creating client:', createClientError);
+          toast.error(`Erreur lors de la création du client: ${createClientError.message}`);
+          throw createClientError;
+        }
+
+        clientId = newClient.id;
+      } else {
+        clientId = clientData.id;
+      }
+
+      // Ajouter le client_id aux données de la facture
+      dataToInsert.client_id = clientId;
+
+      // Create the facture
       const { data, error: factureError } = await supabase
         .from('factures')
         .insert(dataToInsert)
@@ -50,8 +102,10 @@ export function useFactureApi() {
         
       if (factureError) {
         console.error("Error creating facture:", factureError);
+        toast.error(`Erreur lors de la création de la facture: ${factureError.message}`);
         throw factureError;
       }
+      console.log('Facture created successfully, proceeding with product lines...');
 
       console.log("Facture created successfully:", data);
 
@@ -74,8 +128,10 @@ export function useFactureApi() {
         
       if (linesError) {
         console.error("Error creating product lines:", linesError);
+        toast.error(`Erreur lors de la création des lignes: ${linesError.message}`);
         throw linesError;
       }
+      console.log('Product lines created successfully');
       
       toast.success("Facture créée avec succès");
       return data;

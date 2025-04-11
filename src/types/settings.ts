@@ -35,6 +35,7 @@ export interface CompanyInfo {
   telephone: string | null;
   email_contact: string | null;
   logo_url: string | null;
+  site_web: string | null;
   created_at: string;
   updated_at: string;
 }
