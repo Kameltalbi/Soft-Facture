@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { StatutFacture } from "@/types";
@@ -115,13 +114,9 @@ export function useFactureState(factureId: string | null) {
     const factureNumber = await generateFactureNumber();
     setInvoiceNumber(factureNumber);
     
-    // Create a client ID or use a dummy one if we only have a name
-    const clientId = "00000000-0000-0000-0000-000000000000"; // Dummy client ID
-    
-    // Prepare the facture data
+    // Prepare the facture data without a client ID
     const factureData = {
       numero: factureNumber,
-      client_id: clientId,
       client_nom: clientName,
       date_creation: new Date().toISOString(),
       date_echeance: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString(),
