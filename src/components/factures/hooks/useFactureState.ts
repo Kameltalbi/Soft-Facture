@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { StatutFacture } from "@/types";
@@ -114,7 +115,7 @@ export function useFactureState(factureId: string | null) {
     const factureNumber = await generateFactureNumber();
     setInvoiceNumber(factureNumber);
     
-    // Prepare the facture data without client_id to avoid foreign key constraint
+    // Prepare the facture data with client_nom field
     const factureData = {
       numero: factureNumber,
       client_nom: clientName,
