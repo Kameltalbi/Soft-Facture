@@ -338,7 +338,7 @@ const addTotalsSection = (doc: jsPDF, invoiceData: InvoiceData, finalY: number, 
     
     // Handle text wrapping for long text
     const textLines = doc.splitTextToSize(
-      locale === "fr" ? `Montant à payer en toutes lettres: ${amountInWords}` : 
+      locale === "fr" ? `Montant à payer: ${amountInWords}` : 
       `Amount in words: ${amountInWords}`, 
       doc.internal.pageSize.width - 50
     );
