@@ -35,17 +35,10 @@ export function useFactureApi() {
     setIsLoading(true);
     
     try {
-      // Modification ici: nous supprimons la clé client_id pour éviter l'erreur de contrainte de clé étrangère
-      // Nous allons plutôt stocker uniquement le nom du client
-      const factureToCreate = { ...factureData };
-      if (factureToCreate.client_id) {
-        delete factureToCreate.client_id; // Supprimer la clé client_id pour éviter l'erreur de contrainte
-      }
-      
       // Create the invoice in Supabase
       const { data, error: factureError } = await supabase
         .from('factures')
-        .insert(factureToCreate)
+        .insert(factureData)
         .select()
         .single();
         
